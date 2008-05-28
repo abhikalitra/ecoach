@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Name=eCoach
+Exec=@prefix@/bin/ecoach
+Icon=ecoach
+X-Osso-Service=org.maemo.ecoach

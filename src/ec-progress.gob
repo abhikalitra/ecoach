@@ -1,0 +1,504 @@
+requires 2.0.0
+
+%headertop{
+#include "config.h"
+#include <glib/gi18n.h>
+#include <gtk/gtkdrawingarea.h>
+#include <gtk/gtkeventbox.h>
+#include <gtk/gtklabel.h>
+#include <gtk/gtkvbox.h>
+%}
+
+class Ec:Progress from Gtk:VBox
+{
+	private char *label_text = { g_strdup("") }
+		destroywith g_free;
+
+	/** @brief Pixmaps for the progress */
+	private GdkPixbuf *progress_pixbuf;
+
+	private GdkPixbuf *bg_pixbuf
+		unrefwith gdk_pixbuf_unref;
+
+	private GdkPixbuf *progress_bg_pixbuf
+		unrefwith gdk_pixbuf_unref;
+
+	private gboolean use_markup;
+	property BOOLEAN use_markup
+		(nick = _("Use markup"),
+		 blurb = _("Use markup for the label"),
+		 default_value = FALSE,
+		 export)
+		set{
+			self->_priv->use_markup = g_value_get_boolean(VAL);
+			if(self->_priv->use_markup)
+			{
+				gtk_label_set_markup(GTK_LABEL(
+							self->_priv->label),
+						self->_priv->label_text);
+			} else {
+				gtk_label_set_text(GTK_LABEL(
+							self->_priv->label),
+						self->_priv->label_text);
+			}
+		}
+		get {
+			g_value_set_boolean(VAL, self->_priv->use_markup);
+		};
+
+	property STRING label_text
+		(nick = _("Progress bar label"),
+		 blurb = _("The label displayed under the progress bar"),
+		 default_value = "",
+		 export)
+		set {
+			self->_priv->label_text =
+			       g_strdup(g_value_get_string(VAL));
+			if(self->_priv->use_markup)
+			{
+				gtk_label_set_markup(GTK_LABEL(
+							self->_priv->label),
+						self->_priv->label_text);
+			} else {
+				gtk_label_set_text(GTK_LABEL(
+							self->_priv->label),
+						self->_priv->label_text);
+			}
+			self_repaint(self);
+		}
+		get {
+			g_value_set_string(VAL, self->_priv->label_text);
+		};
+
+
+	private gdouble progress_val;
+
+	/**
+	 * @brief Progress value
+	 *
+	 * This property can be set via spt_progress_set_progress_val and
+	 * retrieved via spt_progress_get_progress_val. You must use values
+	 * between 0.0 and 1.0, inclusive.
+	 */
+	property DOUBLE progress_val
+		(nick = _("Progress value"),
+		 blurb = _("Progress bar value from 0 to 1"),
+		 minimum = 0.0,
+		 maximum = 1.0,
+		 default_value = 0.0,
+		 export)
+		set {
+			self->_priv->progress_val = g_value_get_double(VAL);
+			self_repaint(self);
+		}
+		get {
+			g_value_set_double(VAL, self->_priv->progress_val);
+		};
+
+	private gint margin_x;
+
+	property INT margin_x
+		(nick = _("X marginal"),
+		 blurb = _("Marginal in x direction (in pixels), from both edges"),
+		 minimum = 0,
+		 maximum = INT_MAX,
+		 default_value = 0.0,
+		 export)
+		set {
+			self->_priv->margin_x = g_value_get_int(VAL);
+			self_repaint(self);
+		}
+		get {
+			g_value_set_int(VAL, self->_priv->margin_x);
+		};
+
+	private gint margin_y;
+
+	property INT margin_y
+		(nick = _("Y marginal"),
+		 blurb = _("Marginal in y direction (in pixels, from top)"),
+		 minimum = 0,
+		 maximum = INT_MAX,
+		 default_value = 0.0,
+		 export)
+		set {
+			self->_priv->margin_y = g_value_get_int(VAL);
+			self_repaint(self);
+		}
+		get {
+			g_value_set_int(VAL, self->_priv->margin_y);
+		};
+
+	private gint progress_margin_y;
+
+	property INT progress_margin_y
+		(nick = _("Progress y marginal"),
+		 blurb = _("Progress marginal in y direction (in pixels, from top)"),
+		 minimum = 0,
+		 maximum = INT_MAX,
+		 default_value = 0.0,
+		 export)
+		set {
+			self->_priv->progress_margin_y = g_value_get_int(VAL);
+			self_repaint(self);
+		}
+		get {
+			g_value_set_int(VAL, self->_priv->progress_margin_y);
+		};
+
+	private GtkWidget *label;
+	private GtkWidget *event_box;
+	private GtkWidget *progress;
+
+	init(self)
+	{
+		self->_priv->progress_val = 0;
+
+		self->_priv->progress_pixbuf = NULL;
+		self->_priv->bg_pixbuf = NULL;
+		self->_priv->progress_bg_pixbuf = NULL;
+
+		/* 
+		 * Create the label to an event box, because it needs
+		 * to be clickable
+		 */
+		self->_priv->event_box = gtk_event_box_new();
+		gtk_box_pack_start(GTK_BOX(self),
+				self->_priv->event_box,
+				TRUE, TRUE, 0);
+		gtk_widget_add_events(self->_priv->event_box,
+				GDK_EXPOSURE_MASK);
+
+		self->_priv->label = gtk_label_new(self->_priv->label_text);
+
+		gtk_container_add(GTK_CONTAINER(self->_priv->event_box),
+					self->_priv->label);
+
+		gtk_widget_show_all(GTK_WIDGET(self));
+
+		/* Use a GtkDrawingArea for the progress bar */
+		self->_priv->progress = gtk_drawing_area_new();
+		g_signal_connect(G_OBJECT(self->_priv->progress),
+				"expose_event",
+				G_CALLBACK(
+					self_progress_expose_event),
+				self);
+
+		g_signal_connect(G_OBJECT(self->_priv->event_box),
+				"expose_event",
+				G_CALLBACK(
+					self_event_box_expose_event),
+				self);
+
+		gtk_box_pack_start(GTK_BOX(self),
+				self->_priv->progress,
+				TRUE, TRUE, 0);
+	}
+
+	/**
+	 * @brief Makes a new #EcProgress widget
+	 *
+	 * @return a new widget
+	 */
+	public GtkWidget *new(void)
+	{
+		EcProgress *widget = GET_NEW;
+
+		return (GtkWidget *)widget;
+	}
+
+	/**
+	 * @brief Creates a new #EcProgress widget with a label
+	 *
+	 * @param text Label of the widget
+	 */
+	public GtkWidget *new_with_label(gchar *text (check null)) onerror NULL
+	{
+		EcProgress *widget = GET_NEW;
+
+		g_object_set(G_OBJECT(widget), "label_text", text, NULL);
+
+		return (GtkWidget *)widget;
+	}
+
+	/**
+	 * @brief Set the progress image
+	 * 
+	 * @param path Path to image. If NULL, the image will be removed.
+	 */
+	public void set_progress_image(
+			self,
+			const gchar *path)
+	{
+		GError *error = NULL;
+
+		GdkPixbuf *new_pixbuf = NULL;
+
+		if(self->_priv->progress_pixbuf)
+		{
+			g_object_unref(G_OBJECT(self->_priv->progress_pixbuf));
+		}
+
+		if(path != NULL)
+		{
+			new_pixbuf = gdk_pixbuf_new_from_file(
+					path,
+					&error);
+
+			if(error)
+			{
+				g_warning("Unable to load image %s: %s",
+						path,
+					error->message);
+			}
+		}
+	
+		self->_priv->progress_pixbuf = new_pixbuf;
+		self_repaint(self);
+	}
+
+	public void set_bg_image(self, const gchar *path)
+	{
+		GdkPixbuf *new_pixbuf = NULL;
+		GError *error = NULL;
+
+		if(self->_priv->bg_pixbuf)
+		{
+			g_object_unref(G_OBJECT(self->_priv->bg_pixbuf));
+		}
+
+
+		if(path != NULL)
+		{
+			new_pixbuf = gdk_pixbuf_new_from_file(
+					path,
+					&error);
+
+			if(error)
+			{
+				g_warning("Unable to load image %s: %s",
+						path,
+					error->message);
+			}
+		}
+
+		self->_priv->bg_pixbuf = new_pixbuf;
+
+		self_repaint(self);
+	}
+
+	public void set_progress_bg_image(self, const gchar *path)
+	{
+		GdkPixbuf *new_pixbuf = NULL;
+		GError *error = NULL;
+		int w, h;
+
+		if(self->_priv->progress_bg_pixbuf)
+		{
+			g_object_unref(G_OBJECT(self->_priv->progress_bg_pixbuf));
+		}
+
+
+		if(path != NULL)
+		{
+			new_pixbuf = gdk_pixbuf_new_from_file(
+					path,
+					&error);
+
+			if(error)
+			{
+				g_warning("Unable to load image %s: %s",
+						path,
+					error->message);
+			}
+		}
+
+		self->_priv->progress_bg_pixbuf = new_pixbuf;
+
+		if(new_pixbuf)
+		{
+			gdk_pixbuf_ref(new_pixbuf);
+			w = gdk_pixbuf_get_width(self->_priv->
+					progress_bg_pixbuf);
+			h = gdk_pixbuf_get_height(self->_priv->
+					progress_bg_pixbuf);
+			gtk_widget_set_size_request(self->_priv->progress,
+					w, h);
+		}
+
+		self_repaint(self);
+	}
+
+	public void set_bg_color(
+			self,
+			const GdkColor *color (check null)
+			)
+	{
+		gtk_widget_modify_bg(self->_priv->event_box,
+				GTK_STATE_NORMAL, color);
+		gtk_widget_modify_bg(self->_priv->event_box,
+				GTK_STATE_ACTIVE, color);
+		gtk_widget_modify_bg(self->_priv->event_box,
+				GTK_STATE_PRELIGHT, color);
+		gtk_widget_modify_bg(self->_priv->event_box,
+				GTK_STATE_SELECTED, color);
+		gtk_widget_modify_bg(self->_priv->event_box,
+				GTK_STATE_INSENSITIVE, color);
+
+		gtk_widget_modify_bg(self->_priv->progress,
+				GTK_STATE_NORMAL, color);
+		gtk_widget_modify_bg(self->_priv->progress,
+				GTK_STATE_ACTIVE, color);
+		gtk_widget_modify_bg(self->_priv->progress,
+				GTK_STATE_PRELIGHT, color);
+		gtk_widget_modify_bg(self->_priv->progress,
+				GTK_STATE_SELECTED, color);
+		gtk_widget_modify_bg(self->_priv->progress,
+				GTK_STATE_INSENSITIVE, color);
+	}
+
+	public void set_fg_color(
+			self,
+			const GdkColor *color (check null)
+			)
+	{
+		gtk_widget_modify_fg(self->_priv->label,
+				GTK_STATE_NORMAL, color);
+		gtk_widget_modify_fg(self->_priv->label,
+				GTK_STATE_ACTIVE, color);
+		gtk_widget_modify_fg(self->_priv->label,
+				GTK_STATE_PRELIGHT, color);
+		gtk_widget_modify_fg(self->_priv->label,
+				GTK_STATE_SELECTED, color);
+		gtk_widget_modify_fg(self->_priv->label,
+				GTK_STATE_INSENSITIVE, color);
+
+		gtk_widget_modify_fg(self->_priv->progress,
+				GTK_STATE_NORMAL, color);
+		gtk_widget_modify_fg(self->_priv->progress,
+				GTK_STATE_ACTIVE, color);
+		gtk_widget_modify_fg(self->_priv->progress,
+				GTK_STATE_PRELIGHT, color);
+		gtk_widget_modify_fg(self->_priv->progress,
+				GTK_STATE_SELECTED, color);
+		gtk_widget_modify_fg(self->_priv->progress,
+				GTK_STATE_INSENSITIVE, color);
+	}
+
+	private gboolean progress_expose_event(
+			Gtk:Widget *drw_area (check null type),
+			Gdk:Event:Expose *event,
+			gpointer user_data (check null))
+	{
+		gint w, h;
+		gint x, y;
+		gdouble progress_image_w;
+		gint progress_w;
+
+		EcProgress *widget = EC_PROGRESS(user_data);
+		GdkDrawable *drawable = GDK_DRAWABLE(drw_area->window);
+		GdkGC *gc = gdk_gc_new(drawable);
+
+		if(widget->_priv->progress_bg_pixbuf == NULL)
+		{
+			g_warning("No background image");
+			return TRUE;
+		}
+		if(widget->_priv->progress_pixbuf == NULL)
+		{
+			g_warning("No progress image");
+			return TRUE;
+		}
+		w = gdk_pixbuf_get_width(widget->_priv->progress_bg_pixbuf);
+		h = gdk_pixbuf_get_height(widget->_priv->progress_bg_pixbuf);
+		if(w == 0 || h == 0)
+		{
+			g_warning("Background width or height is zero");
+			return TRUE;
+		}
+
+		/* Draw the widgets background first */
+		GtkWidget *parent = gtk_widget_get_parent(drw_area);
+		if(widget->_priv->bg_pixbuf && parent)
+		{
+			x = drw_area->allocation.x - parent->allocation.x;
+			y = drw_area->allocation.y - parent->allocation.y;
+			gdk_draw_pixbuf(
+					drawable,
+					gc,
+					widget->_priv->bg_pixbuf,
+					x, y,
+					0, 0,
+					drw_area->allocation.width,
+					drw_area->allocation.height,
+					GDK_RGB_DITHER_MAX,
+					0, 0);
+		}
+
+		/* Then draw the progress bar background */
+		gdk_draw_pixbuf(drawable,
+				gc,
+				widget->_priv->progress_bg_pixbuf,
+				0, 0,
+				(drw_area->allocation.width - w) / 2, 0,
+				w, h,
+				GDK_RGB_DITHER_MAX,
+				0, 0);
+
+		/* Calculate the width of the progress image to be drawn */
+		progress_image_w = (gdouble)gdk_pixbuf_get_width(
+				widget->_priv->progress_pixbuf);
+		progress_w = progress_image_w * (widget->_priv->progress_val);
+
+		/* Center the progress image */
+		x = (drw_area->allocation.width - progress_image_w) / 2;
+
+		gdk_draw_pixbuf(drawable,
+				gc,
+				widget->_priv->progress_pixbuf,
+				0, 0,
+				x, widget->_priv->progress_margin_y,
+				progress_w, gdk_pixbuf_get_height(
+					widget->_priv->progress_pixbuf),
+				GDK_RGB_DITHER_MAX,
+				0, 0);
+
+		gdk_gc_unref(gc);
+		return TRUE;
+	}
+
+	private gboolean event_box_expose_event(
+			Gtk:Widget *widget (check null type),
+			Gdk:Event:Expose *event,
+			gpointer user_data (check null))
+	{
+		gint x, y;
+		EcProgress *self = EC_PROGRESS(user_data);
+		GdkDrawable *drawable = GDK_DRAWABLE(widget->window);
+		GdkGC *gc = gdk_gc_new(drawable);
+
+		/* Draw the widgets background first */
+		GtkWidget *parent = gtk_widget_get_parent(widget);
+		if(self->_priv->bg_pixbuf && parent)
+		{
+			x = widget->allocation.x - parent->allocation.x;
+			y = widget->allocation.y - parent->allocation.y;
+			gdk_draw_pixbuf(
+					drawable,
+					gc,
+					self->_priv->bg_pixbuf,
+					x, y,
+					0, 0,
+					widget->allocation.width,
+					widget->allocation.height,
+					GDK_RGB_DITHER_MAX,
+					0, 0);
+		}		gdk_gc_unref(gc);
+		return FALSE;
+	}
+
+	private void repaint(self)
+	{
+		gtk_widget_queue_draw(self->_priv->progress);
+	}
+}

@@ -1,0 +1,798 @@
+requires 2.0.0
+
+%headertop{
+#include "config.h"
+
+#include <glib/gi18n.h>
+#include <gtk/gtkdrawingarea.h>
+#include <gtk/gtkbutton.h>
+#include <gtk/gtkmain.h>
+%}
+
+enum EC_BUTTON_STATE {
+	RELEASED = 0,
+	DOWN,
+	COUNT
+} Ec:Button:State;
+
+class Ec:Button from Gtk:Drawing:Area
+{
+	private char *label_text = { g_strdup("") }
+		destroywith g_free;
+
+	private char *title_text = { g_strdup("") }
+		destroywith g_free;
+
+	private gint btn_down_offset;
+
+	property INT btn_down_offset
+		(nick = _("Button down offset"),
+		 blurb = _("Offset by which button is moved to right-down direction when it is in a pressed-down state"),
+		 default_value = 0,
+		 export, link);
+
+	private gboolean center_vertically;
+	property BOOLEAN center_vertically
+		(nick = _("Center graphics vertically"),
+		 blurb = _("Whether or not to center the graphics also vertically"),
+		 default_value = FALSE,
+		 export)
+		set {
+			self->_priv->center_vertically =
+				g_value_get_boolean(VAL);
+			self_repaint(self);
+		}
+		get {
+			g_value_set_boolean(VAL,
+					self->_priv->center_vertically);
+		};
+
+	private gboolean center_text_vertically;
+	property BOOLEAN center_text_vertically
+		(nick = _("Center text vertically"),
+		 blurb = _("Whether or not to center the text also vertically"),
+		 default_value = FALSE,
+		 export)
+		set {
+			self->_priv->center_text_vertically =
+				g_value_get_boolean(VAL);
+			self_repaint(self);
+		}
+		get {
+			g_value_set_boolean(VAL,
+					self->_priv->center_text_vertically);
+		};
+
+	private PangoLayout *layout_label
+		unref {
+			if(VAR)
+			{
+				g_object_unref(VAR);
+			}
+		};
+
+	private PangoLayout *layout_title
+		unref {
+			if(VAR)
+			{
+				g_object_unref(VAR);
+			}
+		};
+
+	private GdkPixbuf *bg_pixbuf[EC_BUTTON_STATE_COUNT]
+		unref {
+			gint i;
+			for(i = 0; i < EC_BUTTON_STATE_COUNT; i++)
+			{
+				if(VAR[i])
+				{
+					gdk_pixbuf_unref(VAR[i]);
+				}
+			}
+		};
+
+	private GdkPixbuf *icon_pixbuf
+		unrefwith gdk_pixbuf_unref;
+
+	private EcButtonState state;
+	private gboolean cursor_inside;
+
+	init(self)
+	{
+		gint i = 0;
+		for(i = 0; i < EC_BUTTON_STATE_COUNT; i++)
+		{
+			self->_priv->bg_pixbuf[i] = NULL;
+		}
+		self->_priv->icon_pixbuf = NULL;
+		self->_priv->state = EC_BUTTON_STATE_RELEASED;
+		self->_priv->cursor_inside = FALSE;
+
+		self->_priv->layout_label = gtk_widget_create_pango_layout(
+				GTK_WIDGET(self),
+				NULL);
+		g_object_ref(self->_priv->layout_label);
+
+		self->_priv->layout_title = gtk_widget_create_pango_layout(
+				GTK_WIDGET(self),
+				NULL);
+		g_object_ref(self->_priv->layout_title);
+
+		g_signal_connect(G_OBJECT(self), "realize",
+				G_CALLBACK(self_realize), NULL);
+
+		g_signal_connect(G_OBJECT(self), "enter-notify-event",
+				G_CALLBACK(self_enter_notify_event), NULL);
+
+		g_signal_connect(G_OBJECT(self), "leave-notify-event",
+				G_CALLBACK(self_leave_notify_event), NULL);
+
+		g_signal_connect(G_OBJECT(self), "button-press-event",
+				G_CALLBACK(self_button_press_event), NULL);
+
+		g_signal_connect(G_OBJECT(self), "button-release-event",
+				G_CALLBACK(self_button_release_event), NULL);
+	}
+
+	/**
+	 * @brief Creates a new #EcButton
+	 *
+	 * @return The created #EcButton, casted to a GtkWidget, or NULL
+	 * if there was an error
+	 */
+	public GtkWidget *new(void)
+	{
+		EcButton *widget = GET_NEW;
+		return (GtkWidget *)widget;
+	}
+
+	/**
+	 * @brief Set the label text
+	 */
+	public void set_label_text(self, const gchar *text)
+	{
+		self->_priv->label_text = g_strdup(text);
+		pango_layout_set_markup(self->_priv->layout_label, text, -1);
+		self_repaint(self);
+	}
+
+	public const gchar *get_label_text(self)
+	{
+		return self->_priv->label_text;
+	}
+
+	/**
+	 * @brief Set the title text
+	 */
+	public void set_title_text(self, const gchar *text)
+	{
+		self->_priv->title_text = g_strdup(text);
+		pango_layout_set_markup(self->_priv->layout_title, text, -1);
+		self_repaint(self);
+	}
+
+	public const gchar *get_title_text(self)
+	{
+		return self->_priv->title_text;
+	}
+
+	/**
+	 * @brief Set a background image
+	 *
+	 * @param state State for which to set the image
+	 * @param path Path to the image
+	 *
+	 * When setting state image for EC_BUTTON_STATE_RELEASED, all
+	 * other, unset states will get the same image.
+	 */
+	public void set_bg_image(
+			self,
+			EcButtonState state,
+			const gchar *path)
+	{
+		gint i;
+		GError *error = NULL;
+		GdkPixbuf *new_pixbuf = NULL;
+		g_return_if_fail(
+				(0 <= state)
+			       && (state < EC_BUTTON_STATE_COUNT));
+
+		if(self->_priv->bg_pixbuf[state])
+		{
+			gdk_pixbuf_unref(self->_priv->bg_pixbuf[state]);
+			self->_priv->bg_pixbuf[state] = NULL;
+		}
+		if(!path)
+		{
+			return;
+		}
+
+		new_pixbuf = gdk_pixbuf_new_from_file(path, &error);
+		if(error)
+		{
+			g_warning("Unable to load image %s: %s",
+					path,
+					error->message);
+			return;
+		}
+		self->_priv->bg_pixbuf[state] = new_pixbuf;
+
+		if(state == EC_BUTTON_STATE_RELEASED)
+		{
+			for(i = 0; i < EC_BUTTON_STATE_COUNT; i++)
+			{
+				if(self->_priv->bg_pixbuf[i] == NULL)
+				{
+					g_object_ref(G_OBJECT(new_pixbuf));
+					self->_priv->bg_pixbuf[i] = new_pixbuf;
+				}
+			}
+		}
+		self_repaint(self);
+	}
+
+	public void set_bg_image_pixbuf(
+			self,
+			EcButtonState state,
+			GdkPixbuf *pixbuf)
+	{
+		gint i;
+
+		if(self->_priv->bg_pixbuf[state])
+		{
+			gdk_pixbuf_unref(self->_priv->bg_pixbuf[state]);
+		}
+		self->_priv->bg_pixbuf[state] = pixbuf;
+		if(pixbuf)
+		{
+			g_object_ref(G_OBJECT(pixbuf));
+			if(state == EC_BUTTON_STATE_RELEASED)
+			{
+				for(i = 0; i < EC_BUTTON_STATE_COUNT; i++)
+				{
+					if(self->_priv->bg_pixbuf[i] == NULL)
+					{
+						g_object_ref(G_OBJECT(pixbuf));
+						self->_priv->bg_pixbuf[i] =
+							pixbuf;
+					}
+				}
+			}
+		}
+		self_repaint(self);
+	}
+
+	public void set_icon(
+			self,
+			const gchar *path)
+	{
+		GError *error = NULL;
+		GdkPixbuf *new_pixbuf = NULL;
+
+		if(self->_priv->icon_pixbuf)
+		{
+			gdk_pixbuf_unref(self->_priv->icon_pixbuf);
+			self->_priv->icon_pixbuf = NULL;
+		}
+		if(!path)
+		{
+			return;
+		}
+
+		new_pixbuf = gdk_pixbuf_new_from_file(path, &error);
+		if(error)
+		{
+			g_warning("Unable to load image %s: %s",
+					path,
+					error->message);
+			return;
+		}
+		self->_priv->icon_pixbuf = new_pixbuf;
+		self_repaint(self);
+	}
+
+	public void set_icon_pixbuf(
+			self,
+			GdkPixbuf *pixbuf)
+	{
+		if(self->_priv->icon_pixbuf)
+		{
+			gdk_pixbuf_unref(self->_priv->icon_pixbuf);
+		}
+		self->_priv->icon_pixbuf = pixbuf;
+		if(pixbuf)
+		{
+			g_object_ref(pixbuf);
+		}
+		self_repaint(self);
+	}
+
+	public void set_font_description_label(
+			self,
+			const Pango:Font:Description *desc (check null)
+			)
+	{
+		pango_layout_set_font_description(
+				self->_priv->layout_label,
+				desc);
+	}
+
+	public const Pango:Font:Description *get_font_description_label(self)
+	{
+		return pango_layout_get_font_description(
+				self->_priv->layout_label);
+	}
+
+	public void set_font_description_title(
+			self,
+			const Pango:Font:Description *desc (check null)
+			)
+	{
+		pango_layout_set_font_description(
+				self->_priv->layout_title,
+				desc);
+	}
+
+	public const Pango:Font:Description *get_font_description_title(self)
+	{
+		return pango_layout_get_font_description(
+				self->_priv->layout_title);
+	}
+
+	public void set_alignment(self, PangoAlignment alignment)
+	{
+		pango_layout_set_alignment(
+				self->_priv->layout_label,
+				alignment);
+
+		pango_layout_set_alignment(
+				self->_priv->layout_title,
+				alignment);
+	}
+
+	public PangoAlignment get_alignment(self)
+	{
+		return pango_layout_get_alignment(self->_priv->layout_label);
+	}
+
+	/* Signals */
+	signal last NONE (NONE)
+	void clicked(self);
+
+	/* Private functions */
+
+	/**
+	 * @brief Repaint the widget
+	 */
+	private void repaint(self)
+	{
+		gtk_widget_queue_draw(GTK_WIDGET(self));
+	}
+
+	/**
+	 * @brief Notify the layout of style changes
+	 */
+	override (Gtk:Widget) void style_set
+		(Gtk:Widget *widget (check null type),
+		 Gtk:Style *prev_style)
+	{
+		EcButton *self = EC_BUTTON(widget);
+		pango_layout_context_changed(self->_priv->layout_label);
+		pango_layout_context_changed(self->_priv->layout_title);
+	}
+
+	/**
+	 * @brief Handle drawing of the button
+	 *
+	 * @param widget Pointer to #EcButton
+	 * @param event Pointer to GdkEventExpose
+	 *
+	 * @return TRUE to stop other handlers from being invoked, FALSE to
+	 * propagate the event further
+	 */
+	override (Gtk:Widget) gboolean expose_event
+		(Gtk:Widget *widget,
+		 Gdk:Event:Expose *event)
+	{
+		EcButton *self = EC_BUTTON(widget);
+		EcButtonState state;
+		GdkDrawable *drawable = GDK_DRAWABLE(widget->window);
+		GdkPixbuf *pxb;
+		GdkGC *gc = NULL;
+		gint self_w, self_h;
+		gint w, h;
+		PangoRectangle rect;
+		gint x, y;
+		gboolean is_down;
+
+		state = self->_priv->state;
+
+		/* Draw the background */
+		if(state == EC_BUTTON_STATE_DOWN && self->_priv->cursor_inside)
+		{
+			is_down = TRUE;
+			pxb = self->_priv->bg_pixbuf[EC_BUTTON_STATE_DOWN];
+		} else {
+			is_down = FALSE;
+			pxb = self->_priv->bg_pixbuf[EC_BUTTON_STATE_RELEASED];
+		}
+
+		if(strcmp(self->_priv->title_text, "") != 0)
+		{
+			self_expose_with_title(widget, event, is_down);
+			return FALSE;
+		}
+
+		self_w = widget->allocation.width;
+		self_h = widget->allocation.height;
+
+		gc = gdk_gc_new(drawable);
+
+		if(pxb)
+		{
+
+			w = gdk_pixbuf_get_width(pxb);
+			h = gdk_pixbuf_get_height(pxb);
+
+			x = (self_w - w) / 2;
+			if(self->_priv->center_vertically)
+			{
+				y = (self_h - h) / 2;
+			} else {
+				y = 0;
+			}
+
+			if(is_down)
+			{
+				x += self->_priv->btn_down_offset;
+				y += self->_priv->btn_down_offset;
+			}
+
+			gdk_draw_pixbuf(drawable,
+					gc,
+					pxb,
+					0, 0,
+					x, y,
+					w, h,
+					GDK_RGB_DITHER_MAX,
+					0, 0);
+		} else {
+			w = 0;
+			h = 0;
+		}
+
+		/* Draw the icon */
+		pxb = self->_priv->icon_pixbuf;
+		if(pxb)
+		{
+
+			w = gdk_pixbuf_get_width(pxb);
+			h = gdk_pixbuf_get_height(pxb);
+
+			x = (self_w - w) / 2;
+			if(self->_priv->center_vertically)
+			{
+				y = (self_h - h) / 2;
+			} else {
+				y = 0;
+			}
+
+			if(is_down)
+			{
+				x += self->_priv->btn_down_offset;
+				y += self->_priv->btn_down_offset;
+			}
+
+			gdk_draw_pixbuf(drawable,
+					gc,
+					pxb,
+					0, 0,
+					x, y,
+					w, h,
+					GDK_RGB_DITHER_MAX,
+					0, 0);
+		}
+
+		/* Draw the label */
+		pango_layout_get_pixel_extents(self->_priv->layout_label,
+				NULL, &rect);
+
+		x = (self_w - rect.width) / 2;
+		if(x < 0)
+		{
+			x = 0;
+		}
+
+		if(self->_priv->center_text_vertically)
+		{
+			y = (self_h - rect.height) / 2;
+		} else {
+			y = self_h - rect.height;
+		}
+
+		if(is_down)
+		{
+			x += self->_priv->btn_down_offset;
+			y += self->_priv->btn_down_offset;
+		}
+
+		gtk_paint_layout(widget->style,
+				widget->window,
+				GTK_WIDGET_STATE(widget),
+				FALSE,
+				&event->area,
+				widget,
+				NULL,
+				x, y,
+				self->_priv->layout_label);
+
+		gdk_gc_unref(gc);
+		return FALSE;
+	}
+
+	private void expose_with_title(
+			Gtk:Widget *widget,
+			Gdk:Event:Expose *event,
+			gboolean is_down)
+	{
+		/* A button with title will always be drawn as follows:
+		 *
+		 * +------------------------------------+
+		 * |                Title               |
+		 * | +------+                           |
+		 * | | Icon |       Label               |
+		 * | +------+                           |
+		 * +------------------------------------+
+		 *
+		 * Title and label are centered horizontally.
+		 *
+		 * Title, label and the icon are centered vertically
+		 * in their halves of the widget.
+		 *
+		 * Icon is drawn near the left edge.
+		 */
+		EcButton *self = EC_BUTTON(widget);
+		EcButtonState state;
+		GdkDrawable *drawable = GDK_DRAWABLE(widget->window);
+		GdkPixbuf *pxb;
+		GdkGC *gc = NULL;
+		gint self_w, self_h;
+		gint w, h;
+		gint icon_w, icon_h;
+		gint total_w;
+		PangoRectangle rect;
+		gint x, y;
+
+		self_w = widget->allocation.width;
+		self_h = widget->allocation.height;
+		state = self->_priv->state;
+
+		/* Draw the background */
+		if(is_down)
+		{
+			pxb = self->_priv->bg_pixbuf[EC_BUTTON_STATE_DOWN];
+		} else {
+			pxb = self->_priv->bg_pixbuf[EC_BUTTON_STATE_RELEASED];
+		}
+
+		gc = gdk_gc_new(drawable);
+
+		if(pxb)
+		{
+			/* Draw the background image */
+			w = gdk_pixbuf_get_width(pxb);
+			h = gdk_pixbuf_get_height(pxb);
+
+			x = (self_w - w) / 2;
+			y = (self_h - h) / 2;
+
+			if(is_down)
+			{
+				x += self->_priv->btn_down_offset;
+				y += self->_priv->btn_down_offset;
+			}
+
+			gdk_draw_pixbuf(drawable,
+					gc,
+					pxb,
+					0, 0,
+					x, y,
+					w, h,
+					GDK_RGB_DITHER_MAX,
+					0, 0);
+		} else {
+			w = 0;
+			h = 0;
+		}
+
+		/* Draw the title */
+		pango_layout_get_pixel_extents(self->_priv->layout_title,
+				NULL, &rect);
+
+		x = (self_w - rect.width) / 2;
+		if(x < 0)
+		{
+			x = 0;
+		}
+
+		/* The upper coordinate of the background image */
+		y = (self_h - h) / 2;
+
+		/* Add the y coordinate of the text within the
+		 * half-of-the-background-image block */
+		y += (h / 2 - rect.height) / 2;
+
+		if(is_down)
+		{
+			x += self->_priv->btn_down_offset;
+			y += self->_priv->btn_down_offset;
+		}
+
+		gtk_paint_layout(widget->style,
+				widget->window,
+				GTK_WIDGET_STATE(widget),
+				FALSE,
+				&event->area,
+				widget,
+				NULL,
+				x, y,
+				self->_priv->layout_title);
+
+		/* Draw the icon */
+
+		/* Calculate the width of the icon+label complex */
+		pango_layout_get_pixel_extents(self->_priv->layout_label,
+				NULL, &rect);
+		total_w = rect.width;
+
+		pxb = self->_priv->icon_pixbuf;
+		if(pxb)
+		{
+
+			icon_w = gdk_pixbuf_get_width(pxb);
+			total_w += icon_w + 10; /* Add 10 pixel padding */
+			icon_h = gdk_pixbuf_get_height(pxb);
+
+			x = (self_w - w) / 2 + 10;
+
+			/* The upper coordinate of the lower half of the
+			 * background image is in the halfway of the widget */
+			y = self_h / 2;
+
+			/* Add the y coordinate of the text within the
+			 * half-of-the-background-image block */
+			y += (h / 2 - icon_w) / 2;
+
+			if(is_down)
+			{
+				x += self->_priv->btn_down_offset;
+				y += self->_priv->btn_down_offset;
+			}
+
+			gdk_draw_pixbuf(drawable,
+					gc,
+					pxb,
+					0, 0,
+					x, y,
+					icon_w, icon_h,
+					GDK_RGB_DITHER_MAX,
+					0, 0);
+		}
+		x = (self_w - rect.width) / 2;
+		if(is_down)
+		{
+			x += self->_priv->btn_down_offset;
+		}
+
+		/* Calculate the y coordinate for the label. */
+		/* The upper coordinate of the lower half of the
+		 * background image is in the halfway of the widget */
+		y = self_h / 2;
+
+		/* Add the y coordinate of the text within the
+		 * half-of-the-background-image block */
+		y += (h / 2 - rect.height) / 2;
+
+		if(is_down)
+		{
+			y += self->_priv->btn_down_offset;
+		}
+
+		gtk_paint_layout(widget->style,
+				widget->window,
+				GTK_WIDGET_STATE(widget),
+				FALSE,
+				&event->area,
+				widget,
+				NULL,
+				x, y,
+				self->_priv->layout_label);
+
+		gdk_gc_unref(gc);
+	}
+
+	private gboolean button_press_event(
+		Gtk:Widget *widget,
+		Gdk:Event:Button *event,
+		gpointer user_data)
+	{
+		EcButton *self = NULL;
+
+		self = EC_BUTTON(widget);
+		self->_priv->state = EC_BUTTON_STATE_DOWN;
+		self_repaint(self);
+		return FALSE;
+	}
+
+	private gboolean enter_notify_event(
+			Gtk:Widget *widget,
+			Gdk:Event:Crossing *event)
+	{
+		EcButton *self = NULL;
+		GtkWidget *event_widget = NULL;
+
+		self = EC_BUTTON(widget);
+
+		event_widget = gtk_get_event_widget((GdkEvent *)event);
+		if((event_widget != widget) ||
+				event->detail == GDK_NOTIFY_INFERIOR)
+		{
+			return FALSE;
+		}
+		self->_priv->cursor_inside = TRUE;
+		self_repaint(self);
+		return FALSE;
+	}
+
+	private gboolean leave_notify_event(
+			Gtk:Widget *widget,
+			Gdk:Event:Crossing *event)
+	{
+		EcButton *self = NULL;
+		GtkWidget *event_widget = NULL;
+
+		self = EC_BUTTON(widget);
+
+		event_widget = gtk_get_event_widget((GdkEvent *)event);
+		if((event_widget != widget) ||
+				event->detail == GDK_NOTIFY_INFERIOR)
+		{
+			return FALSE;
+		}
+		self->_priv->cursor_inside = FALSE;
+		self_repaint(self);
+		return FALSE;
+	}
+
+	private gboolean button_release_event(
+			Gtk:Widget *widget,
+			Gdk:Event:Button *event,
+			gpointer user_data)
+	{
+		EcButton *self = EC_BUTTON(widget);
+		self->_priv->state = EC_BUTTON_STATE_RELEASED;
+		self_repaint(self);
+		if(self->_priv->cursor_inside)
+		{
+			g_signal_emit(
+					self,
+					object_signals[CLICKED_SIGNAL],
+					0
+					);
+		}
+		return FALSE;
+	}
+
+	private void realize(
+		Gtk:Widget *widget,
+		gpointer user_data)
+	{
+		GdkEventMask event_mask;
+		event_mask = gdk_window_get_events(widget->window);
+		event_mask |= GDK_BUTTON_RELEASE_MASK |
+			GDK_BUTTON_PRESS_MASK |
+			GDK_ENTER_NOTIFY_MASK |
+			GDK_LEAVE_NOTIFY_MASK;
+		gdk_window_set_events(widget->window, event_mask);
+	}
+}

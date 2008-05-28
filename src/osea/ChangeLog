@@ -1,0 +1,6 @@
+2008-05-14  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* In bdac.h, added the #ifndef _BDAC_H multiple inclusion protection
+	* In bdac.h, changed the BEAT_SAMPLE_RATE to 150
+	* In qrsdet.c, modified the SAMPLE_RATE to 300
+	* Changed inclusion of <wfdb/ecgcodes.h> to "ecgcodes.h" in
+	  classify.c, match.c, postclas.c and rythmchk.c

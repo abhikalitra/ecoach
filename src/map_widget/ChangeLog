@@ -1,0 +1,14 @@
+2008-05-28  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added function to clear track
+	* Fixed several compiler warnings that were caused using
+	  g_return_if_fail instead of g_return_val_if_fail
+
+2008-05-14  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added functions map_widget_get_autocenter_status() and
+	  map_widget_center_onscreen_coords()
+	* Removed debugging from the map widget by defining g_debug(...) to
+	  none
+	* In function map_widget_get_maptile(), removed the first
+	  maptile = g_strdup(reval.value.s), because retval was undefined at
+	  that point, and the same thing was done after the
+	  osso_rpc_run, too

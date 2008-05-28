@@ -1,0 +1,83 @@
+pixmap_path "/usr/share/pixmaps/ecoach/"
+
+style "default" {
+	bg[NORMAL] = "#000000"
+	bg[ACTIVE] = "#000000"
+	bg[PRELIGHT] = "#000000"
+	bg[SELECTED] = "#000000"
+	bg[INSENSITIVE] = "#000000"
+
+	base[NORMAL] = "#000000"
+	base[ACTIVE] = "#000000"
+	base[PRELIGHT] = "#000000"
+	base[SELECTED] = "#000000"
+	base[INSENSITIVE] = "#000000"
+
+	fg[NORMAL] = "#FFFFFF"
+	fg[ACTIVE] = "#FFFFFF"
+	fg[PRELIGHT] = "#FFFFFF"
+	fg[SELECTED] = "#FFFFFF"
+	fg[INSENSITIVE] = "#FFFFFF"
+
+	text[NORMAL] = "#FFFFFF"
+	text[ACTIVE] = "#FFFFFF"
+	text[PRELIGHT] = "#FFFFFF"
+	text[SELECTED] = "#FFFFFF"
+	text[INSENSITIVE] = "#FFFFFF"
+}
+
+style "button"
+{
+	bg[NORMAL] = "#000000"
+	bg[ACTIVE] = "#000000"
+	bg[PRELIGHT] = "#000000"
+	bg[SELECTED] = "#000000"
+	bg[INSENSITIVE] = "#000000"
+
+	fg[NORMAL] = "#EAEAEA"
+	fg[ACTIVE] = "#EAEAEA"
+	fg[PRELIGHT] = "#EAEAEA"
+	fg[SELECTED] = "#EAEAEA"
+	fg[INSENSITIVE] = "#EAEAEA"
+}
+
+style "navbar" {
+	bg[NORMAL] = "#000000"
+	bg[ACTIVE] = "#000000"
+	bg[PRELIGHT] = "#000000"
+	bg[SELECTED] = "#000000"
+	bg[INSENSITIVE] = "#000000"
+
+	fg[NORMAL] = "#EAEAEA"
+	fg[ACTIVE] = "#EAEAEA"
+	fg[PRELIGHT] = "#EAEAEA"
+	fg[SELECTED] = "#EAEAEA"
+	fg[INSENSITIVE] = "#EAEAEA"
+
+	bg_pixmap[NORMAL] = "ec_titlebar_background.png"
+	bg_pixmap[ACTIVE] = "ec_titlebar_background.png"
+	bg_pixmap[PRELIGHT] = "ec_titlebar_background.png"
+	bg_pixmap[SELECTED] = "ec_titlebar_background.png"
+	bg_pixmap[INSENSITIVE] = "ec_titlebar_background.png"
+}
+
+style "progress" {
+	text[NORMAL] = "#EA0AEA"
+	text[ACTIVE] = "#EA0AEA"
+	text[PRELIGHT] = "#EA0AEA"
+	text[SELECTED] = "#EA0AEA"
+	text[INSENSITIVE] = "#EA0AEA"
+
+	bg_pixmap[NORMAL] = "ec_widget_generic_big_background.png"
+	bg_pixmap[ACTIVE] = "ec_widget_generic_big_background.png"
+	bg_pixmap[PRELIGHT] = "ec_widget_generic_big_background.png"
+	bg_pixmap[SELECTED] = "ec_widget_generic_big_background.png"
+	bg_pixmap[INSENSITIVE] = "ec_widget_generic_big_background.png"
+}
+widget "mainwindow" style "default"
+widget "*.navmenu_main.*" style "default"
+widget "*.navmenu_navbar" style "navbar"
+widget "*.navmenu_navbar.*" style "navbar"
+widget "*.EcButton" style "button"
+widget "*.indicator_1.GtkEventBox" style "progress"
+widget "*.indicator_2.GtkEventBox" style "progress"

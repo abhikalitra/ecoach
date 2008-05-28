@@ -1,0 +1,10 @@
+#!/bin/sh
+# postinst script for ecoach
+#
+# see: dh_installdeb(1)
+
+set -e
+gtk-update-icon-cache -f /usr/share/icons/hicolor
+maemo-select-menu-location ecoach.desktop
+
+exit 0

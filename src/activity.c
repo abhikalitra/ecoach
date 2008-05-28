@@ -1,0 +1,536 @@
+/*
+ *  eCoach
+ *
+ *  Copyright (C) 2008  Jukka Alasalmi
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *  See the file COPYING
+ */
+
+/*****************************************************************************
+ * Includes                                                                  *
+ *****************************************************************************/
+
+/* This module */
+#include "activity.h"
+
+/* System */
+#include <string.h>
+
+/* Hildon */
+#include <hildon/hildon-file-chooser-dialog.h>
+#include <hildon/hildon-file-system-model.h>
+#include <hildon/hildon-caption.h>
+
+/* Other modules */
+#include "gconf_keys.h"
+#include "ec_error.h"
+#include "util.h"
+
+#include "debug.h"
+
+/*****************************************************************************
+ * Private function prototypes                                               *
+ *****************************************************************************/
+
+/*===========================================================================*
+ * ActivityDescription                                                       *
+ *===========================================================================*/
+
+/*===========================================================================*
+ * ActivityChooser                                                           *
+ *===========================================================================*/
+
+static void activity_default_range_changed(
+		const GConfEntry *entry,
+		gpointer user_data,
+		gpointer user_data_2);
+
+static void activity_default_name_changed(
+		const GConfEntry *entry,
+		gpointer user_data,
+		gpointer user_data_2);
+
+static ActivityChooserDialog *activity_chooser_dialog_new(
+		ActivityChooser *self);
+
+static void activity_chooser_dialog_destroy(
+		ActivityChooserDialog *chooser_dialog);
+
+/**
+ * @brief Return a file name for saving, or NULL if Cancel was pressed
+ *
+ * @param self Pointer to #ActivityChooser
+ * @param chooser_dialog Pointer to #ActivityChooserDialog
+ *
+ * @return The file name, or NULL if Cancel was pressed. The return value
+ * must be freed with g_free.
+ */
+static gchar *activity_chooser_dialog_choose_file_name(
+		ActivityChooser *self,
+		ActivityChooserDialog *chooser_dialog);
+
+/*****************************************************************************
+ * Function declarations                                                     *
+ *****************************************************************************/
+
+/*===========================================================================*
+ * ActivityDescription                                                       *
+ *===========================================================================*/
+
+/*---------------------------------------------------------------------------*
+ * Public functions                                                          *
+ *---------------------------------------------------------------------------*/
+
+ActivityDescription *activity_description_new(const gchar *activity_name)
+{
+	ActivityDescription *self = NULL;
+	DEBUG_BEGIN();
+
+	self = g_new0(ActivityDescription, 1);
+	self->activity_name = g_strdup(activity_name);
+
+	DEBUG_END();
+	return self;
+}
+
+void activity_description_free(ActivityDescription *self)
+{
+	g_return_if_fail(self != NULL);
+	DEBUG_BEGIN();
+
+	g_free(self->file_name);
+	g_free(self->activity_name);
+	g_free(self);
+
+	DEBUG_END();
+}
+
+/*---------------------------------------------------------------------------*
+ * Private functions                                                         *
+ *---------------------------------------------------------------------------*/
+
+/*===========================================================================*
+ * ActivityChooser                                                           *
+ *===========================================================================*/
+
+/*---------------------------------------------------------------------------*
+ * Public functions                                                          *
+ *---------------------------------------------------------------------------*/
+
+ActivityChooser *activity_chooser_new(
+		GConfHelperData *gconf_helper,
+		HeartRateSettings *heart_rate_settings,
+		MapView *map_view,
+		GtkWindow *parent_window)
+{
+	ActivityChooser *self = NULL;
+
+	g_return_val_if_fail(gconf_helper != NULL, NULL);
+	g_return_val_if_fail(heart_rate_settings != NULL, NULL);
+	g_return_val_if_fail(parent_window != NULL, NULL);
+	DEBUG_BEGIN();
+
+	self = g_new0(ActivityChooser, 1);
+	self->gconf_helper = gconf_helper;
+	self->heart_rate_settings = heart_rate_settings;
+	self->map_view = map_view;
+	self->parent_window = parent_window;
+
+	/* Setup necessary GConf settings */
+	gconf_helper_add_key_string(
+			self->gconf_helper,
+			ECGC_EXERC_DFL_NAME,
+			"",
+			activity_default_name_changed,
+			self,
+			NULL);
+
+	gconf_helper_add_key_int(
+			self->gconf_helper,
+			ECGC_EXERC_DFL_RANGE_ID,
+			0,
+			activity_default_range_changed,
+			self,
+			NULL);
+
+	DEBUG_END();
+	return self;
+}
+
+void activity_chooser_set_default_folder(
+		ActivityChooser *self,
+		const gchar *folder)
+{
+	g_return_if_fail(self != NULL);
+	DEBUG_BEGIN();
+
+	g_free(self->default_folder_name);
+	self->default_folder_name = g_strdup(folder);
+
+	DEBUG_END();
+}
+
+ActivityDescription *activity_chooser_choose_activity(ActivityChooser *self)
+{
+	ActivityChooserDialog *chooser_dialog = NULL;
+	ActivityDescription *activity_description;
+	EcExerciseDescription *exercise_description;
+	gint response;
+	gchar *file_name = NULL;
+
+	g_return_val_if_fail(self != NULL, NULL);
+	DEBUG_BEGIN();
+
+	chooser_dialog = activity_chooser_dialog_new(self);
+
+	gtk_widget_show_all(chooser_dialog->dialog);
+
+	do {
+		response = gtk_dialog_run(GTK_DIALOG(chooser_dialog->dialog));
+
+		if(response == GTK_RESPONSE_CANCEL)
+		{
+			activity_chooser_dialog_destroy(chooser_dialog);
+			DEBUG_END();
+			return NULL;
+		}
+		file_name = activity_chooser_dialog_choose_file_name(
+					self,
+					chooser_dialog);
+	} while(!file_name);
+
+	activity_description = activity_description_new(
+			gtk_entry_get_text(GTK_ENTRY(chooser_dialog->
+					entry_activity_name)));
+
+	activity_description->activity_comment = g_strdup(
+			gtk_entry_get_text(GTK_ENTRY(chooser_dialog->
+					entry_activity_comment)));
+
+	activity_description->file_name = file_name;
+
+	activity_description->heart_rate_range_id = gtk_combo_box_get_active(
+			GTK_COMBO_BOX(chooser_dialog->cmb_pulse_ranges));
+
+	exercise_description = &self->heart_rate_settings->
+		exercise_descriptions[activity_description->
+		heart_rate_range_id];
+
+	activity_description->heart_rate_limit_low =
+		exercise_description->low;
+	activity_description->heart_rate_limit_high =
+		exercise_description->high;
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(
+					chooser_dialog->chk_save_dfl)))
+	{
+		/* Save the default values */
+		gconf_helper_set_value_string(
+				self->gconf_helper,
+				ECGC_EXERC_DFL_NAME,
+				activity_description->activity_name);
+
+		gconf_helper_set_value_int(
+				self->gconf_helper,
+				ECGC_EXERC_DFL_RANGE_ID,
+				activity_description->heart_rate_range_id);
+	}
+
+	activity_chooser_dialog_destroy(chooser_dialog);
+
+	DEBUG_END();
+	return activity_description;
+}
+
+gboolean activity_chooser_choose_and_setup_activity(ActivityChooser *self)
+{
+	ActivityDescription *activity_description = NULL;
+
+	g_return_val_if_fail(self != NULL, FALSE);
+	DEBUG_BEGIN();
+
+	activity_description = activity_chooser_choose_activity(self);
+	if(!activity_description)
+	{
+		DEBUG_END();
+		return FALSE;
+	}
+
+	if(map_view_setup_activity(
+				self->map_view,
+				activity_description->activity_name,
+				activity_description->activity_comment,
+				activity_description->file_name,
+				activity_description->heart_rate_limit_low,
+				activity_description->heart_rate_limit_high))
+	{
+		activity_description_free(activity_description);
+		DEBUG_END();
+		return TRUE;
+	}
+
+	activity_description_free(activity_description);
+	DEBUG_END();
+	return FALSE;
+}
+
+/*---------------------------------------------------------------------------*
+ * Private functions                                                         *
+ *---------------------------------------------------------------------------*/
+
+static void activity_default_name_changed(
+		const GConfEntry *entry,
+		gpointer user_data,
+		gpointer user_data_2)
+{
+	GConfValue *value = NULL;
+	const gchar *activity_name = NULL;
+	ActivityChooser *self = (ActivityChooser *)user_data;
+
+	g_return_if_fail(self != NULL);
+	g_return_if_fail(entry != NULL);
+	DEBUG_BEGIN();
+
+	if(self->default_activity_name)
+	{
+		g_free(self->default_activity_name);
+	}
+
+	value = gconf_entry_get_value(entry);
+	activity_name = gconf_value_get_string(value);
+
+	self->default_activity_name = g_strdup(activity_name);
+
+	DEBUG_END();
+}
+
+static void activity_default_range_changed(
+		const GConfEntry *entry,
+		gpointer user_data,
+		gpointer user_data_2)
+{
+	gint id;
+	GConfValue *value = NULL;
+	ActivityChooser *self = (ActivityChooser *)user_data;
+
+	g_return_if_fail(self != NULL);
+	g_return_if_fail(entry != NULL);
+	DEBUG_BEGIN();
+
+	value = gconf_entry_get_value(entry);
+	id = gconf_value_get_int(value);
+	if(id < 0 || id >= EC_EXERCISE_TYPE_COUNT)
+	{
+		g_warning("Invalid heart rate range type");
+		DEBUG_END();
+		return;
+	}
+	self->default_heart_rate_range_id = id;
+
+	DEBUG_END();
+}
+
+static ActivityChooserDialog *activity_chooser_dialog_new(
+		ActivityChooser *self)
+{
+	ActivityChooserDialog *chooser_dialog = NULL;
+	GtkWidget *vbox = NULL;
+	GtkWidget *caption = NULL;
+	GtkSizeGroup *size_group = NULL;
+	gint i;
+
+	g_return_val_if_fail(self != NULL, NULL);
+	DEBUG_BEGIN();
+
+	chooser_dialog = g_new0(ActivityChooserDialog, 1);
+	chooser_dialog->dialog = gtk_dialog_new_with_buttons(
+			_("Start a new activity"),
+			GTK_WINDOW(self->parent_window),
+			GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR,
+			_("OK"), GTK_RESPONSE_OK,
+			_("Cancel"), GTK_RESPONSE_CANCEL,
+			NULL);
+
+	vbox = GTK_DIALOG(chooser_dialog->dialog)->vbox;
+
+	size_group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+
+	chooser_dialog->entry_activity_name = gtk_entry_new();
+	if(self->default_activity_name)
+	{
+		gtk_entry_set_text(GTK_ENTRY(chooser_dialog->
+					entry_activity_name),
+				self->default_activity_name);
+		gtk_editable_select_region(GTK_EDITABLE(chooser_dialog->
+					entry_activity_name),
+				0, -1);
+	}
+
+	caption = hildon_caption_new(
+			size_group,
+			_("Activity type"),
+			chooser_dialog->entry_activity_name,
+			NULL,
+			HILDON_CAPTION_OPTIONAL);
+
+	gtk_box_pack_start(GTK_BOX(vbox), caption, FALSE, FALSE, 0);
+
+	chooser_dialog->entry_activity_comment = gtk_entry_new();
+
+	caption = hildon_caption_new(
+			size_group,
+			_("Comment"),
+			chooser_dialog->entry_activity_comment,
+			NULL,
+			HILDON_CAPTION_OPTIONAL);
+
+	gtk_box_pack_start(GTK_BOX(vbox), caption, FALSE, FALSE, 0);
+
+	chooser_dialog->cmb_pulse_ranges = gtk_combo_box_new_text();
+
+	for(i = 0; i < EC_EXERCISE_TYPE_COUNT; i++)
+	{
+		gtk_combo_box_append_text(
+				GTK_COMBO_BOX(chooser_dialog->cmb_pulse_ranges),
+				self->heart_rate_settings->
+				exercise_descriptions[i].name);
+	}
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(chooser_dialog->
+				cmb_pulse_ranges),
+			self->default_heart_rate_range_id);
+
+	caption = hildon_caption_new(
+			size_group,
+			_("Target heart rate type"),
+			chooser_dialog->cmb_pulse_ranges,
+			NULL,
+			HILDON_CAPTION_OPTIONAL);
+
+	gtk_box_pack_start(GTK_BOX(vbox), caption, FALSE, FALSE, 0);
+
+	chooser_dialog->chk_save_dfl = gtk_check_button_new();
+
+	caption = hildon_caption_new(
+			size_group,
+			_("Save as default"),
+			chooser_dialog->chk_save_dfl,
+			NULL,
+			HILDON_CAPTION_OPTIONAL);
+
+	gtk_box_pack_start(GTK_BOX(vbox), caption, FALSE, FALSE, 0);
+
+	DEBUG_END();
+	return chooser_dialog;
+}
+
+static void activity_chooser_dialog_destroy(
+		ActivityChooserDialog *chooser_dialog)
+{
+	DEBUG_BEGIN();
+	g_return_if_fail(chooser_dialog != NULL);
+
+	gtk_widget_destroy(chooser_dialog->dialog);
+	g_free(chooser_dialog);
+
+	DEBUG_END();
+}
+
+static gchar *activity_chooser_dialog_choose_file_name(
+		ActivityChooser *self,
+		ActivityChooserDialog *chooser_dialog)
+{
+	HildonFileSystemModel *fs_model = NULL;
+	GtkWidget *file_dialog = NULL;
+
+	gchar *file_name = NULL;
+	const gchar *activity_name = NULL;
+	gchar *date_str = NULL;
+	gchar *dfl_fname = NULL;
+	gint result;
+
+	g_return_val_if_fail(self != NULL, NULL);
+	g_return_val_if_fail(chooser_dialog != NULL, NULL);
+	DEBUG_BEGIN();
+
+	activity_name = gtk_entry_get_text(
+			GTK_ENTRY(chooser_dialog->entry_activity_name));
+
+	date_str = util_date_string_from_timeval(NULL);
+
+	if(strcmp(activity_name, "") == 0)
+	{
+		dfl_fname = g_strdup_printf("%s.gpx", date_str);
+	} else {
+		dfl_fname = g_strdup_printf("%s - %s.gpx", date_str,
+				activity_name);
+	}
+
+	g_free(date_str);
+
+	fs_model = HILDON_FILE_SYSTEM_MODEL(
+		g_object_new(HILDON_TYPE_FILE_SYSTEM_MODEL,
+		"ref_widget", GTK_WIDGET(self->parent_window), NULL));
+
+	if(!fs_model)
+	{
+		ec_error_show_message_error(
+				_("Unable to open File chooser dialog"));
+		DEBUG_END();
+		return NULL;
+	}
+
+	file_dialog = hildon_file_chooser_dialog_new_with_properties(
+			GTK_WINDOW(self->parent_window),
+			"file_system_model", fs_model,
+			"action", GTK_FILE_CHOOSER_ACTION_SAVE,
+			NULL);
+
+	gtk_file_chooser_set_current_folder(
+			GTK_FILE_CHOOSER(file_dialog),
+			self->default_folder_name);
+
+	gtk_file_chooser_set_current_name(
+			GTK_FILE_CHOOSER(file_dialog),
+			dfl_fname);
+
+	g_free(dfl_fname);
+
+	gtk_widget_show_all(file_dialog);
+	result = gtk_dialog_run(GTK_DIALOG(file_dialog));
+
+	if(result == GTK_RESPONSE_CANCEL)
+	{
+		DEBUG_LONG("User cancelled the operation");
+		gtk_widget_destroy(file_dialog);
+		DEBUG_END();
+		return NULL;
+	}
+
+	gconf_helper_set_value_string(
+			self->gconf_helper,
+			ECGC_DEFAULT_FOLDER,
+			gtk_file_chooser_get_current_folder(
+				GTK_FILE_CHOOSER(file_dialog)));
+
+	file_name = gtk_file_chooser_get_filename(
+			GTK_FILE_CHOOSER(file_dialog));
+
+	gtk_widget_destroy(file_dialog);
+	DEBUG_END();
+	return file_name;
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="eCoachGPXExtensionsV1" elementFormDefault="qualified" xmlns="eCoachGPXExtensionsV1">
+
+<xsd:annotation>
+	<xsd:documentation>
+This schema defines eCoach extensions for GPX 1.1. For more information
+about GPX, please visit http://www.topografix.com/gpx.asp
+	</xsd:documentation>
+</xsd:annotation>
+
+<xsd:element name="hrlist" type="hrlistType"/>
+<xsd:element name="hr" type="hrType"/>
+
+<xsd:complexType name="hrType">
+	<xsd:annotation>
+		<xsd:documentation>
+This element defines a heart rate. A rate has a detection time stamp, and the
+heart rate, both of which are defined in the attributes.
+		</xsd:documentation>
+	</xsd:annotation>
+	<xsd:sequence>
+		<xsd:attribute name="time" type="xsd:dateTime"
+			use="required">
+			<xsd:annotation>
+				<xsd:documentation>
+Time when the heart rate was detected
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="value" type="xsd:integer"
+			use="required">
+			<xsd:annotation>
+				<xsd:documentation>
+The actual, detected heart rate.
+				</xsd:documentation>
+			</xsd:annotation>
+
+		</xsd:attribute>
+	</xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="hrlistType">
+	<xsd:annotation>
+		<xsd:documentation>
+This field contains a list of detected heart rates
+		</xsd:documentation>
+	</xsd:annotation>
+	<xsd:sequence>
+		<xsd:element name="hr" type="hrType" minOccurs="1"/>
+	</xsd:sequence>
+</xsd:complexType>
+</xsd:schema>

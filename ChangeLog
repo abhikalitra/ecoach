@@ -1,0 +1,616 @@
+2008-05-25  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Removed executable permission from gconf_keys.h, that for some
+	  reason was there
+
+2008-05-25  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Changed version number to 1.0-2
+	* Define _POSIX_C_SOURCE and _XOPEN_SOURCE in configure.ac
+	* Include config.h from all headers
+	* Fixed compiler warnings from MapWidget
+	* Added function to clear track from MapWidget
+	* Clear track from MapWidget when starting a new track
+	* Added Settings module to manage settings shared across several
+	  modules (more options need to be moved here)
+	* Clear the track from track helper when stopping (frees some memory)
+	* Clear statistic when starting a new activity
+	* Fixed a couple of memory leaks in GpxParser
+	* Added time zone conversions (whether or not to take  timezone into
+	  account can be configured at the moment by using gconf; timezones
+	  are ignored by default)
+	* Save timezone into GPX
+	* Fixed some references to be csecs (hundreths of seconds) instead of
+	  msecs (milliseconds) as they were calculated
+	* Fixed second fraction storing (leave trailing zeros, as XML Schema
+	  definition requires this for dateTime type)
+	* Parse second fraction even if it was only one digit long
+	* Check better if time parsing fails using strptime
+	* Fixed some memory leaks in the AnalyzerView (there was quite a large
+	  memory leak with the graph pixbuf data)
+	* Also fixed memory leaks with EcButton and EcProgressBar (the
+	  pixbufs were incorrectly referenced as they are created with
+	  refcount = 1)
+	* For pixbufs, use g_object[un]ref instead of gdk_pixbuf[un]ref, as
+	  that is recommended
+	* In AnalyzerView, scroll the widget using g_idle_add (it helps to
+	  reduce flicker as repaints have time to finish)
+	* In AnalyzerView, fix a memory leak in expose event (the repaint
+	  region rectangles were not freed)
+
+2008-05-25  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Fixed some issues with showing and hiding the AnalyzerView (there
+	  were problems when leaving the view with the graphs view being
+	  displayed)
+	* Clear the track data when hiding the AnalyzerView
+
+2008-05-25  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Changing name to "eCoach", part 2. Renamed all files that were
+	  needed to, and did some small changes in some files, too
+	  (Makefile.am files and some others)
+
+2008-05-25  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Changing name to "eCoach", part 1. Changed (hopefully) all
+	  references in source files from SportsTracker to eCoach,
+	  SPT_* to EC_*, sportstracker to ecoach and so on. It is a bit
+	  uncomfortable to work with simultaneous file renames and content
+	  changes with svn, so no files were renamed yet.
+
+2008-05-25  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* In AnalyzerView, draw the time scale. It does not work perfectly
+	  (sometimes text overlaps, or the scale grid stops too early etc.),
+	  but it is a bit difficult to create a sensible time scale (i.e.,
+	  whole minutes for small durations and larger steps for larger
+	  times)
+	* Fixed the map legend text centering
+	* Added a dialog to notify that only two graphs can be drawn at the
+	  same time
+
+2008-05-22  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Moved the heart rates to be stored the same way as way points - to
+	  track segments. Now it is possible to pause/continue the heart rate
+	  monitoring
+	* Added util_compare_timevals function to compare time values
+	* Changed track parsing/analyzing in AnalyzerView so that track
+	  segments are stored separately. It required quit much changes, but
+	  made the analyzis code more readable and enables more easily manage
+	  track segments.
+	* Fixed an old, unnoticed bug where the pause button did not change
+	  to start button when continuing an activity
+	* Also, in MapView, do not add heart rates to track during pause
+	* Fixed a bug where prev variable was not set to NULL during the
+	  second analyzis round
+	* Check that bounds are set for altitude and heart rate, before trying
+	  to draw them
+	* Added function analyzer_view_create_scale that will draw all the
+	  scales to reduce duplicated code
+	* Fixed some bugs that prevented heart rate from being drawn correctly
+	  
+
+2008-05-22  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added heart speed, altitude and heart rate icons and background
+	  image for small, pressed down button
+	* Changed the mean interval count in beat detector to 20 to give
+	  more stable heart rate readings
+	* Fixed a crashing bug in beat detector callback removal (to_remove
+	  variable was NULL and its members were tried to be accessed)
+	* Changed beat detections to heart rates in MapView, TrackHelper,
+	  GpxStorage and GpxParser. The heart rate timestamp and value are
+	  stored in attributes, which makes more sense. XML schema was updated
+	  to follow these changes. The purpose of this change is to support
+	  in future other heart rate detectors (which usually send the heart
+	  rate, not the individual beats). As a pleasant side effect, the
+	  heart rate analysis gets easier and the sizes of the GPX files get
+	  smaller
+	* Parse heart rates in gpx parser and analyze them in AnalyzerView
+	* Check the namespaces for the extensions node in GpxParser
+	* Implemented graph toggling on/off in AnalyzerView
+	* Show altitude graph in AnalyzerView
+	* Several changes to drawing routines in AnalyzerView (they need to
+	  be made more modular, though, because there is now a lot of
+	  duplicated code). These changes include creation of scales (time
+	  scale needs yet to be done) and map legend
+	* In AnalyzerView, show track length as N/A instead of zero, if a
+	  track contains no waypoints
+
+2008-05-20  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Fixed the multitrack functionality (allow to clear track helper
+	  without destroying the already created tracks)
+	* Implemented data clearing in AnalyzerView
+	* A couple of fixes to track analyzis speed calculations
+	* In analyzer view, implemented the track selection
+	* Added checks for is_scrolling variable in the analyzer view to
+	  make sure that nothing weird happens
+	* Fixed a crash in AnalyzerView if the opened file contains no
+	  tracks
+	* Repaint the graph in AnalyzerView when data changes
+	* In AnalyzerView, set the variable graphs_update_data to false
+	  so that the data is not re-rendered on every expose event
+	* In AnalyzerView, draw only the areas that are in the update region
+	  (allows much faster repaints)
+	* In AnalyzerView, don't draw a speed graph if the track duration
+	  is zero
+
+2008-05-19  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Moved the location_distance_between() function prototype fix into
+	  a separate file
+	* Changed track module to use struct timeval variables for time
+	  calculations (it is more accurate than using millisecond
+	  calculations and double precision numbers)
+	* Fixed a bug in in track_helper_get_current_speed that caused the
+	  calculation to return -1 when there were exactly five track points
+	* Added to the GPX parser mechanism to detect the waypoint type
+	  (track start etc)
+	* Send track segment starts from the GPX parser (though this is unused
+	  feature at the moment)
+	* Some spelling changes
+	* Added end time label to AnalyzerView
+	* In AnalyzerView, created a new data type (AnalyzerViewTrack) that
+	  is used when parsing a GPX file. It holds a list of the waypoints
+	  (and soon of heart beats, too) and statistics about the track
+	  such as duration and average speed.
+	* Also created AnalyzerViewWaypoint which is quite similar to
+	  GpxStorageWaypoint, except that it also contains the averaged
+	  speed
+	* Added AnalyzerViewColor that contains a color definition
+	* Added AnalyzerViewPixbufDetails that will hold details for
+	  creating a graph of a given track
+	* Implemented the parsing results saving on the AnalyzerView side
+	  (still requires more work, though, such as cleaning up before
+	  changing to next file, and supporting different tracks etc.)
+	* Implemented statics generation in AnalyzerView
+	* Implemented graph display in AnalyzerView. It still needs to show
+	  different types of information in addition to speed and draw the
+	  scales. Also it needs more configurability.
+
+2008-05-17  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Moved default folder change to interface module, and notify
+	  ActivityChooser and AnalyzerView of default folder changes
+	* Started work on the GPX parser using SAX parser of LibXML2 (most
+	  of the track parsing is done; heart beat parsing and possibly
+	  route parsing need yet to be done)
+	* Implemented open dialog to AnalyzerView
+
+2008-05-17  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added new graphics - mst_icon_open.png, mst_icon_track_next.png,
+	  mst_icon_track_prev.png, mst_icon_arrow_left.png,
+	  mst_icon_arrow_right.png, mst_button_change_view_bg.png,
+	  mst_button_small_bg.png
+	* Added analyzer view and created the UI for it (buttons, labels,
+	  different views and scrolling)
+	* Fixed a copy-paste error in the about dialog
+	* Moved the GPX parser to a separate module and made many changes
+	  to prepare the parsing of files (several new data types were defined)
+
+2008-05-14  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Updated the ChangeLog of the map widget
+
+2008-05-14  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* There were still typos with the text buffer. Now actually fixed
+	  them...
+
+2008-05-14  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Fixed some of the copyright data in the about dialog
+	* Fixed a gtk text buffer problem
+
+2008-05-14  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added the COPYING file to svn
+	* Added the README file to svn
+	* Added menu_back_btn_icon.png, menu_generig_bg.png,
+	  mst_icon_autocenter_on.png, mst_icon-autocenter_off.png and
+	  mst_icon_heart_grey.png to svn
+	* Added spt_style.rc to svn
+	* Added the build dependencies for marshal.c and marshal.h to
+	  Makefile.am and then marshal.c and marshal.h to BUILT_SOURCS in
+	  Makfile.am (these fix automatic building of the sources)
+	* Added to svn map_widget/ChangeLog and osea/ChangeLog
+	* Added also the rest of the files from osea if they are later
+	  needed (they are not included in the compilation; those files
+	  are bxbep.c, easytest.c, inputs.h and qrsdet2.c)
+
+2008-05-14  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added the map_view_stop function that will be called when closing
+	  the program so that data will be written before closing
+	* Stop the GPS and disconnect heart rate monitor when hiding the
+	  map view in stopped state. This saves power.
+
+2008-05-14  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added the -f switch to gtk-update-icon-cache in debin/postinst
+	  (without the -f it does not seem to do anything)
+	* Added hildon-fm-2 libraries and cflags
+	* Added an icon to the back button
+	* Added the arrow navigation to the map widget (required a new simple
+	  function to the map widget - map_widget_center_onscreen_coords())
+	* Added about dialog with copyright information
+	* Made the start/stop activity code work much better (this was earlier
+	  pretty much untested)
+	* Moved the ...date_time_string_from_timeval to util
+	* Added a new function, util_date_string_from_timeval which works like
+	  the above function but returns only the date part
+	* Added a track_helper_point_free function for completeness
+	  (it only calls g_free on itself as there is not currently any
+	  dynamically allocated data in it)
+	* Ask for a file name when starting an activity. As default file name,
+	  use "date - activity_name.gpx". Save the path as a default for next
+	  time
+	* Ask and save a comment for the activity (also fixed a related bug
+	  in GpxStorage - it would use incorrectly SPT_GPX_NODE_TRACK_NAME
+	  instead of SPT_GPX_NODE_TRACK_COMMENT if the comment node didn't
+	  exist)
+	* Added track_helper_clear function, which clears all track points
+	  and statistics
+	* Added gpx_storage_free function that closes the XML file
+	* Fixed track storing. There was a bug that caused the track to
+	  be saved as track 0 if there was exactly one track earlier with
+	  an id 0
+	* Added a "Searching satellites..." note that is shown when
+	  establishing a GPX fix
+	* Added map_view_get_activity_state function to map view
+	* Some other small changes
+
+2008-05-11  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added service and desktop files
+	* Added icons (26x26 and scalable)
+	* Added maemo-select-menu-location to postinst
+	* Fixed the version in AC_INIT (configure.ac) to match the package
+	  version
+	* Removed the now obsolete "Show map view" menu item
+	* Added possibility to choose whether or not to build EcgView
+	* Confirm close on exit
+	* Tuned the navigation menu button height so they fit more nicely to
+	  the view
+	* Center the navigation menu items if there are items only for one
+	  line
+	* Fixed the calculation for whether or not the scroll bar is required
+	  in navigation menu; also disable the scroll bar after it is not
+	  needed anymore
+	* Removed some commented-out code
+
+2008-05-10  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added function to start activity in interface instead of just
+	  showing the map view. The activity navigation is disabled for
+	  now.
+	* Added activity chooser that will input the name and heart rate
+	  interval for a new exercise
+	* Save the track name and comment to GPX files
+	* Rewrote the activity module (it was unused anyway)
+	* Fixed a bug in gpx module (it didn't save coordinates because the
+	  g_ascii_dtostr would write to dbuf variable instead of buf)
+	* Changed the heart rate ranges to be a simple range. Now the icon
+	  shows whether the heart rate is good (green), too low (red) or too
+	  high (yellow).
+	* The TargetHeartRate module is now "ready" (it was almost completely
+	  rewritten)
+	* Added HeartRateSettings module that handles heart rate range
+	  interaction with GConf
+
+2008-05-06  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Fixed the autocenter functionality of the map widget
+	* Added icons for the autocenter button
+	* Added grey heart icon for the case when the heart rate monitor
+	  is not connected
+	* MapView layout work is now almost complete (the buttons are not
+	  yet configurable, though)
+	* Started work on the target heart rate ranges wizard
+	* Added secondary user data pointer to the callbacks of the
+	  GConfHelper - it eases many cases when there are several similar
+	  settings that need to be easily distinguished
+	* Draw the icon in a fixed place in SptButton when there is a title
+	  and a label (prevents the icon from bouncing around)
+	* Change the heart rate icon according to the heart rate (this needs
+	  more work and reading configuration from GConf)
+
+2008-05-05  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Started the implementation of the new graphics to the map view
+	* Divided some graphics files in pieces
+	* Added a default navigation button background
+	* SptProgress graphics code rewritten
+	* Added the possibility for using both title and label in SptButton
+	  (caused several changes to the code of the SptButton)
+	* In hrm_settings, unref the proxy_con_dialog only if it is non-NULL
+	  (prevent GLib warning in some cases)
+	* Some other small changes
+
+2008-04-28  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Moved the main notebook to navigation menu. Now the navigation
+	  bar can be (and is) shown all the time.
+
+2008-04-28  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added background for the navigation bar
+	* Added close and minimize buttons to the navigation bar
+
+2008-04-28  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Implemented setting graphics for the navigation menu buttons
+	* Reordered the navigation menu a bit
+	* Changed the navigation menu button sizes
+	* Actually use the buttons_per_display parameter in the navigation
+	  menu
+	* Added functions to add background and icon as pixbufs to the
+	  SptButton (increases performance because the images don't need to
+	  be reloaded every time)
+	* Center the graphics in SptButton
+
+2008-04-27  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added RC file and some theming to it
+	* Added SptButton class that can display background image and a text.
+	  In future, also a button-specific image will be supported so that
+	  the image does not need to be embedded in teh background graphics.
+	* Added font description and alignment settings to navigation menu
+	* Show the application in full screen all time (close and minimize
+	  buttons are yet to be added)
+	* Save also beat type into GPX files
+	* Removed unnecessary beat count calculation from beat_detect module
+	* Fixed heart rate calculation
+	* For debugging, indent the XML output
+	* Some small documentation and comment changes
+
+2008-04-23  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added possibility for showing certain error messages only once
+	  (user can click on a "do not show this message again" checkbox)
+	* Put heart beat simulation function declarations inside #if #endif
+	  block
+	* Use current date and time for the name of the track (this needs
+	  more work, though, because the directory is not still configurable,
+	  and file names contain now colons, and therefore can't be copied
+	  to MMCs that have FAT32 file system)
+	* Added timestamps into GPX files
+	* Store all timestamps in the local time (the timezone data itself
+	  is not yet saved). This probably should be made user-configurable.
+	* Fixed time formats (the tm struct has quite weird specifications
+	  - months are stored from 0 to 11, while dates of month are stored
+	  as 1 to 31, and year as year-1900)
+	* Print coordinates into GPX files using locale-independent function
+	  (g_strdup_printf uses locales, and might therefore use comma in
+	  a coordinate, which would not work in GPX parsers)
+	* Added functions to easily set and get values from GConf without using
+	  callbacks in GConf helper module
+	* Store heart beat data and location to GPX file only when activity is
+	  in started state
+	* Some documentation fixes
+	* Added Doxygen file and doc directory
+	* Some other small changes
+
+2008-04-22  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added a simple heart beat simulation
+	* Changed the GPS simulation to be defined via TRUE/FALSE mechanism
+	  instead of ifdef/ifndef
+	* Added timestamps to heart beats, and pass those to callbacks
+	* Added track autosaving (it is not configurable yet)
+	* Save heart beat to GPX files as a custom extension
+	* Insert the GPX extension schema definition URI correctly to the
+	  xsi schemaLocation attribute, not to spt
+	* Some other small changes to GPX file handling
+	* Added xml_util module, which eases some XML related tasks (find and
+	  add child nodes in different ways and converts struct timevals to
+	  XML dateTime type)
+	* Fixed the track and route searching (forgot to take the return value
+	  from g_slist_next())
+	* Added a printf style function for showing error messages in
+	  spt_error module
+	* Several small documentation and comment changes
+	* Fixed a bug when searching through track IDs and route IDs
+	  (there was an infinite loop if the first track wasn't the correct
+	  one)
+	* Include the custom schema in the written gpx documents
+
+2008-04-19  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added new graphics to svn (they are not yet used, and the code
+	  using the old graphics needs to be updated)
+
+2008-04-19  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Actually added the custom schema to svn
+
+2008-04-19  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added a custom extension schema for the inclusion of heart beat
+	  detection to the saved gpx files
+	* Added track saving (currently saves to a default file); saves only
+	  on a track stop
+	* Automatically save paused segments as track sections
+	* Fixed a bug of not using the track id correctly
+	* Fixed the waypoint longitude attribute name (it is not "long", but
+	  "lon")
+	* Track helper has now a state (paused, stopped, started) instead of
+	  just boolean is_started
+	* Added the xmlDocSetRootElement to gpx.c (otherwise the saved XML
+	  file would have been empty)
+	* Removed the route_track_id from the parameters of
+	  gpx_storage_add_waypoint (the route_track_id is already in the
+	  waypoint parameter)
+	* Add a new track segment also with GPX_STORAGE_POINT_TYPE_TRACK_START
+	* Set speed to zero when pausing activity
+
+2008-04-16  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added LibXML2
+	* New error domains for file handling and parsing
+	* Added gpx.c, gpx_defs.h and gpx.h for strogin the track data
+	  in gpx format (compiles, but for now otherwise untested)
+
+2008-04-04  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added a TrackHelper module to clean up the code in the MapView.
+	  The track helper manages the track information (track points,
+	  distance calculations, speed and average speed, elapsed time).
+	* Moved most of the tracking code from MapView to TrackHelper
+	* Added current speed and average speed calculations
+	* Tuned the GPS filtering
+
+2008-03-26  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added a prototype for location_distance_between(), because the
+	  one defined in the location/location-distance-utils is errorneous
+	  and fails compilation
+	* Added tracking
+	* Added calculation of travelled distance
+	* Added GPS simulation for testing purposes
+	* Added functionality for toggling autocenter on/off
+	* Don't disconnect from GPS and heart rate monitor when only hiding
+	  the map view
+
+2008-03-24  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Listen and use GPS data in map view
+	* Added back button to map view
+	* Added timer functionality to map view (with start/pause
+	  functionality)
+	* Added util_substract_time() and util_add_time() functions to
+	  util module
+	* Added _DEBUG_PRINT_MESSAGE macro to debug module to print a debug
+	  message always
+	* Added DEBUG_NOT_IMPLEMENTED macro to print a warning of
+	  unimplemented functions
+	* Added some buttons and stub functions to map view
+	* Configure the map view only once during a program run (prevents
+	  a lock-up when reshowing map view)
+	* Set the autocenter of the map widget only when there is a GPS fix
+	  (otherwise the default locatino would be wrong)
+	* Prevent setting zoom level beyond the zoom level boundaries (1 and
+	  17)
+	* In ecg_data module, bail out in removing callbacks if there aren't
+	  any registered (this prevents errorneous disconnect trial)
+
+2008-03-16  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added missing gfx directory and files under it to svn
+
+2008-03-16  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added missing spt_error.[c,h] files to svn
+
+2008-03-15  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Fixed configure.ac yet again (forgot a backward slash before -Wall)
+	* Added MapWidget to the source tree
+	* Added MapWidget to MapView
+	* Added zoom in / zoom out to MapView
+
+2008-03-11  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Return TRUE on success in ecg_data_setup_serial_pipe()
+
+2008-03-11  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Fixed a large amount of compiler warnings. These were ignored,
+	  because the -Wall option was originally only for autotools,
+	  not for the compiler (fixed this).
+
+2008-03-11  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added spt_error module to be able to handle errors via the
+	  GError system
+	* Also added a simple error dialog to spt_error to simplify showing
+	  error messages
+	* Enhanced error handling of EcgData and other modules using it
+	  (among others, user is now shown an error dialog of Bluetooth
+	  errors etc)
+	* Added a callback system to BeatDetector
+	* Beat detector now uses EcgData directly (i.e, it needs no longer to
+	  be manually fed the ECG signal)
+	* Added parameter request functions to EcgData
+	* Confiugre beat detector parameters directly from EcgData
+	* Beat detector calculates heart rate as a mean value from several
+	  beat intervals (the amount of beat intervals to calculate is
+	  configurable)
+	* Map view uses beat detector now
+	* Fixed the SPT_PROGRESS_GOAL_MIN and SPT_PROGRESS_GOAL_CENTER modes
+	  to get the state properly
+	* Several function documentation changes and improvements
+
+2008-03-10  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Moved the DATADIR definition from configure.ac to Makefile.am, thus
+	  not requiring any workarounds for Autoconf
+
+2008-03-10  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added a SptProgress. It introduces once again GObject classing to
+	  the project by using Gob2 to do the dirty work (i.e., GObject
+	  subclassing).
+	* Added a graphics directory and some Autoconf work-arounds to get
+	  the DATADIR macro defined for source codes
+	* Started work on the map view
+
+2008-03-06  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Removed the GObject classing. It causes way too much work when
+	  compared to the gained advantage
+
+2008-03-03  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Implemented a new base class for the views so that different kinds
+	  of views can be easily created and interaction with them will be
+	  easy
+
+2008-03-03  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Fixed the callbacks for the ECG data (they weren't called at all
+	  after the major changes)
+	* Send the data to callbacks as a guchar* pointer without an
+	  offset, this makes the code much cleaner and easier to maintain
+	* Added a back button to ECG view, but it does not yet do anything.
+	  The wisest thing for the views would be to subclass them in Glib
+	  way, as they are now merely structs and related functions.
+
+2008-02-28  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Moved the Bluetooth handling code from ecg_view to ecg_data, where
+	  it belongs
+	* Improved handling of some error situations in the Bluetooth
+	  connection
+	* Added support for multiple simultaneous clients for EcgData
+	* Handle bluetooth connection closing properly
+	* Changed the byte comparisons from the buffer to use integers,
+	  not gchars
+	* Note however, that even though the code compiles, it is not yet
+	  tested
+
+2008-02-28  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Removed unneeded code from ecg_view.c and ecg_view.h
+
+2008-02-26  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Some files imported from the OSEA library. They were modified
+	  to accommodate the 300 Hz sampling rate.
+	* Beat detection from the ECG data (the code needs some working,
+	  and does not yet analyse live data, but that's easy to change)
+	* Don't get the return value for the Show ECG menu item, as it is not
+	  needed
+
+2008-02-21  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Switched to a socket based Bluetooth communication. This fixed
+	  the missing bytes problem.
+	* Fixed some issues with the data parsing (data chunk sequence
+	  number was being wrongly extracted, and so was event flag)
+	* Fixed problems with the painting. Signed integers were used
+	  when unsigned were the right ones to use. Also, drawing area
+	  clearing was done incorrectly (when passing the edge, too much
+	  area was cleared).
+	* Added a cursor to the EcgView painting.
+	* Added function to free the unused voltage data from memory
+	* The Bluetooth code from the EcgView needs to be moved to a
+	  separate module
+	* Added ChangeLog to version control (for some reason it was missing)
+
+2008-02-18  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Added a missing gconf_keys.h to repository
+	* Data fetching sort of works. However, there seem to be a lot
+	  of missing bytes (i.e., the data arrives corrupted), and this
+	  needs further study. Otherwise, the ECG drawing works now,
+	  even though it is very simple and hardcoded at the moment.
+
+2008-02-08  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Removed some unnecessary widgets from AppData struct
+	* Added ecg_view and ecg_data modules. These will change a lot,
+	  but will form the basis for the bluetooth communication and
+	  ECG data interpretation
+
+2008-01-30  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Fixed some bugs in the GConf wrapper that were revealed after
+	  really using it.
+	* Use the GConf wrapper for bluetooth address and bluetooth name
+	  storing.
+
+2008-01-30  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Implemented GConf wrapper that works around several major obstacles
+	  in the GConf architechture (at least type stability,
+	  key-specific callbacks, checking if the value actually was
+	  changed). This is so far untested (except for compilation).	  
+
+2008-01-27  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Implemented device selection (the selected device is not yet
+	  stored anywhere, but that should be quite trivial compared to
+	  the device selection launching)
+
+2008-01-26  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Preliminary DBus initializations
+	* Added gthread library and initialization
+	* Fixed compilation
+
+2008-01-26  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* Implemented menu system
+
+2008-01-15  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* First stub version that compiles correctly (only a hello-world)
+	* Added debian packaging
+	* Added Gtk libraries

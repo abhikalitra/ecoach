@@ -1,0 +1,24 @@
+To compile eCoach, you need the set up the Scratcbhox. For more
+information on this, please see documentation at
+	- http://maemo.org/
+	- http://scratchbox.org/
+
+This software also uses GOB2 (see http://www.5z.com/jirka/gob.html) for
+easing the subclassing of GObjects. Unfortunately GOB2 isn't readily available
+in the package management of the scratchbox. I recommend that you install
+it to your host system, and then compile the .gob files with following
+commands in the source directory (that is usually something like
+/scratchbox/users/<your-user-name>/home/<your-user-name>/ecoach/src):
+gob2 ec-progress.gob
+gob2 ec-button.gob
+
+When you have scratcbhox installed and the sources unpacked, please do the
+following:
+
+1) Go to the source directory (e.g., "cd ecoach" or something like that)
+
+2) Type the command
+autoreconf --install
+dpkg-buildpackage -rfakeroot
+	OR if you downloaded the software using svn
+dpkg-buildpackage -rfakeroot -I.svn
