@@ -327,7 +327,6 @@ void track_helper_stop(TrackHelper *self)
 		g_error_free(error);
 		error = NULL;
 	}
-	track_helper_clear(self, FALSE);
 }
 
 void track_helper_clear(TrackHelper *self, gboolean remove_tracks)
@@ -338,7 +337,10 @@ void track_helper_clear(TrackHelper *self, gboolean remove_tracks)
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
 
-	track_helper_stop(self);
+	if(self->state != TRACK_HELPER_STOPPED)
+	{
+		track_helper_stop(self);
+	}
 
 	/* Clear all the current track points and reset statistics */
 	for(temp = self->track_points; temp; temp = g_slist_next(temp))

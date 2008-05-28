@@ -1,4 +1,11 @@
 2008-05-25  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+	* A few bug fixes to data clearing related to
+	  stopping/leaving/entering MapView
+	* Also fixed showing of the MapWidget when re-entering MapView
+	* Fixed an infinite loop in clearing/stopping TrackHelper (the two
+	  functions would both call each others)
+
+2008-05-25  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
 	* Removed executable permission from gconf_keys.h, that for some
 	  reason was there
 

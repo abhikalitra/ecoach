@@ -503,7 +503,9 @@ MapView *map_view_new(
 			);
 
 	/* GPS device			*/
-#if (MAP_VIEW_SIMULATE_GPS == 0)
+#if (MAP_VIEW_SIMULATE_GPS)
+	self->show_map_widget_handler_id = 1;
+#else
 	self->gps_device = g_object_new(LOCATION_TYPE_GPS_DEVICE, NULL);
 	self->gpsd_control = location_gpsd_control_get_default();
 	g_signal_connect(G_OBJECT(self->gps_device), "changed",
@@ -578,6 +580,14 @@ void map_view_show(MapView *self)
 		self->has_gps_fix = FALSE;
 		self->map_widget_state = MAP_VIEW_MAP_WIDGET_STATE_CONFIGURING;
 		g_idle_add(map_view_load_map_idle, self);
+	} else {
+#if (MAP_VIEW_SIMULATE_GPS)
+		self->show_map_widget_handler_id = 1;
+#else
+		self->show_map_widget_handler_id = g_signal_connect(
+			G_OBJECT(self->gps_device), "changed",
+			G_CALLBACK(map_view_show_map_widget), self);
+#endif
 	}
 
 	/* Connect to GPS */
@@ -612,6 +622,7 @@ void map_view_hide(MapView *self)
 		self->has_gps_fix = FALSE;
 		map_view_hide_map_widget(self);
 		track_helper_clear(self->track_helper, FALSE);
+		map_widget_clear_track(self->map_widget);
 		map_view_update_stats(self);
 	}
 
@@ -641,6 +652,7 @@ void map_view_stop(MapView *self)
 	}
 
 	track_helper_stop(self->track_helper);
+	track_helper_clear(self->track_helper, FALSE);
 	self->activity_state = MAP_VIEW_ACTIVITY_STATE_STOPPED;
 	g_source_remove(self->activity_timer_id);
 	self->activity_timer_id = 0;
@@ -986,8 +998,12 @@ static void map_view_show_map_widget(
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
 
+#if (MAP_VIEW_SIMULATE_GPS == 0)
 	g_signal_handler_disconnect(self->gps_device,
 			self->show_map_widget_handler_id);
+#endif
+
+	self->show_map_widget_handler_id = 0;
 
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(self->notebook_map),
 			self->page_id_map_widget);
@@ -1428,7 +1444,9 @@ static void map_view_start_activity(MapView *self)
 	/* Clear the track helper */
 	if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED)
 	{
-		map_view_clear_all(self);
+		track_helper_clear(self->track_helper, FALSE);
+		map_view_update_stats(self);
+		map_widget_clear_track(self->map_widget);
 	}
 
 	gettimeofday(&self->start_time, NULL);
@@ -1617,7 +1635,6 @@ static void map_view_simulate_gps(MapView *self)
 
 static gboolean map_view_simulate_gps_timeout(gpointer user_data)
 {
-	static gboolean map_widget_shown = FALSE;
 	static int counter = 0;
 	static gdouble coordinates[3];
 	gdouble random_movement;
@@ -1630,12 +1647,9 @@ static gboolean map_view_simulate_gps_timeout(gpointer user_data)
 	g_return_val_if_fail(self != NULL, FALSE);
 	DEBUG_BEGIN();
 
-	if(!map_widget_shown)
+	if(self->show_map_widget_handler_id)
 	{
-		map_widget_shown = TRUE;
-		gtk_notebook_set_current_page(
-				GTK_NOTEBOOK(self->notebook_map),
-				self->page_id_map_widget);
+		map_view_show_map_widget(NULL, self);
 	}
 
 	device.fix = &fix;
