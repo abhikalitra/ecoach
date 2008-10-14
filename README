@@ -21,4 +21,5 @@ following:
 autoreconf --install
 dpkg-buildpackage -rfakeroot
 	OR if you downloaded the software using svn
+
 dpkg-buildpackage -rfakeroot -I.svn
