@@ -374,7 +374,7 @@ static void interface_create_menu(AppData *app_data)
 			target_heart_rate_dialog_show,
 			app_data,
 			FALSE);
-
+	/*
 	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			path_level_1,
@@ -383,7 +383,7 @@ static void interface_create_menu(AppData *app_data)
 			NULL,
 			NULL,
 			FALSE);
-
+	*/
 	gtk_tree_path_free(path_level_1);
 
 	path_level_1 = navigation_menu_item_new_for_path(
