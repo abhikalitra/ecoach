@@ -4,9 +4,9 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = "Sports Tracker"
+PROJECT_NAME           = "Ecoach"
 PROJECT_NUMBER         = 
-OUTPUT_DIRECTORY       = /scratchbox/users/jukka/home/jukka/sports-tracker/trunk/doc
+OUTPUT_DIRECTORY       = /scratchbox/users/USERNAME/home/USERNAME/ecoach/trunk/doc
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
 BRIEF_MEMBER_DESC      = YES
@@ -25,7 +25,7 @@ ABBREVIATE_BRIEF       = "The $name class" \
 ALWAYS_DETAILED_SEC    = NO
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        = /home/jukka/
+STRIP_FROM_PATH        = /home/USERNAME
 STRIP_FROM_INC_PATH    = 
 SHORT_NAMES            = NO
 JAVADOC_AUTOBRIEF      = NO
@@ -85,7 +85,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = /scratchbox/users/jukka/home/jukka/sports-tracker/trunk/src/
+INPUT                  = /scratchbox/users/USERNAME/home/USERNAME/ecoach/trunk/src/
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.c \
                          *.cc \
