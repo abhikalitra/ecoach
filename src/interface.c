@@ -1,7 +1,7 @@
 /*
  *  eCoach
  *
- *  Copyright (C) 2008  Jukka Alasalmi
+ *  Copyright (C) 2008  Jukka Alasalmi, Kai Skiftesvik
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@
 #include "ec_error.h"
 #include "settings.h"
 #include "target_heart_rate.h"
+#include "calculate_bmi.h"
 #include "util.h"
 
 #include "debug.h"
@@ -333,8 +334,8 @@ static void interface_create_menu(AppData *app_data)
 			path_level_1,
 			_("BMI"),
 			NULL,
-			NULL,
-			NULL,
+			calculate_bmi_dialog_show,
+			app_data,
 			FALSE);
 
 	path_level_2 = navigation_menu_item_new_for_path(
