@@ -66,7 +66,7 @@
 #define MAPTILE_LOADER_EXEC_NAME "maptile-loader"
 #define GFXDIR DATADIR "/pixmaps/ecoach/"
 
-#define MAP_VIEW_SIMULATE_GPS 1
+#define MAP_VIEW_SIMULATE_GPS 0
 
 /*****************************************************************************
  * Private function prototypes                                               *
@@ -617,15 +617,15 @@ void map_view_hide(MapView *self)
 					self);
 		}
 
-		location_gpsd_control_stop(self->gpsd_control);
+		
 
 		self->has_gps_fix = FALSE;
 		map_view_hide_map_widget(self);
 		track_helper_clear(self->track_helper, FALSE);
 		map_widget_clear_track(self->map_widget);
 		map_view_update_stats(self);
+		location_gpsd_control_stop(self->gpsd_control);
 	}
-
 	DEBUG_END();
 }
 
@@ -1310,7 +1310,6 @@ static void map_view_btn_back_clicked(GtkWidget *button, gpointer user_data)
 	}
 
 	map_view_hide(self);
-
 	DEBUG_END();
 }
 
