@@ -329,7 +329,7 @@ static void interface_create_menu(AppData *app_data)
 			NULL,
 			TRUE);
 
-	navigation_menu_item_new_for_path(
+/*	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			path_level_1,
 			_("BMI"),
@@ -337,7 +337,7 @@ static void interface_create_menu(AppData *app_data)
 			calculate_bmi_dialog_show,
 			app_data,
 			FALSE);
-
+*/
 	path_level_2 = navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			path_level_1,
@@ -494,6 +494,8 @@ static void interface_minimize(GtkWidget *btn, gpointer user_data)
 static void interface_confirm_close(GtkWidget *btn, gpointer user_data)
 {
 	GtkWidget *dialog;
+	LocationGPSDControl *control;
+	
 	AppData *app_data = (AppData *)user_data;
 	gint result;
 
@@ -510,8 +512,12 @@ static void interface_confirm_close(GtkWidget *btn, gpointer user_data)
 
 	if(result == GTK_RESPONSE_OK)
 	{
+		
+		control = location_gpsd_control_get_default ();
+		location_gpsd_control_stop(control);
 		map_view_stop(app_data->map_view);
 		gtk_main_quit();
+		
 	}
 
 	DEBUG_END();
