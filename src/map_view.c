@@ -58,7 +58,7 @@
 
 #include "config.h"
 #include "debug.h"
-
+#include <gdk/gdkkeysyms.h>
 /*****************************************************************************
  * Definitions                                                               *
  *****************************************************************************/
@@ -66,12 +66,12 @@
 #define MAPTILE_LOADER_EXEC_NAME "maptile-loader"
 #define GFXDIR DATADIR "/pixmaps/ecoach/"
 
-#define MAP_VIEW_SIMULATE_GPS 0
+#define MAP_VIEW_SIMULATE_GPS 1
 
 /*****************************************************************************
  * Private function prototypes                                               *
  *****************************************************************************/
-
+static void key_press_cb(GtkWidget * widget, GdkEventKey * event,MapView *self);
 static gboolean map_view_connect_beat_detector_idle(gpointer user_data);
 static gboolean map_view_load_map_idle(gpointer user_data);
 static void map_view_setup_progress_indicator(EcProgress *prg);
@@ -591,12 +591,17 @@ void map_view_show(MapView *self)
 	}
 
 	/* Connect to GPS */
-	/** @todo: Request the status and act according to it */
+	/** @todo: Request the status and act according to it */	
 #if (MAP_VIEW_SIMULATE_GPS)
 	map_view_simulate_gps(self);
 #else
 	location_gpsd_control_start(self->gpsd_control);
 #endif
+	
+	g_signal_connect(G_OBJECT(self->parent_window), 
+			 "key_press_event", G_CALLBACK(key_press_cb), self);
+	
+	
 
 	DEBUG_END();
 }
@@ -952,9 +957,10 @@ static void map_view_zoom_in(GtkWidget *widget, gpointer user_data)
 		DEBUG_END();
 		return;
 	}
+	hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Zoom in");
 	zoom = zoom + 1;
 	map_widget_set_zoom(self->map_widget, zoom);
-
+	
 	DEBUG_END();
 }
 
@@ -973,8 +979,9 @@ static void map_view_zoom_out(GtkWidget *widget, gpointer user_data)
 		return;
 	}
 	zoom = zoom - 1;
+	hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Zoom out");
 	map_widget_set_zoom(self->map_widget, zoom);
-
+	
 	DEBUG_END();
 }
 
@@ -1403,10 +1410,12 @@ static void map_view_btn_autocenter_clicked(GtkWidget *button,
 		map_widget_set_auto_center(self->map_widget, FALSE);
 		ec_button_set_icon_pixbuf(EC_BUTTON(self->btn_autocenter),
 				self->pxb_autocenter_off);
+		hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Map Centering off");
 	} else {
 		map_widget_set_auto_center(self->map_widget, TRUE);
 		ec_button_set_icon_pixbuf(EC_BUTTON(self->btn_autocenter),
 				self->pxb_autocenter_on);
+		hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Map Centering on");
 	}
 
 	DEBUG_END();
@@ -1424,9 +1433,11 @@ static void map_view_update_autocenter(MapView *self)
 	{
 		ec_button_set_icon_pixbuf(EC_BUTTON(self->btn_autocenter),
 				self->pxb_autocenter_on);
+		
 	} else {
 		ec_button_set_icon_pixbuf(EC_BUTTON(self->btn_autocenter),
 				self->pxb_autocenter_off);
+		
 	}
 
 	DEBUG_END();
@@ -1739,3 +1750,66 @@ static GdkPixbuf *map_view_load_image(const gchar *path)
 	gdk_pixbuf_ref(pxb);
 	return pxb;
 }
+static void key_press_cb(GtkWidget * widget, GdkEventKey * event, MapView *self){
+	
+	gboolean is_auto_center;
+	switch (event->keyval) {
+		
+		is_auto_center = map_widget_get_auto_center_status(self->map_widget);
+		g_return_if_fail(self != NULL);
+		DEBUG_BEGIN();
+		
+		case GDK_F6:
+		
+			g_print("center  " );	
+			/*if(is_auto_center)
+			{
+				map_widget_set_auto_center(self->map_widget, FALSE);
+				//hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Map Centering off");
+				map_view_update_autocenter(self);
+			
+			} else {
+				map_widget_set_auto_center(self->map_widget,
+						TRUE);
+				//hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Map Centering on");
+				map_view_update_autocenter(self);
+			}
+			*/
+			map_view_btn_autocenter_clicked(NULL,self);
+			
+			
+		return TRUE;
+		case GDK_F7:
+			map_view_zoom_in(NULL,self);
+			
+		return TRUE;
+		
+		case GDK_F8:
+			map_view_zoom_out(NULL,self);
+	
+		return TRUE;
+		case GDK_Up:
+			
+			map_view_scroll_up(NULL,self);
+			return TRUE;
+		
+		case GDK_Down:
+			
+			map_view_scroll_down(NULL,self);
+			return TRUE;
+		case GDK_Left:
+			
+			map_view_scroll_left(NULL,self);
+			return TRUE;	
+		case GDK_Right:
+			
+			map_view_scroll_right(NULL,self);
+			return TRUE;	
+		DEBUG_END();
+		
+
+		
+	}
+
+		
+		    }
