@@ -1,3 +1,9 @@
+ecoach (1.0-3) unstable; urgency=low
+
+  * Fixed gps bug #2972
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Wed, 29 Oct 2008 12:44:05 +0200
+
 ecoach (1.0-2) unstable; urgency=low
 
   * Second release, see trunk/ChangeLog for detailed changes
