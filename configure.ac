@@ -1,4 +1,4 @@
-AC_INIT([ecoach], [1.0-1], [jualasal@mail.student.oulu.fi])
+AC_INIT([ecoach], [1.0-3], [jualasal@mail.student.oulu.fi])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_PROG_CC
 AC_CONFIG_HEADERS([config.h])
