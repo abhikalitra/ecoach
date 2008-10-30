@@ -50,7 +50,7 @@
 #include "map_view.h"
 #include "navigation_menu.h"
 #include "settings.h"
-
+#include "calculate_bmi.h"
 #ifdef ENABLE_ECG_VIEW
 #include "ecg_view.h"
 #endif
