@@ -1,45 +1,41 @@
 /*
- *  eCoach
- *
- *  Copyright (C) 2008  Kai Skiftesvik
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  See the file COPYING
- */
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License version 2 as published by the Free Software Foundation.
 
-/*****************************************************************************
- * Includes                                                                  *
- *****************************************************************************/
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
 
-/* This module */
+    You should have received a copy of the GNU Library General Public License
+    along with this library; see the file COPYING.LIB.  If not, write to
+    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+    Boston, MA 02110-1301, USA.
+
+    ---
+    Copyright (C) 2008, Sampo Savola, Kai Skiftesvik 
+*/
+
 #include "calculate_bmi.h"
 
-/* Other modules */
-#include "interface.h"
-
-/*---------------------------------------------------------------------------*
- * Public functions                                                          *
- *---------------------------------------------------------------------------*/
-
-void calculate_bmi_dialog_show(
-		NavigationMenu *menu,
-		GtkTreePath *path,
-		gpointer user_data)
+void show_calculate_bmi(NavigationMenu *menu, GtkTreePath *path,
+			gpointer user_data)
 {
-   //   hildon_banner_show_information(GTK_WIDGET(window), NULL, "Hi there!");
- 
+	/*TODO
+	Dialog for asking info and functions for calculating BMI
+	
+	*/
+	AppData *app_data = (AppData *)user_data;
+	GtkWidget *dialog = NULL;
+	dialog = gtk_dialog_new_with_buttons(
+					     _("Calculate BMI"),
+					     GTK_WINDOW(app_data->window),
+					     GTK_DIALOG_MODAL,
+	  				     GTK_STOCK_CANCEL,
+	    				     GTK_RESPONSE_REJECT,GTK_STOCK_OK,
+					     GTK_RESPONSE_OK,NULL);
+	gtk_widget_show_all(dialog);
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
 }
-
