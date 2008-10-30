@@ -329,20 +329,20 @@ static void interface_create_menu(AppData *app_data)
 			NULL,
 			TRUE);
 
-/*	navigation_menu_item_new_for_path(
+	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
-			path_level_1,
+   			path_level_1,
 			_("BMI"),
-			NULL,
-			calculate_bmi_dialog_show,
+			GFXDIR "menu_bmi_btn",
+			show_calculate_bmi,
 			app_data,
 			FALSE);
-*/
+
 	path_level_2 = navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			path_level_1,
 			_("Maximum\nheart rate"),
-			NULL,
+			GFXDIR "menu_max_heart_btn",
 			NULL,
 			NULL,
 			TRUE);
@@ -351,7 +351,7 @@ static void interface_create_menu(AppData *app_data)
 			app_data->navigation_menu,
 			path_level_2,
 			_("Calculate"),
-			NULL,
+			GFXDIR "menu_calculate_btn",
 			NULL,
 			NULL,
 			FALSE);
@@ -371,7 +371,7 @@ static void interface_create_menu(AppData *app_data)
 			app_data->navigation_menu,
 			path_level_1,
 			_("Target\nheart rate"),
-			NULL,
+			GFXDIR "menu_target_heart_btn",
 			target_heart_rate_dialog_show,
 			app_data,
 			FALSE);
