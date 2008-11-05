@@ -64,6 +64,11 @@ typedef enum _AnalyzerViewUnitType {
 	ANALYZER_VIEW_UNIT_TYPE_HOURS_MINS
 } AnalyzerViewUnitType;
 
+typedef enum
+{
+	METRIC, 
+ 	ENGLISH
+} MeasureUnit;
 /*****************************************************************************
  * Data structures                                                           *
  *****************************************************************************/
@@ -525,6 +530,9 @@ static void analyzer_view_draw_heart_rate(
 		AnalyzerViewPixbufDetails *details,
 		GdkRectangle *graph_area,
 		gdouble pixels_per_unit);
+
+static void analyzer_view_set_units(AnalyzerView *self);
+
 
 /**
  * @brief Free memory used by a #AnalyzerViewTrack
@@ -1383,7 +1391,7 @@ static gchar *analyzer_view_choose_file_name(AnalyzerView *self)
 			GTK_FILE_CHOOSER(file_dialog));
 
 	gtk_widget_destroy(file_dialog);
-
+	analyzer_view_set_units(self);
 	DEBUG_END();
 	return file_name;
 }
@@ -1813,7 +1821,16 @@ static void analyzer_view_analyze_track_segment(
 					dist_sum += distance_array[i];
 					time_sum += time_array[i];
 				}
+				if(self->metric)
+				{
 				speed_temp = dist_sum / time_sum * 3.6;
+				}
+				else
+				{
+				speed_temp = dist_sum / time_sum * 3.6;
+				speed_temp = speed_temp * 0.621;
+				}
+			
 
 				for(temp2 = track_segment->track_points;
 				    temp2 != temp;
@@ -1845,7 +1862,15 @@ static void analyzer_view_analyze_track_segment(
 				dist_sum += distance_array[i];
 				time_sum += time_array[i];
 			}
+			if(self->metric)
+			{
 			speed_temp = dist_sum / time_sum * 3.6;
+			}
+			else
+			{
+				speed_temp = dist_sum / time_sum * 3.6;
+				speed_temp = speed_temp * 0.621;
+			}
 				waypoint->speed_averaged = speed_temp;
 			if(speed_temp > track->speed_max)
 			{
@@ -1868,7 +1893,15 @@ static void analyzer_view_analyze_track_segment(
 			dist_sum += distance_array[i];
 			time_sum += time_array[i];
 		}
+		if(self->metric)
+		{
 		speed_temp = dist_sum / time_sum * 3.6;
+		}
+		else
+		{
+			speed_temp = dist_sum / time_sum * 3.6;	
+			speed_temp = speed_temp * 0.621;
+		}
 
 		for(temp2 = track_segment->track_points;
 			temp2;
@@ -2141,16 +2174,47 @@ static void analyzer_view_show_track_information(
 
 	if(track->distance >= 10000.0)
 	{
-		buffer = g_strdup_printf(
-				_("%.1f km"),
-				track->distance / 1000.0);
+		
+		if(self->metric)
+		{
+			buffer = g_strdup_printf(
+					_("%.1f km"),
+					  track->distance / 1000.0);
+		}
+		else
+		{
+			//track->distance = track->distance *  0.621;
+			buffer = g_strdup_printf(
+					_("%.1f mi"),
+					  track->distance / 1000.0);
+		}
 
 	} else if(track->distance >= 1000.0) {
+		
+		if(self->metric)
+		{
 		buffer = g_strdup_printf(_("%.2f km"),
 				track->distance / 1000.0);
+		}
+		else
+		{
+		//track->distance = track->distance *  0.621;
+		buffer = g_strdup_printf(_("%.2f mi"),
+					 track->distance / 1000.0);
+		}
 
 	} else if(track->distance >= 0) {
+		
+		if(self->metric)
+		{
 		buffer = g_strdup_printf(_("%d m"), (gint)track->distance);
+		}
+		else
+		{
+		(gint)track->distance  = track->distance * 3.280;
+		buffer = g_strdup_printf(_("%d ft"), track->distance);
+		}
+			
 	} else {
 		buffer = g_strdup_printf(_("N/A"));
 	}
@@ -2162,7 +2226,15 @@ static void analyzer_view_show_track_information(
 
 	if(track->speed_avg > 0.0)
 	{
+		if(self->metric)
+		{
 		buffer = g_strdup_printf("%.1f km/h", track->speed_avg);
+		}
+		else
+		{
+		track->speed_avg = track->speed_avg * 0.621;
+		buffer = g_strdup_printf("%.1f mph", track->speed_avg);
+		}
 	} else {
 		buffer = g_strdup("N/A");
 	}
@@ -2172,8 +2244,16 @@ static void analyzer_view_show_track_information(
 	g_free(buffer);
 
 	if(track->speed_max > 0.0)
-	{
+	{	
+		if(self->metric)
+		{
 		buffer = g_strdup_printf("%.1f km/h", track->speed_max);
+		}
+		else
+		{
+		//track->speed_max = track->speed_max * 0.621;
+		buffer = g_strdup_printf("%.1f mph", track->speed_max);
+		}
 	} else {
 		buffer = g_strdup("N/A");
 	}
@@ -2484,8 +2564,17 @@ static GdkPixbuf *analyzer_view_create_pixbuf(
 	graph.height -= time_scale_height + 5;
 
 	/* First, draw the titles of the scales */
+	if(self->metric)
+	{	
 	scale_text = _("Speed (km/h) Altitude (m) Heart rate (bpm)"
 		       "Time (hh:mm) (mm:ss)");
+	}
+	else
+	{
+	scale_text = _("Speed (mph) Altitude (ft) Heart rate (bpm)"
+			"Time (hh:mm) (mm:ss)");	
+	}
+	
 	cairo_text_extents(cr, scale_text, &extents);
 
 	graph.height -= extents.height + 15;
@@ -2508,7 +2597,14 @@ static GdkPixbuf *analyzer_view_create_pixbuf(
 
 	if(details->show_speed)
 	{
+		if(self->metric)
+		{
 		scale_text = _("Speed (km/h)");
+		}
+		else
+		{
+		scale_text = _("Speed (mph)");	
+		}
 		cairo_text_extents(cr, scale_text, &extents2);
 
 		cairo_set_source_rgba(cr,
@@ -2531,7 +2627,14 @@ static GdkPixbuf *analyzer_view_create_pixbuf(
 
 	if(details->show_altitude)
 	{
+		if(self->metric)
+		{
 		scale_text = _("Altitude (m)");
+		}
+		else
+		{
+		scale_text = _("Altitude (ft)");	
+		}
 		cairo_text_extents(cr, scale_text, &extents2);
 
 		cairo_set_source_rgba(cr,
@@ -3053,10 +3156,12 @@ static void analyzer_view_draw_speed(
 {
 	/* Pixels per units ("how many pixels wide is a second") */
 	gdouble pixels_per_sec = 0;
+	
+	gdouble mile_speed = 0;
 
 	gdouble duration_secs = 0;
 	guint counter = 0;
-
+	
 	gdouble x = 0;
 	gdouble y = 0;
 
@@ -3105,8 +3210,20 @@ static void analyzer_view_draw_speed(
 				temp2 = g_slist_next(temp2))
 		{
 			waypoint = (AnalyzerViewWaypoint *)temp2->data;
+			if(self->metric)
+			{
 			y = graph_area->height - waypoint->speed_averaged *
 				pixels_per_unit;
+			}
+			else
+			{
+				
+				//mile_speed  = 	waypoint->speed_averaged * 0.621;
+				mile_speed  = 	waypoint->speed_averaged;
+			y = graph_area->height - mile_speed *
+				pixels_per_unit;	
+				
+			}
 
 			if(counter == 0)
 			{
@@ -3359,4 +3476,38 @@ static void analyzer_view_track_destroy(AnalyzerViewTrack *track)
 	g_free(track);
 
 	DEBUG_END();
+}
+static void analyzer_view_set_units(AnalyzerView *self)
+{
+	GtkWidget *dialog;
+	gint result = 0;
+	gboolean loop = TRUE;
+	dialog = gtk_dialog_new_with_buttons("Choose units",
+					     self->parent_window,
+	  				     GTK_DIALOG_MODAL,"Metric",
+					     METRIC,
+					     "English",
+	  				     ENGLISH,NULL);
+	
+	
+	do{
+		
+	result = gtk_dialog_run (GTK_DIALOG (dialog));
+	
+		switch (result)
+		{
+			case METRIC:
+			g_print("metric \n");
+			self->metric = TRUE;
+			loop = FALSE;
+				break;
+			case ENGLISH:
+				g_print("english \n");	
+			self->metric = FALSE;
+			loop = FALSE;	
+				break;
+		}
+	}while(loop);
+	gtk_widget_destroy (dialog);
+
 }
