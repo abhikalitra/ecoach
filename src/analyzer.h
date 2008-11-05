@@ -120,6 +120,7 @@ typedef struct _AnalyzerView {
 	gboolean show_altitude;
 	gboolean show_heart_rate;
 
+	gboolean metric;
 	/* Data that is parsed from tracks */
 
 	/**
