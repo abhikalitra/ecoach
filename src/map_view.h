@@ -111,6 +111,7 @@ struct _MapView {
 	GtkWidget *info_speed;		/**< Current speed		*/
 	GtkWidget *info_avg_speed;	/**< Average speed		*/
 	GtkWidget *info_heart_rate;	/**< Heart rate			*/
+	GtkWidget *info_units;		/**< Distance units		*/
 
 	/* Progress indicators	*/
 	GtkWidget *indicator_1;		/**< "Progress indicator"	*/
@@ -169,6 +170,11 @@ struct _MapView {
 	GdkPixbuf *pxb_hrm_status[MAP_VIEW_HRM_STATUS_COUNT];
 					/**< Heart rate status		*/
 
+	/*distance unit*/
+	
+	gboolean metric;
+	
+	
 	/* Temporary stuff	*/
 	gboolean point_added;
 	MapViewGpsPoint previous_added_point;
