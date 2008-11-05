@@ -4,7 +4,7 @@
  *  Copyright (C) 2008  Jukka Alasalmi
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
+ *  it under the terms of the GNU General Public License as published bylocation-distance-utils-fix
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
  *
@@ -125,6 +125,7 @@ static void map_view_pause_activity(MapView *self);
 static void map_view_continue_activity(MapView *self);
 static void map_view_set_travelled_distance(MapView *self, gdouble distance);
 static void map_view_update_autocenter(MapView *self);
+static void map_view_units_clicked(GtkWidget *button, gpointer user_data);
 
 #if (MAP_VIEW_SIMULATE_GPS)
 static void map_view_simulate_gps(MapView *self);
@@ -173,6 +174,7 @@ MapView *map_view_new(
 
 	self->map_widget_state = MAP_VIEW_MAP_WIDGET_STATE_NOT_CONFIGURED;
 	self->has_gps_fix = FALSE;
+	self->metric = TRUE;
 
 	/* Main layout item		*/
 	self->main_widget = gtk_fixed_new();
@@ -471,6 +473,8 @@ MapView *map_view_new(
 			_("Speed"),
 			_("0.0 km/h"),
 			0, 1);
+	
+	
 
 	/* Average speed		*/
 	self->info_avg_speed = map_view_create_info_button(
@@ -501,7 +505,13 @@ MapView *map_view_new(
 	ec_button_set_icon_pixbuf(EC_BUTTON(self->info_heart_rate),
 			self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_NOT_CONNECTED]
 			);
-
+	/* Distance unit */
+	
+	self->info_units = map_view_create_info_button(self,
+			 _("Units"), _("Metric"), 1, 2);
+	g_signal_connect(G_OBJECT(self->info_units), "clicked",
+			 G_CALLBACK(map_view_units_clicked), self);
+	
 	/* GPS device			*/
 #if (MAP_VIEW_SIMULATE_GPS)
 	self->show_map_widget_handler_id = 1;
@@ -1320,6 +1330,24 @@ static void map_view_btn_back_clicked(GtkWidget *button, gpointer user_data)
 	DEBUG_END();
 }
 
+
+static void map_view_units_clicked(GtkWidget *button, gpointer user_data)
+{
+	MapView *self = (MapView *)user_data;
+	g_print(" jee \n");
+	if(self->metric)
+	{
+	ec_button_set_label_text(EC_BUTTON(self->info_units), _("English"));
+	self->metric = FALSE;
+	}
+	else
+	{
+	ec_button_set_label_text(EC_BUTTON(self->info_units), _("Metric"));
+	self->metric = TRUE;
+	}
+		
+}
+
 static void map_view_btn_start_pause_clicked(GtkWidget *button,
 		gpointer user_data)
 {
@@ -1548,18 +1576,34 @@ static gboolean map_view_update_stats(gpointer user_data)
 	/* Travelled distance */
 	travelled_distance = track_helper_get_travelled_distance(
 			self->track_helper);
-
-	if(travelled_distance < 1000)
+	if(self->metric)
 	{
-		lbl_text = g_strdup_printf(_("%.0f m"), travelled_distance);
-	} else {
-		lbl_text = g_strdup_printf(_("%.1f km"),
-				travelled_distance / 1000.0);
+		if(travelled_distance < 1000)
+		{
+			lbl_text = g_strdup_printf(_("%.0f m"), travelled_distance);
+		} else {
+			lbl_text = g_strdup_printf(_("%.1f km"),
+					travelled_distance / 1000.0);
+		}
+
+		ec_button_set_label_text(EC_BUTTON(self->info_distance), lbl_text);
+		g_free(lbl_text);
 	}
+	else
+	{
+		if(travelled_distance < 1609)
+		{
+			travelled_distance = travelled_distance * 3.28;
+			lbl_text = g_strdup_printf(_("%.0f ft"), travelled_distance);
+		} else {
+			travelled_distance = travelled_distance * 0.621;
+			lbl_text = g_strdup_printf(_("%.1f mi"),
+					travelled_distance / 1000.0);
+		}
 
-	ec_button_set_label_text(EC_BUTTON(self->info_distance), lbl_text);
-	g_free(lbl_text);
-
+		ec_button_set_label_text(EC_BUTTON(self->info_distance), lbl_text);
+		g_free(lbl_text);
+	}
 	/* Elapsed time */
 
 	/* Don't use the track_helper_get_elapsed_time(), because it
@@ -1581,23 +1625,54 @@ static gboolean map_view_update_stats(gpointer user_data)
 	avg_speed = track_helper_get_average_speed(self->track_helper);
 	if(avg_speed > 0.0)
 	{
+		if(self->metric)
+		{
 		lbl_text = g_strdup_printf(_("%.1f km/h"), avg_speed);
 		ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
 				lbl_text);
 		g_free(lbl_text);
+		}
+		else
+		{
+		avg_speed = avg_speed *	0.621;
+		lbl_text = g_strdup_printf(_("%.1f mph"), avg_speed);
+		ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
+					 lbl_text);
+		g_free(lbl_text);
+		}
 	} else {
+		if(self->metric)
+		{
 		ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
 				_("0 km/h"));
+		}
+		else
+		{
+		ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
+					_("0 mph"));		
+		}
 	}
 
 	/* Current speed */
+	
 	curr_speed = track_helper_get_current_speed(self->track_helper);
 	if(curr_speed > 0.0)
 	{
+		if(self->metric)
+		{
 		lbl_text = g_strdup_printf(_("%.1f km/h"), curr_speed);
 		ec_button_set_label_text(EC_BUTTON(self->info_speed),
 				lbl_text);
 		g_free(lbl_text);
+		}
+		else
+		{
+			curr_speed = curr_speed*0.621;
+			lbl_text = g_strdup_printf(_("%.1f mph"), curr_speed);
+			ec_button_set_label_text(EC_BUTTON(self->info_speed),
+					lbl_text);
+			g_free(lbl_text);
+		}
 	} else {
 		ec_button_set_label_text(EC_BUTTON(self->info_speed),
 				_("0 km/h"));
