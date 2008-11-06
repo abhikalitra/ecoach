@@ -1751,6 +1751,10 @@ static void analyzer_view_analyze_track_segment(
 
 		if(waypoint->altitude_is_set)
 		{
+			if(!self->metric)
+			{
+				waypoint->altitude= waypoint->altitude * 3.280;
+			}
 			if(waypoint->altitude > track->altitude_max)
 			{
 				track->altitude_max = waypoint->altitude;
@@ -2183,7 +2187,7 @@ static void analyzer_view_show_track_information(
 		}
 		else
 		{
-			//track->distance = track->distance *  0.621;
+		
 			buffer = g_strdup_printf(
 					_("%.1f mi"),
 					  track->distance / 1000.0);
@@ -2198,7 +2202,6 @@ static void analyzer_view_show_track_information(
 		}
 		else
 		{
-		//track->distance = track->distance *  0.621;
 		buffer = g_strdup_printf(_("%.2f mi"),
 					 track->distance / 1000.0);
 		}
@@ -2251,7 +2254,6 @@ static void analyzer_view_show_track_information(
 		}
 		else
 		{
-		//track->speed_max = track->speed_max * 0.621;
 		buffer = g_strdup_printf("%.1f mph", track->speed_max);
 		}
 	} else {
@@ -3217,8 +3219,6 @@ static void analyzer_view_draw_speed(
 			}
 			else
 			{
-				
-				//mile_speed  = 	waypoint->speed_averaged * 0.621;
 				mile_speed  = 	waypoint->speed_averaged;
 			y = graph_area->height - mile_speed *
 				pixels_per_unit;	
