@@ -619,8 +619,9 @@ static void interface_show_about_dialog(
 	vbox = GTK_DIALOG(dialog)->vbox;
 
 	text_about = g_strdup_printf(_(
-				"eCoach version %s\n"
-				"Copyright (C) 2008 Jukka Alasalmi\n"),
+				"eCoach version %s Copyright (C) 2008 \n"
+				"Jukka Alasalmi Sampo Savola\n"
+				"Kai Skiftesvik Veli-Pekka Haajanen\n"),
 				PACKAGE_VERSION);
 	lbl_about = gtk_label_new(text_about);
 	g_free(text_about);
