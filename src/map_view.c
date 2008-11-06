@@ -1334,7 +1334,6 @@ static void map_view_btn_back_clicked(GtkWidget *button, gpointer user_data)
 static void map_view_units_clicked(GtkWidget *button, gpointer user_data)
 {
 	MapView *self = (MapView *)user_data;
-	g_print(" jee \n");
 	if(self->metric)
 	{
 	ec_button_set_label_text(EC_BUTTON(self->info_units), _("English"));
@@ -1835,8 +1834,6 @@ static void key_press_cb(GtkWidget * widget, GdkEventKey * event, MapView *self)
 		DEBUG_BEGIN();
 		
 		case GDK_F6:
-		
-			g_print("center  " );	
 			/*if(is_auto_center)
 			{
 				map_widget_set_auto_center(self->map_widget, FALSE);
