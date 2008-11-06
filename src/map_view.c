@@ -66,7 +66,7 @@
 #define MAPTILE_LOADER_EXEC_NAME "maptile-loader"
 #define GFXDIR DATADIR "/pixmaps/ecoach/"
 
-#define MAP_VIEW_SIMULATE_GPS 1
+#define MAP_VIEW_SIMULATE_GPS 0
 
 /*****************************************************************************
  * Private function prototypes                                               *
