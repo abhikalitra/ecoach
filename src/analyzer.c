@@ -3497,12 +3497,10 @@ static void analyzer_view_set_units(AnalyzerView *self)
 		switch (result)
 		{
 			case METRIC:
-			g_print("metric \n");
 			self->metric = TRUE;
 			loop = FALSE;
 				break;
 			case ENGLISH:
-				g_print("english \n");	
 			self->metric = FALSE;
 			loop = FALSE;	
 				break;
