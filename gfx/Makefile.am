@@ -12,6 +12,8 @@ gfx_DATA =							\
 	menu_target_heart_btn.png                               \
 	menu_settings_btn.png					\
 	menu_calculate_btn.png					\
+	menu_hrm_btn.png					\
+	menu_about_btn.png					\
 	ec_button_change_view_bg.png				\
 	ec_button_generic.png					\
 	ec_button_pause.png					\
