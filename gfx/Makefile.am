@@ -17,6 +17,7 @@ gfx_DATA =							\
 	ec_button_change_view_bg.png				\
 	ec_button_generic.png					\
 	ec_button_pause.png					\
+	ec_button_rec.png					\
 	ec_button_play.png					\
 	ec_button_stop.png					\
 	ec_button_small_bg.png					\
