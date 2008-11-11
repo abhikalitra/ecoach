@@ -43,6 +43,7 @@
 #include "settings.h"
 #include "target_heart_rate.h"
 #include "calculate_bmi.h"
+#include "calculate_maxheartrate.h"
 #include "util.h"
 
 #include "debug.h"
@@ -352,8 +353,8 @@ static void interface_create_menu(AppData *app_data)
 			path_level_2,
 			_("Calculate"),
 			GFXDIR "menu_calculate_btn",
-			NULL,
-			NULL,
+			show_calculate_maxheartrate,
+			app_data,
 			FALSE);
 
 	navigation_menu_item_new_for_path(
