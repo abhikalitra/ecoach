@@ -410,7 +410,7 @@ MapView *map_view_new(
 	self->btn_start_pause = ec_button_new();
 	ec_button_set_bg_image(EC_BUTTON(self->btn_start_pause),
 			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_button_play.png");
+			GFXDIR "ec_button_rec.png");
 	ec_button_set_btn_down_offset(EC_BUTTON(self->btn_start_pause), 2);
 	ec_button_set_center_vertically(
 			EC_BUTTON(self->btn_start_pause),
@@ -674,7 +674,7 @@ void map_view_stop(MapView *self)
 
 	ec_button_set_bg_image(EC_BUTTON(self->btn_start_pause),
 			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_button_play.png");
+			GFXDIR "ec_button_rec.png");
 
 	DEBUG_END();
 }
@@ -1552,7 +1552,7 @@ static void map_view_pause_activity(MapView *self)
 	self->activity_state = MAP_VIEW_ACTIVITY_STATE_PAUSED;
 	ec_button_set_bg_image(EC_BUTTON(self->btn_start_pause),
 			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_button_play.png");
+			GFXDIR "ec_button_rec.png");
 
 	DEBUG_END();
 }
@@ -1590,6 +1590,7 @@ static gboolean map_view_update_stats(gpointer user_data)
 	}
 	else
 	{
+		
 		if(travelled_distance < 1609)
 		{
 			travelled_distance = travelled_distance * 3.28;
@@ -1673,8 +1674,16 @@ static gboolean map_view_update_stats(gpointer user_data)
 			g_free(lbl_text);
 		}
 	} else {
-		ec_button_set_label_text(EC_BUTTON(self->info_speed),
-				_("0 km/h"));
+		if(self->metric)
+		{
+			ec_button_set_label_text(EC_BUTTON(self->info_speed),
+						 _("0 km/h"));
+		}
+		else
+		{
+			ec_button_set_label_text(EC_BUTTON(self->info_speed),
+					_("0 mph"));
+		}
 	}
 
 	DEBUG_END();
@@ -1850,33 +1859,33 @@ static void key_press_cb(GtkWidget * widget, GdkEventKey * event, MapView *self)
 			map_view_btn_autocenter_clicked(NULL,self);
 			
 			
-		return TRUE;
+		break;
 		case GDK_F7:
 			map_view_zoom_in(NULL,self);
 			
-		return TRUE;
+		break;
 		
 		case GDK_F8:
 			map_view_zoom_out(NULL,self);
 	
-		return TRUE;
+		break;
 		case GDK_Up:
 			
 			map_view_scroll_up(NULL,self);
-			return TRUE;
+			break;
 		
 		case GDK_Down:
 			
 			map_view_scroll_down(NULL,self);
-			return TRUE;
+			break;
 		case GDK_Left:
 			
 			map_view_scroll_left(NULL,self);
-			return TRUE;	
+			break;	
 		case GDK_Right:
 			
 			map_view_scroll_right(NULL,self);
-			return TRUE;	
+			break;
 		DEBUG_END();
 		
 
