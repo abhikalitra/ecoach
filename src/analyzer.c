@@ -2035,7 +2035,10 @@ static void analyzer_view_show_track_information(
 	guint temp;
 	gboolean has_name = FALSE;
 	gboolean has_comment = FALSE;
+	gdouble temp_average;
+	gdouble temp_distance;
 
+	
 	g_return_if_fail(self != NULL);
 	g_return_if_fail(track != NULL);
 
@@ -2175,7 +2178,7 @@ static void analyzer_view_show_track_information(
 				[ANALYZER_VIEW_INFO_LABEL_DURATION][1]),
 				_("N/A"));
 	}
-
+			
 	if(track->distance >= 10000.0)
 	{
 		
@@ -2190,7 +2193,7 @@ static void analyzer_view_show_track_information(
 		
 			buffer = g_strdup_printf(
 					_("%.1f mi"),
-					  track->distance / 1000.0);
+					  (track->distance / 1000.0)*0.621);
 		}
 
 	} else if(track->distance >= 1000.0) {
@@ -2203,7 +2206,7 @@ static void analyzer_view_show_track_information(
 		else
 		{
 		buffer = g_strdup_printf(_("%.2f mi"),
-					 track->distance / 1000.0);
+					 (track->distance / 1000.0)*0.621);
 		}
 
 	} else if(track->distance >= 0) {
@@ -2214,8 +2217,8 @@ static void analyzer_view_show_track_information(
 		}
 		else
 		{
-		(gint)track->distance  = track->distance * 3.280;
-		buffer = g_strdup_printf(_("%d ft"), track->distance);
+		temp_distance = track->distance * 3.280;
+		buffer = g_strdup_printf(_("%.0f ft"), temp_distance);
 		}
 			
 	} else {
@@ -2235,8 +2238,8 @@ static void analyzer_view_show_track_information(
 		}
 		else
 		{
-		track->speed_avg = track->speed_avg * 0.621;
-		buffer = g_strdup_printf("%.1f mph", track->speed_avg);
+		temp_average= track->speed_avg * 0.621;
+		buffer = g_strdup_printf("%.1f mph", temp_average);
 		}
 	} else {
 		buffer = g_strdup("N/A");
