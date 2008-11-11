@@ -632,7 +632,7 @@ static xmlNodePtr gpx_storage_track_new(GpxStorage *self, guint *id)
 	xmlNodePtr retval = NULL;
 	gchar *buf = NULL;
 	gboolean found_gap = FALSE;
-	gint counter = 0;
+	gint counter = 1;
 
 	g_return_val_if_fail(self != NULL, NULL);
 	g_return_val_if_fail(id != NULL, NULL);
