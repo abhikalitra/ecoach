@@ -410,7 +410,7 @@ static void interface_create_menu(AppData *app_data)
 			app_data->navigation_menu,
 			path_level_1,
 			_("Heart rate\nmonitor"),
-			NULL,
+			GFXDIR "menu_hrm_btn",
 			hrm_settings_show,
 			app_data,
 			FALSE);
@@ -419,7 +419,7 @@ static void interface_create_menu(AppData *app_data)
 			app_data->navigation_menu,
 			path_level_1,
 			_("About"),
-			NULL,
+			GFXDIR "menu_about_btn",
 			interface_show_about_dialog,
 			app_data,
 			FALSE);
