@@ -1,7 +1,7 @@
 Source: ecoach
 Section: user/other
 Priority: extra
-Maintainer: Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+Maintainer: Sampo Savola <samposav@paju.oulu.fi>
 Build-Depends: debhelper (>= 5), autotools-dev, libglib2.0-dev, libgtk2.0-dev,
                libhildon1-dev, libhildonfm2-dev, libbluetooth2-dev, libdbus-glib-1-dev, libgconf2-dev,
                libosso-dev, liblocation-dev, libxml2-dev, conbtdialogs-dev
@@ -9,7 +9,7 @@ Standards-Version: 3.7.2
 
 Package: ecoach
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ecoach-maptile-loader
+Depends: ${shlibs:Depends}, ${misc:Depends}, ecoach-maptile-loader (>=0.3)
 Description: eCoach application
  eCoach is an application that helps managing sports and exercise.
  It uses GPS data and data from Alive Technologies Heart Rate Monitor.
