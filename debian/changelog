@@ -1,4 +1,4 @@
-ecoach (1.0-3) unstable; urgency=low
+ecoach (1.1) unstable; urgency=low
 
   * Fixed gps bug #2972
   * User can now select measuring units between metric and english system
