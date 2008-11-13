@@ -67,6 +67,10 @@ static void interface_default_folder_changed(
 		const GConfEntry *entry,
 		gpointer user_data,
 		gpointer user_data_2);
+static void interface_measuring_units_changed(
+		const GConfEntry *entry,
+		gpointer user_data,
+		gpointer user_data_2);
 
 static void interface_minimize(GtkWidget *btn, gpointer user_data);
 static void interface_confirm_close(GtkWidget *btn, gpointer user_data);
@@ -236,6 +240,14 @@ AppData *interface_create()
 			interface_default_folder_changed,
 			app_data,
 			NULL);
+	
+	/* Set default measuring units */
+	gconf_helper_add_key_bool(app_data->gconf_helper,
+      USE_METRIC,
+      TRUE,
+      interface_measuring_units_changed,
+      app_data,
+      NULL);
 
 	/* Finalize the main window */
 	gtk_container_add(GTK_CONTAINER(app_data->window),
@@ -452,6 +464,26 @@ static void interface_initialize_gconf(AppData *app_data)
 	app_data->gconf_helper = gconf_helper_new(ECGC_BASE_DIR);
 
 	DEBUG_END();
+}
+
+
+static void interface_measuring_units_changed(
+		const GConfEntry *entry,
+		gpointer user_data,
+		gpointer user_data_2)
+{
+	GConfValue *value = NULL;
+	AppData *app_data = (AppData *)user_data;
+	const gchar *use_metric;
+
+	g_return_if_fail(app_data != NULL);
+	g_return_if_fail(entry != NULL);
+	DEBUG_BEGIN();
+
+	value = gconf_entry_get_value(entry);
+	use_metric = gconf_value_get_bool(value);
+	DEBUG_END();
+	
 }
 
 static void interface_default_folder_changed(
