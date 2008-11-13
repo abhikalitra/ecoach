@@ -1,7 +1,7 @@
 /*
  * This file is part of MapWidget
  *
- * Copyright (C) 2007 Pekka Rönkkö (pronkko@gmail.com).
+ * Copyright (C) 2007 Pekka Rönkkö (pronkko@gmail.com), Kai Skiftesvik
  *
  * Part of code is ripped from John Costigan's Maemo Mapper.
  *
