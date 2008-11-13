@@ -1285,10 +1285,10 @@ void map_widget_draw_current_place(GtkWidget *dmap)
 	   	 gdk_draw_arc(	dmap->window,
 			get_color(dmap,COLOR_RED),
 			FALSE, 
-			mark_x1,
-			mark_y1,
-        		3, 
-			3,
+			mark_x1-10,
+			mark_y1-10,
+        		20,
+			20,
         		0, 
 			360 * 64);
 	}
