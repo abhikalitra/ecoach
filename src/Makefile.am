@@ -1,5 +1,7 @@
 bin_PROGRAMS = ecoach
 ecoach_SOURCES =			\
+	general_settings.h		\
+	general_settings.c		\
 	calculate_maxheartrate.h	\
 	calculate_maxheartrate.c	\
 	calculate_bmi.h			\
