@@ -41,6 +41,7 @@
 #include "hrm_shared.h"
 #include "ec_error.h"
 #include "settings.h"
+#include "general_settings.h"
 #include "target_heart_rate.h"
 #include "calculate_bmi.h"
 #include "calculate_maxheartrate.h"
@@ -400,10 +401,10 @@ static void interface_create_menu(AppData *app_data)
 	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			path_level_1,
-			_("Edit activities"),
+			_("General\nsettings"),
 			NULL,
-			NULL,
-			NULL,
+			show_general_settings,
+			app_data,
 			FALSE);
 
 	navigation_menu_item_new_for_path(
