@@ -59,4 +59,6 @@
 
 #define ECGC_IGNORE_TIME_ZONES	ECGC_BASE_DIR "/ignore_time_zones"
 
+#define USE_METRIC		ECGC_BASE_DIR "/metric_units"
+
 #endif /* _GCONF_KEYS_H */
