@@ -476,7 +476,7 @@ static gchar *activity_chooser_dialog_choose_file_name(
 	{
 		dfl_fname = g_strdup_printf("%s.gpx", date_str);
 	} else {
-		dfl_fname = g_strdup_printf("%s - %s.gpx", date_str,
+		dfl_fname = g_strdup_printf("%s-%s.gpx", date_str,
 				activity_name);
 	}
 
