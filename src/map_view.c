@@ -174,7 +174,19 @@ MapView *map_view_new(
 
 	self->map_widget_state = MAP_VIEW_MAP_WIDGET_STATE_NOT_CONFIGURED;
 	self->has_gps_fix = FALSE;
-	self->metric = TRUE;
+	
+	if(gconf_helper_get_value_bool_with_default(self->gconf_helper,
+	   USE_METRIC,TRUE))
+	{
+		self->metric = TRUE;
+		g_print("true \n");
+	}
+	else
+	{
+		self->metric = FALSE;
+		g_print("False \n");
+	}
+
 
 	/* Main layout item		*/
 	self->main_widget = gtk_fixed_new();
@@ -461,27 +473,58 @@ MapView *map_view_new(
 			0, 0);
 
 	/* Traveled distance		*/
+	if(self->metric)
+	{
 	self->info_distance = map_view_create_info_button(
 			self,
 			_("Distance"),
 			_("0 m"),
 			1, 0);
+	}
+	else
+	{
+		self->info_distance = map_view_create_info_button(
+				self,
+				_("Distance"),
+				_("0 ft"),
+				1, 0);	
+	}
 
 	/* Speed			*/
+	if(self->metric)
+	{
 	self->info_speed = map_view_create_info_button(
 			self,
 			_("Speed"),
 			_("0.0 km/h"),
 			0, 1);
-	
+	}
+	else
+	{
+	self->info_speed = map_view_create_info_button(
+				self,
+				_("Speed"),
+				_("0.0 mph"),0, 1);
+	}
 	
 
 	/* Average speed		*/
+	if(self->metric)
+	{
 	self->info_avg_speed = map_view_create_info_button(
 			self,
 			_("Avg. speed"),
 			_("0.0 km/h"),
 			1, 1);
+	}
+	else
+	{
+	self->info_avg_speed = map_view_create_info_button(
+			self,
+    			_("Avg. speed"),
+			_("0.0 mph"),
+			1, 1);	
+	}
 
 	/* Heart rate			*/
 	self->info_heart_rate = map_view_create_info_button(
@@ -506,12 +549,12 @@ MapView *map_view_new(
 			self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_NOT_CONNECTED]
 			);
 	/* Distance unit */
-	
+	/*
 	self->info_units = map_view_create_info_button(self,
 			 _("Units"), _("Metric"), 1, 2);
 	g_signal_connect(G_OBJECT(self->info_units), "clicked",
 			 G_CALLBACK(map_view_units_clicked), self);
-	
+	*/
 	/* GPS device			*/
 #if (MAP_VIEW_SIMULATE_GPS)
 	self->show_map_widget_handler_id = 1;
@@ -578,6 +621,8 @@ void map_view_show(MapView *self)
 {
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
+	
+	
 
 	if(!self->beat_detector_connected)
 	{
