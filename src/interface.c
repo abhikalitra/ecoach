@@ -242,12 +242,9 @@ AppData *interface_create()
 			NULL);
 	
 	/* Set default measuring units */
-	gconf_helper_add_key_bool(app_data->gconf_helper,
-      USE_METRIC,
-      TRUE,
-      interface_measuring_units_changed,
-      app_data,
-      NULL);
+	gconf_helper_add_key_bool(app_data->gconf_helper,USE_METRIC,TRUE,
+				  interface_measuring_units_changed,app_data,
+      				  NULL);
 
 	/* Finalize the main window */
 	gtk_container_add(GTK_CONTAINER(app_data->window),
