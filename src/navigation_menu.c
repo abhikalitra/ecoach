@@ -823,7 +823,7 @@ static void navigation_menu_update_location_widget(NavigationMenu *self)
 		if(!path)
 		{
 			stack = g_slist_prepend(stack,
-					g_strdup(_("Main menu")));
+					g_strdup(_("eCoach")));
 			break;
 		}
 		gtk_tree_model_get_iter(
