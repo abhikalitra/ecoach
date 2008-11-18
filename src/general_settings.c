@@ -18,13 +18,12 @@ Copyright (C) 2008, Sampo Savola, Kai Skiftesvik
 */
 
 #include "general_settings.h"
+#include "gconf_helper.h"
+#include "gconf_keys.h"
 
 static GtkSpinButton *spinner;
 static GtkSpinButton *spinner2;
 static GtkLabel *val_label;
-
-
-
 void show_general_settings(NavigationMenu *menu, GtkTreePath *path,
 			gpointer user_data)
 {
@@ -41,15 +40,16 @@ void show_general_settings(NavigationMenu *menu, GtkTreePath *path,
 	GtkWidget *label;
 	GtkAdjustment *adj;
 	GtkAdjustment *adj2;
-	
+	GConfValue *value = NULL;
+	gint result;
 	/* Create the widgets */
 	
 	dialog = gtk_dialog_new_with_buttons ("General Settings",
 						GTK_WINDOW(app_data->window),
 						GTK_DIALOG_MODAL,
 						GTK_STOCK_OK,
-						GTK_RESPONSE_NONE,
-						NULL);
+						GTK_RESPONSE_OK,GTK_STOCK_CANCEL,
+						GTK_RESPONSE_REJECT,NULL);
 
 	gtk_widget_set_size_request(dialog, 300,150);
 
@@ -74,24 +74,42 @@ void show_general_settings(NavigationMenu *menu, GtkTreePath *path,
 	gtk_box_pack_start (GTK_BOX (hbox), vbox2, TRUE, TRUE, 2);
 
 	radio1 = gtk_radio_button_new_with_label (NULL, "Metric");
-	entry = gtk_entry_new ();
-	gtk_container_add (GTK_CONTAINER (radio1), entry);
+	
 	gtk_box_pack_start (GTK_BOX (vbox2), radio1, TRUE, TRUE, 2);
 
 	radio2 = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio1),
 							"English");
 	gtk_box_pack_start (GTK_BOX (vbox2), radio2, TRUE, TRUE, 2);
+	
+	/*Check which radio  button should be set */
 
-
-
-	
-	/* Ensure that the dialog box is destroyed when the user responds. */
-	
-	g_signal_connect_swapped (dialog,
-				"response", 
-				G_CALLBACK (gtk_widget_destroy),
-				dialog);
-	
-	gtk_widget_show_all (dialog);
-	
+	if(gconf_helper_get_value_bool_with_default(app_data->gconf_helper,
+						    USE_METRIC,TRUE))
+	{
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio1), TRUE);
 	}
+	else
+	{
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio2), TRUE);
+	}
+	gtk_widget_show_all (dialog);
+	result = gtk_dialog_run(GTK_DIALOG(dialog));
+	if(result == GTK_RESPONSE_OK)
+	{
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio1)))
+		{
+			gconf_helper_set_value_bool(app_data->gconf_helper,
+						    USE_METRIC,TRUE);
+		}
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio2)))
+		{
+			gconf_helper_set_value_bool(app_data->gconf_helper,
+					USE_METRIC,FALSE);
+		}
+		gtk_widget_destroy(dialog);
+	}
+	else
+	{
+		gtk_widget_destroy(dialog);	
+	}
+}
