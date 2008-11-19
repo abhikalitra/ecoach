@@ -559,6 +559,8 @@ AnalyzerView *analyzer_view_new(
 	self = g_new0(AnalyzerView, 1);
 	self->parent_window = parent_window;
 	self->gconf_helper = gconf_helper;
+	
+	
 
 	self->main_widget = gtk_fixed_new();
 
@@ -1391,7 +1393,17 @@ static gchar *analyzer_view_choose_file_name(AnalyzerView *self)
 			GTK_FILE_CHOOSER(file_dialog));
 
 	gtk_widget_destroy(file_dialog);
-	analyzer_view_set_units(self);
+	//analyzer_view_set_units(self);
+	if (gconf_helper_get_value_bool_with_default(self->gconf_helper, 
+	    USE_METRIC, TRUE))
+	{
+		self->metric=TRUE;
+	}
+	else
+	{
+		self->metric=FALSE;
+	}
+	
 	DEBUG_END();
 	return file_name;
 }
