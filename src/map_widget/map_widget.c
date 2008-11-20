@@ -38,9 +38,9 @@ static void map_widget_do_callbacks_first(GtkWidget *dmap);
 static void map_widget_do_callbacks_second(GtkWidget *dmap);
 static void map_widget_do_callbacks_third(GtkWidget *dmap);
 
-const gchar * MAP_WIDGET_FW_DBUS_SERVICE = "org.cityguide.maptileloader";
-const gchar * MAP_WIDGET_FW_DBUS_OBJECT_PATH = "/org/cityguide/maptileloader";
-const gchar * MAP_WIDGET_FW_DBUS_INTERFACE = "org.cityguide.maptileloader";
+const gchar * MAP_WIDGET_FW_DBUS_SERVICE = "org.ecoach.maptileloader";
+const gchar * MAP_WIDGET_FW_DBUS_OBJECT_PATH = "/org/ecoach/maptileloader";
+const gchar * MAP_WIDGET_FW_DBUS_INTERFACE = "org.ecoach.maptileloader";
 const gchar * MAP_WIDGET_FW_FUNCTION_MAPTILE_REQUEST = "MaptileLoaderGetMaptile";
 const gchar * MAP_WIDGET_FW_FUNCTION_GET_SUPPORTED_MAPS = "MaptileLoaderGetSupportedMaps";
 const gchar * MAP_WIDGET_FW_FUNCTION_SET_REPOFILE = "MaptileLoaderSetRepofile";
