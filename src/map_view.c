@@ -66,7 +66,7 @@
 #define MAPTILE_LOADER_EXEC_NAME "ecoach-maptile-loader"
 #define GFXDIR DATADIR "/pixmaps/ecoach/"
 
-#define MAP_VIEW_SIMULATE_GPS 0
+#define MAP_VIEW_SIMULATE_GPS 1
 
 /*****************************************************************************
  * Private function prototypes                                               *
@@ -1590,7 +1590,7 @@ static void map_view_pause_activity(MapView *self)
 	util_add_time(&self->elapsed_time, &result, &self->elapsed_time);
 
 	map_view_set_elapsed_time(self, &self->elapsed_time);
-	map_view_update_stats(self);
+//	map_view_update_stats(self);
 
 	g_source_remove(self->activity_timer_id);
 	self->activity_timer_id = 0;
