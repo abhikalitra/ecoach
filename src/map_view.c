@@ -63,7 +63,7 @@
  * Definitions                                                               *
  *****************************************************************************/
 
-#define MAPTILE_LOADER_EXEC_NAME "maptile-loader"
+#define MAPTILE_LOADER_EXEC_NAME "ecoach-maptile-loader"
 #define GFXDIR DATADIR "/pixmaps/ecoach/"
 
 #define MAP_VIEW_SIMULATE_GPS 0
