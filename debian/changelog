@@ -1,3 +1,11 @@
+ecoach (1.11) unstable; urgency=low
+
+  * Added few cool features to debian/control file:
+  * XB-Maemo-Display-Name, XB-Maemo-Upgrade-Description and 
+  * XB-Maemo-Icon-26
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Thu, 20 Nov 2008 12:44:05 +0200
+
 ecoach (1.1) unstable; urgency=low
 
   * Fixed gps bug #2972
