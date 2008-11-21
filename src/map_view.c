@@ -66,7 +66,7 @@
 #define MAPTILE_LOADER_EXEC_NAME "ecoach-maptile-loader"
 #define GFXDIR DATADIR "/pixmaps/ecoach/"
 
-#define MAP_VIEW_SIMULATE_GPS 1
+#define MAP_VIEW_SIMULATE_GPS 0
 
 /*****************************************************************************
  * Private function prototypes                                               *
@@ -1126,6 +1126,9 @@ static void map_view_location_changed(
 		}
 	} else {
 		DEBUG("Latitude and longitude are not valid");
+	}
+	if(device->status == LOCATION_GPS_DEVICE_STATUS_NO_FIX) {
+		hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "No GPS fix!");
 	}
 
 	DEBUG_END();
