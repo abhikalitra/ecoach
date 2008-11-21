@@ -9,7 +9,7 @@ Standards-Version: 3.7.2
 
 Package: ecoach
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ecoach-maptile-loader (>=0.3)
+Depends: ${shlibs:Depends}, ${misc:Depends}, ecoach-maptile-loader (>=0.31)
 Description: eCoach application
  eCoach is an application that helps managing sports and exercise.
  It uses GPS data and data from Alive Technologies Heart Rate Monitor.
