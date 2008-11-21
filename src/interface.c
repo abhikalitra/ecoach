@@ -411,7 +411,7 @@ static void interface_create_menu(AppData *app_data)
 			app_data->navigation_menu,
 			path_level_1,
 			_("General\nsettings"),
-			NULL,
+			GFXDIR "menu_settings_btn",
 			show_general_settings,
 			app_data,
 			FALSE);
