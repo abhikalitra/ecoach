@@ -175,17 +175,7 @@ MapView *map_view_new(
 	self->map_widget_state = MAP_VIEW_MAP_WIDGET_STATE_NOT_CONFIGURED;
 	self->has_gps_fix = FALSE;
 	
-	if(gconf_helper_get_value_bool_with_default(self->gconf_helper,
-	   USE_METRIC,TRUE))
-	{
-		self->metric = TRUE;
-		g_print("true \n");
-	}
-	else
-	{
-		self->metric = FALSE;
-		g_print("False \n");
-	}
+	
 
 
 	/* Main layout item		*/
@@ -622,7 +612,17 @@ void map_view_show(MapView *self)
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
 	
-	
+	if(gconf_helper_get_value_bool_with_default(self->gconf_helper,
+	   USE_METRIC,TRUE))
+	{
+		self->metric = TRUE;
+		g_print("true \n");
+	}
+	else
+	{
+		self->metric = FALSE;
+		g_print("False \n");
+	}
 
 	if(!self->beat_detector_connected)
 	{
