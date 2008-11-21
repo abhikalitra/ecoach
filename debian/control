@@ -13,3 +13,29 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ecoach-maptile-loader (>=0.3)
 Description: eCoach application
  eCoach is an application that helps managing sports and exercise.
  It uses GPS data and data from Alive Technologies Heart Rate Monitor.
+XB-Maemo-Display-Name: eCoach
+XB-Maemo-Upgrade-Description: eCoach
+ Changed XB-Maemo-Display-Name to show nicer name in the application 
+ manager and added XB-Maemo-Upgrade-Description field.
+XB-Maemo-Icon-26:
+ iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAAAXNSR0IArs4c
+ 6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0
+ SU1FB9gFCw8gBLTtmxUAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJ
+ TVBXgQ4XAAAC7UlEQVRIx82WT0hUURjFz/dmnu/pzEhvZGyaQRuiN7oJYWpZ
+ CtKAkJi6aVoEgRkSQi3auBANly3CgrJNgruoRRtfwlBIbhLRxIWIQchrMVMy
+ mKQ+zHmdNhX9MdNmhM7y43J/99z73XMv8D9KUZQzqqo+URTlhqIonv2ChMLh
+ sGvbNjs6OqgoysV9AYnI8ba2NpKkbdv0eDwP9rTQPYz9MDc3R9d1sbm5CV3X
+ GzVNeyQiF0REiukoqmlaZmZmhiTpui5XVlbY0tJCVVUtESkvBqTM5/MtTk5O
+ cjuNjIxQ1/XXIlJdKOhaT08Pd5JlWdQ07UkhENMwjPdra2vbAhYXF5lOp+m6
+ LoPB4Kt/hYjX6x0dHx8nSXZ3d3NpaeknUC6XY0lJCdPpNGOx2Md/BV1qbm6m
+ 4zhsbW2liLxobGz8zVVFRQU7OzsZj8fX/jSXdwfI0WAweGt4eBiJRIILCws3
+ AOSSyeSpX8eWlpZCURSUl5drInKQ5LvdpkBvVVWVY1kWI5HIloikAEDX9enl
+ 5eXfHDU0NLCrq4s1NTWfRcTc9Zb5/f7VsbExGobxQUTOfHUYNk3z83YNYZom
+ ReSOiFzd69lc8Xq9D0XkyA+18319fd8v6zetr6+zrKzs5d/SYdsIInk3n8+f
+ I/nmh/KBeDwOABgYGMDGxgYAYHBwEI7jPCbJYkXQvfn5eWazWRqGQdd1OTEx
+ QU3T5gAEixV1HsMw3rquy97eXqZSKZJkJBL5BOBYMV+JQG1tLUmyurqa09PT
+ tCyLInIfgACIAzhUDFBJLBZbsW2byWSSJFlXV0cAJ1VVTdfX1zMajW4BuFwo
+ 6KxpmluZTIZTU1McGhqiiDwCEG1qaiJJOo5DwzCeFwI5EQ6HP+VyOc7OznJ0
+ dJSqqr4EEAAQSSQSJMlsNkufz/esEFCqv7+f7e3ttG2boVBoA8Dhb00iIjcr
+ Kys3A4FABsDpQkAhALf9fv9qPp9nKBRK7/dXq1/X9acich3/s74ASI7Y/bKY
+ PjYAAAAASUVORK5CYII=====
