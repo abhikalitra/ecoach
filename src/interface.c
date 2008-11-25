@@ -71,6 +71,10 @@ static void interface_measuring_units_changed(
 		const GConfEntry *entry,
 		gpointer user_data,
 		gpointer user_data_2);
+static void interface_display_state_changed(
+		const GConfEntry *entry,
+		gpointer user_data,
+		gpointer user_data_2);
 
 static void interface_minimize(GtkWidget *btn, gpointer user_data);
 static void interface_confirm_close(GtkWidget *btn, gpointer user_data);
@@ -246,6 +250,11 @@ AppData *interface_create()
 				  interface_measuring_units_changed,app_data,
       				  NULL);
 
+	/* Set default display state */
+	gconf_helper_add_key_bool(app_data->gconf_helper,DISPLAY_ON,TRUE,
+				  interface_display_state_changed,app_data,
+				  NULL);
+	
 	/* Finalize the main window */
 	gtk_container_add(GTK_CONTAINER(app_data->window),
 			app_data->navigation_menu->main_widget);
@@ -481,6 +490,24 @@ static void interface_measuring_units_changed(
 	use_metric = gconf_value_get_bool(value);
 	DEBUG_END();
 	
+}
+
+static void interface_display_state_changed(
+		const GConfEntry *entry,
+		gpointer user_data,
+		gpointer user_data_2)
+{
+	GConfValue *value = NULL;
+	AppData *app_data = (AppData *)user_data;
+	const gchar *display_on;
+
+	g_return_if_fail(app_data != NULL);
+	g_return_if_fail(entry != NULL);
+	DEBUG_BEGIN();
+
+	value = gconf_entry_get_value(entry);
+	display_on = gconf_value_get_bool(value);
+	DEBUG_END();
 }
 
 static void interface_default_folder_changed(
