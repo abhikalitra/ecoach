@@ -1080,9 +1080,16 @@ static void map_view_location_changed(
 	MapPoint point;
 	MapView *self = (MapView *)user_data;
 	gboolean map_widget_ready = TRUE;
-
+	
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
+
+	/* Keep display on */
+	if(gconf_helper_get_value_bool_with_default(self->gconf_helper,
+						    DISPLAY_ON,TRUE)) {
+		osso_display_state_on(self->osso);
+		osso_display_blanking_pause(self->osso);
+	}
 
 	DEBUG("Latitude: %.2f - Longitude: %.2f\nAltitude: %.2f\n",
 			device->fix->latitude,
