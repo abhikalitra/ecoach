@@ -61,4 +61,6 @@
 
 #define USE_METRIC		ECGC_BASE_DIR "/metric_units"
 
+#define DISPLAY_ON		ECGC_BASE_DIR "/display_on"
+
 #endif /* _GCONF_KEYS_H */
