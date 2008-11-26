@@ -1,5 +1,9 @@
-ecoach (1.1-3) unstable; urgency=low
+ecoach (1.2) unstable; urgency=low
 
+  * Added general settings dialog for setting measuring units and display dimming
+  * Expanded current location indicator in a mapview
+  * eCoach now shows a banner if gps fix is lost or not established 
+  * English units can now be used in BMI calculator
   * Added few cool features to debian/control file:
   * XB-Maemo-Display-Name, XB-Maemo-Upgrade-Description and 
   * XB-Maemo-Icon-26
