@@ -14,10 +14,11 @@ Description: eCoach application
  eCoach is an application that helps managing sports and exercise.
  It uses GPS data and data from Alive Technologies Heart Rate Monitor.
 XB-Maemo-Display-Name: eCoach
-XB-Maemo-Upgrade-Description:   * Added general settings dialog for setting measuring units and display dimming
- * Expanded current location indicator in a mapview
+XB-Maemo-Upgrade-Description: * Added general settings dialog for setting measuring units and display dimming
+ * Expanded current location indicator size in a mapview
  * eCoach now shows a banner if gps fix is lost or not established
  * English units can now be used in BMI calculator
+ * ecoach-maptile-loader now saves maps to internal memorycard /media/mmc2
 XB-Maemo-Icon-26:
  iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAAAXNSR0IArs4c
  6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0
