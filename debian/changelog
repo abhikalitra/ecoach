@@ -1,4 +1,4 @@
-ecoach (1.2) unstable; urgency=low
+ecoach (1.12) unstable; urgency=low
 
   * Added general settings dialog for setting measuring units and display dimming
   * Expanded current location indicator size in a mapview
