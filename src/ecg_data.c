@@ -56,7 +56,7 @@
 #define ECG_PACKET_ID_ACC_3			'\x56'
 #define ECG_DATA_POLLING_STOP_CHECK_INTERVAL	15
 #define ECG_DATA_READ_BUFFER_SIZE		1024
-
+#define FRWD_PACKET_SIZE			93
 /****************************************************************************
  * Private function prototypes                                              *
  ****************************************************************************/
@@ -74,7 +74,7 @@ static gboolean ecg_data_connect_bluetooth(EcgData *self, GError **error);
 static void ecg_data_disconnect_bluetooth(EcgData *self);
 static void ecg_data_wait_for_disconnect(EcgData *self);
 static gboolean ecg_data_setup_serial_pipe(EcgData *self, GError **error);
-static void frwd_parse_heartrate(EcgData *self,gchar* frwd);
+static gboolean frwd_parse_heartrate(EcgData *self,gchar* frwd);
 /**
  * @brief Remove unnecessary voltage data from the array.
  *
@@ -410,7 +410,8 @@ static void ecg_data_process(EcgData *self)
 	g_return_if_fail(self != NULL);
 
 	DEBUG_BEGIN();
-	gint i;
+	
+	/*gint i;
 	gint offset = 0;
 	gint syke = 0;
 	
@@ -427,7 +428,38 @@ static void ecg_data_process(EcgData *self)
 		ecg_data_invoke_callbacks(self,self->hr);
 		}
 	ecg_data_pop(self,93,NULL);
-	
+	*/
+	gint offset = 0;
+
+	while(self->buffer->len > 0)
+	{
+		gchar *pointer = g_strstr_len((const gchar *)self->buffer->data,
+					       self->buffer->len,
+	    "FRWD");
+		if(!pointer)
+		{
+			/* No FRWD data. Clear buffer and wait for more data. */
+			ecg_data_pop(self, self->buffer->len, NULL);
+			break;
+		}
+
+		/* Remove non-FRWD data from the beginning of the buffer */
+		offset = pointer - (gchar *)self->buffer->data;
+		if(offset > 0)
+		ecg_data_pop(self, offset, NULL);
+
+		if(frwd_parse_heartrate(self, pointer))
+		{
+			/* Remove parsed data */
+			ecg_data_pop(self, FRWD_PACKET_SIZE,NULL);
+		}
+		else {
+			/*Wait for more data */
+			break;
+		}
+		/* Continue until the buffer is empty */
+	}
+
 	DEBUG_END();
 }
 
@@ -1441,11 +1473,17 @@ static void ecg_data_send_data(
 	DEBUG_END();
 }
 
-static void frwd_parse_heartrate(EcgData *self,gchar* frwd){
-
+static gboolean frwd_parse_heartrate(EcgData *self,gchar* frwd){
+	
 	int i;
 	gint value = 0;
 	DEBUG_BEGIN();
+
+	if(self->buffer->len < FRWD_PACKET_SIZE)
+	{
+		DEBUG_END();
+		return FALSE;
+	}
 	gchar *decrypt = g_strndup(frwd + 12, 3);
 	for(i = 0; i < 3; i++)
 	{
@@ -1461,6 +1499,14 @@ static void frwd_parse_heartrate(EcgData *self,gchar* frwd){
 	{
 		decryp[i] /= 2;
 	}
-	value = strtol(decryp, NULL, 10);	
+	value = strtol(decryp, NULL, 10);
+	if(self->buffer->len < FRWD_PACKET_SIZE)
+	{
+		return FALSE;
+	}
+	ecg_data_invoke_callbacks(self,self->hr);
+	g_free(decrypt);
 	DEBUG_END();
+	return TRUE;
+
 }
