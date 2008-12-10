@@ -524,13 +524,13 @@ MapView *map_view_new(
 			0, 2);
 
 	self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_LOW] =
-		map_view_load_image(GFXDIR "ec_icon_heart_red.png");
+		map_view_load_image(GFXDIR "ec_icon_heart_yellow.png");
 
 	self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_GOOD] =
 		map_view_load_image(GFXDIR "ec_icon_heart_green.png");
 
 	self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_HIGH] =
-		map_view_load_image(GFXDIR "ec_icon_heart_yellow.png");
+		map_view_load_image(GFXDIR "ec_icon_heart_red.png");
 
 	self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_NOT_CONNECTED] =
 		map_view_load_image(GFXDIR "ec_icon_heart_grey.png");
@@ -538,13 +538,6 @@ MapView *map_view_new(
 	ec_button_set_icon_pixbuf(EC_BUTTON(self->info_heart_rate),
 			self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_NOT_CONNECTED]
 			);
-	/* Distance unit */
-	/*
-	self->info_units = map_view_create_info_button(self,
-			 _("Units"), _("Metric"), 1, 2);
-	g_signal_connect(G_OBJECT(self->info_units), "clicked",
-			 G_CALLBACK(map_view_units_clicked), self);
-	*/
 	/* GPS device			*/
 #if (MAP_VIEW_SIMULATE_GPS)
 	self->show_map_widget_handler_id = 1;
@@ -616,12 +609,10 @@ void map_view_show(MapView *self)
 	   USE_METRIC,TRUE))
 	{
 		self->metric = TRUE;
-		g_print("true \n");
 	}
 	else
 	{
 		self->metric = FALSE;
-		g_print("False \n");
 	}
 
 	if(!self->beat_detector_connected)
@@ -971,7 +962,7 @@ static void map_view_heart_rate_changed(
 	g_return_if_fail(time != NULL);
 	DEBUG_BEGIN();
 
-	if(heart_rate > 0)
+	if(heart_rate >= 0)
 	{
 		text = g_strdup_printf(_("%d bpm"), (gint)heart_rate);
 		ec_button_set_label_text(
