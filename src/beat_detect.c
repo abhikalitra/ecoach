@@ -59,8 +59,7 @@ static void beat_detector_reset(BeatDetector *self);
  */
 static void beat_detector_analyze(
 		EcgData *ecg_data,
-		guint8 *samples,
-		guint len,
+		gint heart_rate,
 		gpointer user_data);
 
 /**
@@ -72,8 +71,7 @@ static void beat_detector_analyze(
  */
 static void beat_detector_invoke_callbacks(
 		BeatDetector *self,
-		gint beat_interval,
-		gint beat_type);
+		gint heart_rate);
 
 #if (BEAT_DETECTOR_SIMULATE_HEARTBEAT)
 static void beat_detector_start_simulating_heartbeat(BeatDetector *self);
@@ -304,8 +302,7 @@ static void beat_detector_reset(BeatDetector *self)
 
 static void beat_detector_analyze(
 		EcgData *ecg_data,
-		guint8 *samples,
-		guint len,
+		gint heart_rate,
 		gpointer user_data)
 {
 	gint converted_value = 0;
@@ -319,160 +316,43 @@ static void beat_detector_analyze(
 	BeatDetector *self = (BeatDetector *)user_data;
 
 	g_return_if_fail(self != NULL);
-	g_return_if_fail(samples != NULL);
-
+	//g_return_if_fail(samples != NULL);
+	
+	
 	DEBUG_BEGIN();
-
-	if(!self->parameters_configured)
-	{
-		self->sample_rate = ecg_data_get_sample_rate(self->ecg_data);
-		self->units_per_mv = ecg_data_get_units_per_mv(self->ecg_data);
-		self->zero_level = ecg_data_get_zero_level(self->ecg_data);
-		self->parameters_configured = TRUE;
-	}
-
-	for(i = 0; i < len; i++)
-	{
-		/* Osea requires voltage baseline to be at zero, and resolution
-		 * 5 uV per least significant type */
-		converted_value = samples[i];
-		converted_value = converted_value - self->zero_level;
-		converted_value = converted_value * 200 / self->units_per_mv;	
-
-		/* Distance to previous beat grows by one */
-		self->previous_beat_distance++;
-
-		if(self->beat_found) {
-			self->sample_count_since_offset_time++;
-		}
-
-		delay = BeatDetectAndClassify(
-				converted_value,
-				&beat_type,
-				&beat_match);
-
-		if(delay != 0)
-		{
-			if(self->beat_found)
-			{
-				beat_interval = self->previous_beat_distance
-					- delay;
-				DEBUG("Beat interval: %d", beat_interval);
-				DEBUG("In secs: %f",
-						(gdouble)beat_interval /
-						self->sample_rate);
-				beat_detector_invoke_callbacks(
-						self,
-						beat_interval,
-						beat_type);
-			} else {
-				DEBUG("First beat at: %d",
-						self->previous_beat_distance);
-				self->beat_found = TRUE;
-				gettimeofday(&self->offset_time, NULL);
-				beat_detector_invoke_callbacks(
-						self,
-						-1,
-						beat_type);
-			}
-			self->previous_beat_distance = delay;
-
-			if(beat_type == NORMAL)
-			{
-				DEBUG("Detected a NORMAL beat");
-			} else if (beat_type == PVC) {
-				DEBUG("Detected a PVC beat");
-			} else {
-				DEBUG("Detected UNKNOWN beat: %d",
-						beat_type);
-			}
-			DEBUG("Delay was: %d", delay);
-		}
-	}
+	beat_detector_invoke_callbacks(self, heart_rate);
 
 	DEBUG_END();
 }
 
 static void beat_detector_invoke_callbacks(
 		BeatDetector *self,
-		gint beat_interval,
-		gint beat_type)
+		gint heart_rate)
 {
 	gint i;
 	GSList *temp = NULL;
 	BeatDetectorCallbackData *cb_data = NULL;
 	guint total_interval = 0;
 	guint total_interval_count = 0;
-	gdouble heart_rate = -1;
+	//gdouble heart_rate = -1;
 	struct timeval time_since_offset_time;
 	struct timeval beat_time;
 
 	DEBUG_BEGIN();
 
-	if(self->sample_rate <= 0)
-	{
-		g_warning("Invalid sample rate %d defined", self->sample_rate);
-		DEBUG_END();
-		return;
-	}
-
-	if(beat_interval > 0)
-	{
-		/* Push the new beat interval to the array */
-		for(i = 0; i < self->beat_interval_count - 1; i++)
-		{
-			self->beat_interval[i] = self->beat_interval[i + 1];
-		}
-		self->beat_interval[self->beat_interval_count - 1] =
-			beat_interval;
-
-		/* Calculate the total interval of beats */
-		for(i = 0; i < self->beat_interval_count; i++)
-		{
-			if(self->beat_interval[i] > 0)
-			{
-				total_interval += self->beat_interval[i];
-				total_interval_count++;
-			}
-		}
-
-		if(total_interval_count > 0)
-		{
-			heart_rate = 60.0 * (gdouble)total_interval_count /
-				((gdouble)total_interval /
-				 (gdouble)self->sample_rate);
-		} else {
-			heart_rate = -1;
-		}
-	}
-
-	/* Calculate the time (as whole seconds) since the offset_time */
-	time_since_offset_time.tv_sec = self->sample_count_since_offset_time /
-		self->sample_rate;
-
-	/* Now, calculate the microseconds since the offset time */
-	time_since_offset_time.tv_usec = (self->sample_count_since_offset_time %
-		self->sample_rate) * 1000000 / self->sample_rate;
-
-	/* The time of the beat if the offset time + time_since_offset_time */
-	util_add_time(&self->offset_time, &time_since_offset_time, &beat_time);
-
-	/* Finally, add the whole seconds to the offset time, and
-	 * reduce the samples since offset time */
-	self->offset_time.tv_sec += time_since_offset_time.tv_sec;
-	self->sample_count_since_offset_time -= time_since_offset_time.tv_sec
-		* self->sample_rate;
+	
 
 	for(temp = self->callbacks; temp; temp = g_slist_next(temp))
 	{
 		cb_data = (BeatDetectorCallbackData *)temp->data;
 		if(cb_data->callback)
 		{
+			gettimeofday(&beat_time, NULL);
 			cb_data->callback(
 					self,
 					heart_rate,
 					&beat_time,
-					beat_type,
+					NORMAL,
 					cb_data->user_data);
 		}
 	}
