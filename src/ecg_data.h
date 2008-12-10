@@ -1,7 +1,7 @@
 /*
  *  eCoach
  *
- *  Copyright (C) 2008  Jukka Alasalmi
+ *  Copyright (C) 2008  Jukka Alasalmi, Sampo Savola
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -50,9 +50,7 @@ typedef struct _EcgData EcgData;
  */
 typedef void (*EcgDataFunc)
 	(EcgData *self,
-	 guint8 *data,
-	 guint len,
-	 gpointer user_data);
+	gint heart_rate, gpointer *user_data);
 
 typedef enum _EcgDataConnectionStatus {
 	ECG_DATA_DISCONNECTED,
@@ -179,6 +177,8 @@ struct _EcgData {
 	/** @brief Connection status */
 	EcgDataConnectionStatus connection_status;
 	GMutex *connection_status_mutex;
+	
+	gint hr;
 };
 
 /**
