@@ -1,7 +1,7 @@
 /*
  *  eCoach
  *
- *  Copyright (C) 2008  Jukka Alasalmi
+ *  Copyright (C) 2008  Jukka Alasalmi, Sampo Savola
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@
  * Private function prototypes                                              *
  ****************************************************************************/
 
-static void ecg_data_invoke_callbacks(EcgData *self, guint offset, guint len);
+static void ecg_data_invoke_callbacks(EcgData *self, gint heart_rate);
 static void ecg_data_process(EcgData *self);
 static gboolean ecg_data_process_data_chunk(EcgData *self);
 static gint ecg_data_process_data_block(EcgData *self);
@@ -74,7 +74,7 @@ static gboolean ecg_data_connect_bluetooth(EcgData *self, GError **error);
 static void ecg_data_disconnect_bluetooth(EcgData *self);
 static void ecg_data_wait_for_disconnect(EcgData *self);
 static gboolean ecg_data_setup_serial_pipe(EcgData *self, GError **error);
-
+static void frwd_parse_heartrate(EcgData *self,gchar* frwd);
 /**
  * @brief Remove unnecessary voltage data from the array.
  *
@@ -363,7 +363,7 @@ gint ecg_data_get_zero_level(EcgData *self)
  * Private function declarations                                             *
  *===========================================================================*/
 
-static void ecg_data_invoke_callbacks(EcgData *self, guint offset, guint len)
+static void ecg_data_invoke_callbacks(EcgData *self, gint heart_rate)
 {
 	GSList *temp = NULL;
 	EcgDataCallbackData *cb_data = NULL;
@@ -375,11 +375,7 @@ static void ecg_data_invoke_callbacks(EcgData *self, guint offset, guint len)
 		cb_data = (EcgDataCallbackData *)temp->data;
 		if(cb_data->callback)
 		{
-			cb_data->callback(self,
-					(guint8 *)self->voltage_array->data
-						+ offset,
-					len,
-					cb_data->user_data);
+		cb_data->callback(self,heart_rate, cb_data->user_data);
 		}
 	}
 
@@ -414,22 +410,24 @@ static void ecg_data_process(EcgData *self)
 	g_return_if_fail(self != NULL);
 
 	DEBUG_BEGIN();
+	gint i;
+	gint offset = 0;
+	gint syke = 0;
+	
+	gchar *pointer = g_strstr_len((const gchar *)self->buffer->data, self->buffer->len, "FRWD");
 
-	if(!self->in_sync)
-	{
-		/* ECG data has not yet been synchronized */
-		if(!ecg_data_synchronize(self, FALSE))
-		{
-			DEBUG_LONG("Unable to synchronize. More data needed.");
-			return;
+	DEBUG("Pointer: %p, data: %p", pointer, 
+	      self->buffer->data);
+	
+	if(pointer != NULL){
+		
+		offset = pointer - (gchar *)self->buffer->data;	
+		ecg_data_pop(self,offset,NULL);
+		frwd_parse_heartrate(self,pointer);
+		ecg_data_invoke_callbacks(self,self->hr);
 		}
-	}
-
-	/* Process the data until there are no more complete blocks. */
-	do {
-		DEBUG_LONG("Processing data chunk");
-	} while(ecg_data_process_data_chunk(self));
-
+	ecg_data_pop(self,93,NULL);
+	
 	DEBUG_END();
 }
 
@@ -456,10 +454,11 @@ static gboolean ecg_data_process_data_chunk(EcgData *self)
 	static guint8 checksum = 0;
 
 	g_return_val_if_fail(self != NULL, FALSE);
-	// g_return_if_fail(self->last_processed_location == 0);
-
 	DEBUG_BEGIN();
+	
+	
 
+	
 	if(data_block_count == -1)
 	{
 		/* We are processing a yet unprocessed data chunk. */
@@ -727,9 +726,10 @@ static gint ecg_data_process_ecg_data_block(EcgData *self)
 			self->buffer->data + ECG_PACKET_HEADER_LEN,
 			data_block_length - ECG_PACKET_HEADER_LEN);
 
+	/*
 	ecg_data_invoke_callbacks(self, ecg_data_offset,
 			data_block_length - ECG_PACKET_HEADER_LEN);
-
+*/
 	/** @todo: Is the voltage buffer even needed anymore? */
 	ecg_data_dispose_voltage_data(self, data_block_length -
 			ECG_PACKET_HEADER_LEN);
@@ -1012,7 +1012,7 @@ static gboolean ecg_data_bluetooth_data_arrived(
 			data_size);
 
 	ecg_data_push(self, (gint8 *)str_ret, (guint)data_size);
-
+	
 	DEBUG_END();
 	return TRUE;
 }
@@ -1063,29 +1063,24 @@ static gboolean ecg_data_connect_bluetooth(EcgData *self, GError **error)
 	/* Convert the Bluetooth address from string */
 	str2ba(self->bluetooth_address, &addr.rc_bdaddr);
 
-	/* Dynamic port allocation is not included in the kernel, so
-	 * we must traverse through all ports to find an available one.
-	 * An available port is a port for which the bind doesn't fail.
-	 */
-
 	for(i = 1; i <= 30; i++)
 	{
-		addr.rc_channel = (uint8_t)i;
-		
-		status = connect(
-				self->bluetooth_serial_fd,
-				(struct sockaddr *)&addr,
-				sizeof(addr));
-
+	addr.rc_channel = (uint8_t)i;
+	status = connect(self->bluetooth_serial_fd,(struct sockaddr *)&addr,
+						    sizeof(addr));
 		if(status == 0)
 		{
 			DEBUG("Available bluetooth port: %d", i);
 			break;
 		}
-	}
-
+		if(errno == ECONNREFUSED){
+		break;
+		}
+	}	
 	if(status < 0)
 	{
+		int err_no = errno;
+		g_message("Error: %s", strerror(errno));
 		/* Connecting failed for all ports. */
 		g_set_error(error, EC_ERROR, EC_ERROR_BLUETOOTH,
 				"No Bluetooth ports available");
@@ -1443,5 +1438,29 @@ static void ecg_data_send_data(
 	}
 
 	/** @todo error checking */
+	DEBUG_END();
+}
+
+static void frwd_parse_heartrate(EcgData *self,gchar* frwd){
+
+	int i;
+	gint value = 0;
+	DEBUG_BEGIN();
+	gchar *decrypt = g_strndup(frwd + 12, 3);
+	for(i = 0; i < 3; i++)
+	{
+		decrypt[i] /= 2;
+	}
+	value = strtol(decrypt, NULL, 10);
+	
+	if(value < 235)
+	self->hr = value;
+	
+	gchar *decryp = g_strndup(frwd + 51, 6);
+	for(i = 0; i < 6; i++)
+	{
+		decryp[i] /= 2;
+	}
+	value = strtol(decryp, NULL, 10);	
 	DEBUG_END();
 }
