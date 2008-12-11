@@ -11,10 +11,12 @@ Package: ecoach
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ecoach-maptile-loader (>=0.31)
 Description: eCoach application
- eCoach is an application that helps managing sports and exercise.
- It uses GPS data and data from Alive Technologies Heart Rate Monitor.
+ eCoach is an application for managing sport and exercise activities.
+ Supports FRWD B600 heart rate monitor.
 XB-Maemo-Display-Name: eCoach
-XB-Maemo-Upgrade-Description: * Added general settings dialog for setting measuring units and display dimming
+XB-Maemo-Upgrade-Description:  * Added support for FRWD B600 heart rate monitor
+ * eCoach no longer supports Alive Technologies hr monitor.
+ * Added general settings dialog for setting measuring units and display dimming
  * Expanded current location indicator size in a mapview
  * eCoach now shows a banner if gps fix is lost or not established
  * English units can now be used in BMI calculator
