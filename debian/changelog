@@ -1,3 +1,18 @@
+ecoach (1.13) unstable; urgency=low
+
+  * Added support for FRWD B600 heart rate monitor
+  * eCoach no longer supports Alive Technologies hr monitor.
+  * Added general settings dialog for setting measuring units and display dimming
+  * Expanded current location indicator size in a mapview
+  * eCoach now shows a banner if gps fix is lost or not established
+  * English units can now be used in BMI calculator
+  * ecoach-maptile-loader now saves maps to internal memorycard /media/mmc2
+  * Added few cool features to debian/control file:
+  * XB-Maemo-Display-Name, XB-Maemo-Upgrade-Description and
+  * XB-Maemo-Icon-26
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Thu, 11 Dec 2008 09:56:03 +0200
+
 ecoach (1.12) unstable; urgency=low
 
   * Added general settings dialog for setting measuring units and display dimming
