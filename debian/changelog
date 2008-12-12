@@ -1,4 +1,4 @@
-ecoach (1.13) unstable; urgency=low
+ecoach (1.13-1) unstable; urgency=low
 
   * Added support for FRWD B600 heart rate monitor
   * eCoach no longer supports Alive Technologies hr monitor.
