@@ -1493,17 +1493,15 @@ static gboolean frwd_parse_heartrate(EcgData *self,gchar* frwd){
 	
 	if(value < 235 && value > 20)
 	self->hr = value;
-	
+	/*
 	gchar *decryp = g_strndup(frwd + 51, 6);
 	for(i = 0; i < 6; i++)
 	{
 		decryp[i] /= 2;
 	}
 	value = strtol(decryp, NULL, 10);
-	if(self->buffer->len < FRWD_PACKET_SIZE)
-	{
-		return FALSE;
-	}
+
+	*/
 	ecg_data_invoke_callbacks(self,self->hr);
 	g_free(decrypt);
 	DEBUG_END();
