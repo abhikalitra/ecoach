@@ -1491,7 +1491,7 @@ static gboolean frwd_parse_heartrate(EcgData *self,gchar* frwd){
 	}
 	value = strtol(decrypt, NULL, 10);
 	
-	if(value < 235)
+	if(value < 235 && value > 20)
 	self->hr = value;
 	
 	gchar *decryp = g_strndup(frwd + 51, 6);
