@@ -367,10 +367,10 @@ static void interface_create_menu(AppData *app_data)
 			path_level_1,
 			_("Maximum\nheart rate"),
 			GFXDIR "menu_max_heart_btn",
-			NULL,
-			NULL,
+			show_calculate_maxheartrate,
+			app_data,
 			TRUE);
-
+	/*
 	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			path_level_2,
@@ -378,16 +378,16 @@ static void interface_create_menu(AppData *app_data)
 			GFXDIR "menu_calculate_btn",
 			show_calculate_maxheartrate,
 			app_data,
-			FALSE);
+			FALSE);*/
 
-	navigation_menu_item_new_for_path(
+	/*navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			path_level_2,
 			_("Test"),
 			NULL,
 			NULL,
 			NULL,
-			FALSE);
+			FALSE);*/
 
 	gtk_tree_path_free(path_level_2);
 
