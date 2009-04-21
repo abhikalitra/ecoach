@@ -1,7 +1,7 @@
 /*
  *  eCoach
  *
- *  Copyright (C) 2008  Jukka Alasalmi
+ *  Copyright (C) 2009  Sampo Savola Jukka Alasalmi
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published bylocation-distance-utils-fix
@@ -1441,8 +1441,9 @@ static void map_view_btn_stop_clicked(GtkWidget *button, gpointer user_data)
 	dialog = hildon_note_new_confirmation_add_buttons(
 		self->parent_window,
 		_("Do you really want to stop the current activity?\n\n"
-		"Statistics such as average speed and elapsed time\n"
-		"will cleared be when you press Start button again."),
+		"Statistics such as distance and elapsed time\n"
+		"will be cleared when you press Record button\n"
+		"again."),
 		GTK_STOCK_YES, GTK_RESPONSE_YES,
 		GTK_STOCK_NO, GTK_RESPONSE_NO,
 		NULL);
