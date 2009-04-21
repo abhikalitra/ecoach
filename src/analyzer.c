@@ -669,7 +669,7 @@ void analyzer_view_show(AnalyzerView *self)
 
 	/* Track details */
 	self->lbl_track_details = gtk_label_new(_("No track information "
-				"available"));
+				"avail."));
 	gtk_fixed_put(GTK_FIXED(self->main_widget), self->lbl_track_details,
 			420, 20);
 	gtk_widget_set_size_request(self->lbl_track_details, 280, 55);
@@ -1432,7 +1432,7 @@ static void analyzer_view_clear_data(AnalyzerView *self)
 	gtk_label_set_text(GTK_LABEL(self->lbl_track_number),
 		       _("No tracks"));
 	gtk_label_set_text(GTK_LABEL(self->lbl_track_details),
-		       _("No track information available"));
+		       _("No track information avail."));
 
 	/* Clear all the tracks */
 	for(temp = self->tracks; temp; temp = g_slist_next(temp))
