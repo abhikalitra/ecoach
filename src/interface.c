@@ -1155,8 +1155,9 @@ static void interface_start_activity(
 	{
 		dialog = hildon_note_new_confirmation_add_buttons(
 				GTK_WINDOW(app_data->window),
-		_("There is an activity in stopped state. Do you want to\n"
-		"continue it (into a new track) or start a new activity?"),
+		_("There is an activity in stopped state.\n"
+		  "Do you want to continue it into a new track or\n"
+		  "start a new activity?"),
 		_("New"), GTK_RESPONSE_OK,
 		_("Continue"), GTK_RESPONSE_CANCEL,
 		NULL);
