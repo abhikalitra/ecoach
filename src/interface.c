@@ -57,6 +57,10 @@
 #define GFXDIR DATADIR "/pixmaps/" PACKAGE_NAME "/"
 #define ECOACH_DATADIR "/media/mmc2/Ecoach"
 
+
+const gchar * MAPTILELOADER_DBUS_SERVICE = "org.ecoach.maptileloader";
+const gchar * MAPTILELOADER_DBUS_OBJECT_PATH = "/org/ecoach/maptileloader";
+const gchar * MAPTILELOADER_DBUS_INTERFACE = "org.ecoach.maptileloader";
 /*****************************************************************************
  * Private function prototypes                                               *
  *****************************************************************************/
@@ -569,15 +573,25 @@ static void interface_confirm_close(GtkWidget *btn, gpointer user_data)
 			_("Do you really want to close the application?"));
 
 	result = gtk_dialog_run(GTK_DIALOG(dialog));
-
+	
 	gtk_widget_destroy(dialog);
 
 	if(result == GTK_RESPONSE_OK)
 	{
-		
+		DBusConnection *conn;
+		conn = osso_get_dbus_connection(app_data->osso);
+		DBusMessage *message = NULL;
+		message = dbus_message_new_method_call( MAPTILELOADER_DBUS_SERVICE,
+                                            MAPTILELOADER_DBUS_OBJECT_PATH,
+                                            MAPTILELOADER_DBUS_INTERFACE,
+                                            "MaptileLoaderTerminate");
+		dbus_connection_send( conn, message,NULL);
+		dbus_message_unref(message);
+
 		control = location_gpsd_control_get_default ();
 		location_gpsd_control_stop(control);
 		map_view_stop(app_data->map_view);
+		osso_deinitialize(app_data->osso);
 		gtk_main_quit();
 		
 	}
