@@ -55,8 +55,6 @@
 
 #define RCFILE_PATH DATADIR "/" PACKAGE_NAME "/ec_style.rc"
 #define GFXDIR DATADIR "/pixmaps/" PACKAGE_NAME "/"
-#define ECOACH_DATADIR "/media/mmc2/Ecoach"
-
 
 const gchar * MAPTILELOADER_DBUS_SERVICE = "org.ecoach.maptileloader";
 const gchar * MAPTILELOADER_DBUS_OBJECT_PATH = "/org/ecoach/maptileloader";
@@ -155,9 +153,6 @@ AppData *interface_create()
 	/* Initialize GConf helper */
 	interface_initialize_gconf(app_data);
 	
-	/* Create default datafolder media/mmc2/Ecoach */
-	g_mkdir(ECOACH_DATADIR,0700);
-	
 	/* Initialize generic settings */
 	app_data->settings = settings_initialize(app_data->gconf_helper);
 
@@ -248,7 +243,7 @@ AppData *interface_create()
 	gconf_helper_add_key_string(
 			app_data->gconf_helper,
 			ECGC_DEFAULT_FOLDER,
-			"/media/mmc2/Ecoach/",
+			"/media/",
 			interface_default_folder_changed,
 			app_data,
 			NULL);
