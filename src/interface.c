@@ -243,7 +243,7 @@ AppData *interface_create()
 	gconf_helper_add_key_string(
 			app_data->gconf_helper,
 			ECGC_DEFAULT_FOLDER,
-			"/media/",
+			"/home/user",
 			interface_default_folder_changed,
 			app_data,
 			NULL);
