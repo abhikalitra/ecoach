@@ -5,6 +5,6 @@
 
 set -e
 gtk-update-icon-cache -f /usr/share/icons/hicolor
-maemo-select-menu-location ecoach.desktop
+#maemo-select-menu-location ecoach.desktop
 
 exit 0
