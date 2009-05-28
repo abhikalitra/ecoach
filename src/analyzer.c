@@ -1,7 +1,7 @@
 /*
  *  eCoach
  *
- *  Copyright (C) 2008  Jukka Alasalmi
+ *  Copyright (C) 2009  Jukka Alasalmi, Sampo Savola
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
  *****************************************************************************/
 #define GFXDIR DATADIR		"/pixmaps/" PACKAGE_NAME "/"
 #define ANALYZER_VIEW_HEIGHT	325
-#define ANALYZER_VIEW_WIDTH	650
+#define ANALYZER_VIEW_WIDTH	760
 
 /*****************************************************************************
  * Includes                                                                  *
@@ -41,6 +41,7 @@
 /* Hildon */
 #include <hildon/hildon-file-chooser-dialog.h>
 #include <hildon/hildon-file-system-model.h>
+#include <hildon/hildon.h>
 
 /* Location */
 #include "location-distance-utils-fix.h"
@@ -66,7 +67,7 @@ typedef enum _AnalyzerViewUnitType {
 
 typedef enum
 {
-	METRIC, 
+	METRIC,
  	ENGLISH
 } MeasureUnit;
 /*****************************************************************************
@@ -85,7 +86,7 @@ typedef struct _AnalyzerViewTrack {
 	/* These are analyzed from the data */
 
 	/** @brief Has the data been calculated */
-	gboolean data_is_analyzed; 
+	gboolean data_is_analyzed;
 
 	/** @brief Start time of the track */
 	struct timeval start_time;
@@ -559,8 +560,8 @@ AnalyzerView *analyzer_view_new(
 	self = g_new0(AnalyzerView, 1);
 	self->parent_window = parent_window;
 	self->gconf_helper = gconf_helper;
-	
-	
+
+
 
 	self->main_widget = gtk_fixed_new();
 
@@ -597,6 +598,39 @@ void analyzer_view_set_default_folder(
 
 	DEBUG_END();
 }
+
+static GtkWidget *create_table ()
+{
+
+  GtkWidget *hbox;
+  GtkWidget *table;
+  GtkWidget *button;
+  char buffer[32];
+  int i, j;
+
+  /* create a table of 10 by 10 squares. */
+  table = gtk_table_new (20, 20, FALSE);
+
+  /* set the spacing to 10 on x and 10 on y */
+  gtk_table_set_row_spacings (GTK_TABLE (table), 2);
+  gtk_table_set_col_spacings (GTK_TABLE (table), 2);
+
+  gtk_widget_show (table);
+
+  /* this simply creates a grid of toggle buttons on the table
+   * to demonstrate the scrolled window. */
+  for (i = 1; i < 20; i++)
+    for (j = 1; j < 20; j++) {
+      sprintf (buffer, "button (%d,%d)\n", i, j);
+      button = gtk_toggle_button_new_with_label (buffer);
+
+      gtk_table_attach_defaults (GTK_TABLE (table), button,
+                                 i, i+1, j, j+1);
+    }
+
+  return table;
+}
+
 
 void analyzer_view_show(AnalyzerView *self)
 {
@@ -678,7 +712,7 @@ void analyzer_view_show(AnalyzerView *self)
 	pango_font_description_free(desc);
 
 	/* Previous view button */
-	self->btn_view_prev = ec_button_new();
+/*	self->btn_view_prev = ec_button_new();
 	ec_button_set_bg_image(EC_BUTTON(self->btn_view_prev),
 			EC_BUTTON_STATE_RELEASED,
 			GFXDIR "ec_button_change_view_bg.png");
@@ -697,9 +731,9 @@ void analyzer_view_show(AnalyzerView *self)
 
 	g_signal_connect(G_OBJECT(self->btn_view_prev), "clicked",
 			G_CALLBACK(analyzer_view_prev), self);
-
+*/
 	/* Next view button */
-	self->btn_view_next = ec_button_new();
+/*	self->btn_view_next = ec_button_new();
 	ec_button_set_bg_image(EC_BUTTON(self->btn_view_next),
 			EC_BUTTON_STATE_RELEASED,
 			GFXDIR "ec_button_change_view_bg.png");
@@ -718,32 +752,14 @@ void analyzer_view_show(AnalyzerView *self)
 
 	g_signal_connect(G_OBJECT(self->btn_view_next), "clicked",
 			G_CALLBACK(analyzer_view_next), self);
+*/
 
-	/* Create the scroll area */
-	self->scrolled = gtk_scrolled_window_new(NULL, NULL);
 
-	gtk_scrolled_window_set_policy(
-			GTK_SCROLLED_WINDOW(self->scrolled),
-			GTK_POLICY_NEVER,
-			GTK_POLICY_NEVER);
+	GtkWidget *pan;
+	GtkWidget *data;
 
-	gtk_widget_set_size_request(self->scrolled,
-			ANALYZER_VIEW_WIDTH, ANALYZER_VIEW_HEIGHT);
-
-	gtk_fixed_put(GTK_FIXED(self->main_widget), self->scrolled,
-			75, 85);
-
-	/* Create the fixed layout for the different views */
-	self->fixed_view = gtk_fixed_new();
-	gtk_widget_set_size_request(self->fixed_view,
-			2 * ANALYZER_VIEW_WIDTH,
-			ANALYZER_VIEW_HEIGHT);
-
-	gtk_scrolled_window_add_with_viewport(
-			GTK_SCROLLED_WINDOW(self->scrolled),
-			self->fixed_view);
-
-	/* Create the views */
+	data = gtk_table_new(1,2,TRUE);
+      /* Create the views */
 	self->views[ANALYZER_VIEW_INFO] =
 		analyzer_view_create_view_info(self);
 
@@ -758,11 +774,31 @@ void analyzer_view_show(AnalyzerView *self)
 				ANALYZER_VIEW_WIDTH, ANALYZER_VIEW_HEIGHT);
 	}
 
-	gtk_fixed_put(GTK_FIXED(self->fixed_view),
-			self->views[ANALYZER_VIEW_INFO],
-			0, 0);
+	gtk_table_attach_defaults (GTK_TABLE (data), self->views[ANALYZER_VIEW_INFO], 0, 1, 0, 1);
+	gtk_table_attach_defaults (GTK_TABLE (data), self->views[ANALYZER_VIEW_GRAPHS], 1, 2, 0, 1);
 
-	gtk_widget_show_all(self->main_widget);	
+	self->pannable = hildon_pannable_area_new ();
+
+         g_object_set (G_OBJECT (self->pannable),
+                "mov-mode", HILDON_MOVEMENT_MODE_HORIZ );
+	
+	g_object_set (G_OBJECT (self->pannable),"low-friction-mode", TRUE);
+
+//	g_object_set (G_OBJECT (self->pannable),
+//               "deceleration", 0.01);	
+
+	hildon_pannable_area_add_with_viewport (HILDON_PANNABLE_AREA (self->pannable), data);
+
+	pan = gtk_table_new(1,1,TRUE);
+	gtk_widget_set_size_request(pan,
+			762,
+			340);
+	gtk_container_add (GTK_CONTAINER (pan), self->pannable);
+	gtk_fixed_put(GTK_FIXED(self->main_widget), pan,
+			18, 85);
+
+
+	gtk_widget_show_all(self->main_widget);
 
 	self->current_view = 0;
 
@@ -845,7 +881,7 @@ static GtkWidget *analyzer_view_create_view_info(AnalyzerView *self)
 	for(i = 0; i < ANALYZER_VIEW_INFO_LABEL_COUNT; i++)
 	{
 		self->info_labels[i][1] = gtk_label_new(_("N/A"));
-	
+
 		gtk_misc_set_alignment(
 				GTK_MISC(self->info_labels[i][0]),
 				1, 0.5);
@@ -1356,9 +1392,9 @@ static gchar *analyzer_view_choose_file_name(AnalyzerView *self)
 			"action", GTK_FILE_CHOOSER_ACTION_OPEN,
 			NULL);
 
-	gtk_file_chooser_set_current_folder(
+	/*gtk_file_chooser_set_current_folder(
 			GTK_FILE_CHOOSER(file_dialog),
-			self->default_folder_name);
+			self->default_folder_name);*/
 
 	file_filter = gtk_file_filter_new();
 	gtk_file_filter_set_name(file_filter, _("GPX files"));
@@ -1394,7 +1430,7 @@ static gchar *analyzer_view_choose_file_name(AnalyzerView *self)
 
 	gtk_widget_destroy(file_dialog);
 	//analyzer_view_set_units(self);
-	if (gconf_helper_get_value_bool_with_default(self->gconf_helper, 
+	if (gconf_helper_get_value_bool_with_default(self->gconf_helper,
 	    USE_METRIC, TRUE))
 	{
 		self->metric=TRUE;
@@ -1403,7 +1439,7 @@ static gchar *analyzer_view_choose_file_name(AnalyzerView *self)
 	{
 		self->metric=FALSE;
 	}
-	
+
 	DEBUG_END();
 	return file_name;
 }
@@ -1846,7 +1882,7 @@ static void analyzer_view_analyze_track_segment(
 				speed_temp = dist_sum / time_sum * 3.6;
 				speed_temp = speed_temp * 0.621;
 				}
-			
+
 
 				for(temp2 = track_segment->track_points;
 				    temp2 != temp;
@@ -1915,7 +1951,7 @@ static void analyzer_view_analyze_track_segment(
 		}
 		else
 		{
-			speed_temp = dist_sum / time_sum * 3.6;	
+			speed_temp = dist_sum / time_sum * 3.6;
 			speed_temp = speed_temp * 0.621;
 		}
 
@@ -1980,7 +2016,7 @@ static void analyzer_view_analyze_track_segment_heart_rates(
 	track->heart_rate_max = G_MININT;
 
 	for(temp = track_segment->heart_rates; temp; temp = g_slist_next(temp))
-	{	
+	{
 		heart_rate = (AnalyzerViewHeartRate *)temp->data;
 
 		if(first)
@@ -2017,7 +2053,7 @@ static void analyzer_view_analyze_track_segment_heart_rates(
 		} else if(heart_rate->value < track->heart_rate_min) {
 			track->heart_rate_min = heart_rate->value;
 		}
-	
+
 		track->heart_rate_sum += heart_rate->value;
 		track->heart_rate_count++;
 	}
@@ -2050,7 +2086,7 @@ static void analyzer_view_show_track_information(
 	gdouble temp_average;
 	gdouble temp_distance;
 
-	
+
 	g_return_if_fail(self != NULL);
 	g_return_if_fail(track != NULL);
 
@@ -2124,7 +2160,7 @@ static void analyzer_view_show_track_information(
 	} else {
 		buffer = buffer2;
 	}
-	
+
 	gtk_label_set_text(GTK_LABEL(self->lbl_track_details), buffer);
 
 	g_free(buffer);
@@ -2190,10 +2226,10 @@ static void analyzer_view_show_track_information(
 				[ANALYZER_VIEW_INFO_LABEL_DURATION][1]),
 				_("N/A"));
 	}
-			
+
 	if(track->distance >= 10000.0)
 	{
-		
+
 		if(self->metric)
 		{
 			buffer = g_strdup_printf(
@@ -2202,14 +2238,14 @@ static void analyzer_view_show_track_information(
 		}
 		else
 		{
-		
+
 			buffer = g_strdup_printf(
 					_("%.1f mi"),
 					  (track->distance / 1000.0)*0.621);
 		}
 
 	} else if(track->distance >= 1000.0) {
-		
+
 		if(self->metric)
 		{
 		buffer = g_strdup_printf(_("%.2f km"),
@@ -2222,7 +2258,7 @@ static void analyzer_view_show_track_information(
 		}
 
 	} else if(track->distance >= 0) {
-		
+
 		if(self->metric)
 		{
 		buffer = g_strdup_printf(_("%d m"), (gint)track->distance);
@@ -2232,7 +2268,7 @@ static void analyzer_view_show_track_information(
 		temp_distance = track->distance * 3.280;
 		buffer = g_strdup_printf(_("%.0f ft"), temp_distance);
 		}
-			
+
 	} else {
 		buffer = g_strdup_printf(_("N/A"));
 	}
@@ -2262,7 +2298,7 @@ static void analyzer_view_show_track_information(
 	g_free(buffer);
 
 	if(track->speed_max > 0.0)
-	{	
+	{
 		if(self->metric)
 		{
 		buffer = g_strdup_printf("%.1f km/h", track->speed_max);
@@ -2448,7 +2484,7 @@ static gboolean analyzer_view_graphs_drawing_area_exposed(
 		details.track = track;
 
 		details.show_speed = self->show_speed;
-	
+
 		details.show_altitude = (self->show_altitude &&
 				track->altitude_bounds_set);
 
@@ -2459,7 +2495,7 @@ static gboolean analyzer_view_graphs_drawing_area_exposed(
 		details.color_speed.g = .6;
 		details.color_speed.b = 1;
 		details.color_speed.a = 1;
-	
+
 		details.color_altitude.r = .4;
 		details.color_altitude.g = .9;
 		details.color_altitude.b = 0;
@@ -2582,16 +2618,16 @@ static GdkPixbuf *analyzer_view_create_pixbuf(
 
 	/* First, draw the titles of the scales */
 	if(self->metric)
-	{	
+	{
 	scale_text = _("Speed (km/h) Altitude (m) Heart rate (bpm)"
 		       "Time (hh:mm) (mm:ss)");
 	}
 	else
 	{
 	scale_text = _("Speed (mph) Altitude (ft) Heart rate (bpm)"
-			"Time (hh:mm) (mm:ss)");	
+			"Time (hh:mm) (mm:ss)");
 	}
-	
+
 	cairo_text_extents(cr, scale_text, &extents);
 
 	graph.height -= extents.height + 15;
@@ -2620,7 +2656,7 @@ static GdkPixbuf *analyzer_view_create_pixbuf(
 		}
 		else
 		{
-		scale_text = _("Speed (mph)");	
+		scale_text = _("Speed (mph)");
 		}
 		cairo_text_extents(cr, scale_text, &extents2);
 
@@ -2634,7 +2670,7 @@ static GdkPixbuf *analyzer_view_create_pixbuf(
 				extents.height / 2.0,
 				0, 2 * M_PI);
 		cairo_fill(cr);
-		
+
 		cairo_set_source_rgba(cr, 1, 1, 1, 1);
 		cairo_move_to(cr, extents.height + 5,
 				extents.height / 2.0 - extents.y_bearing / 2.0);
@@ -2650,7 +2686,7 @@ static GdkPixbuf *analyzer_view_create_pixbuf(
 		}
 		else
 		{
-		scale_text = _("Altitude (ft)");	
+		scale_text = _("Altitude (ft)");
 		}
 		cairo_text_extents(cr, scale_text, &extents2);
 
@@ -2665,7 +2701,7 @@ static GdkPixbuf *analyzer_view_create_pixbuf(
 				extents.height / 2.0,
 				0, 2 * M_PI);
 		cairo_fill(cr);
-		
+
 		cairo_set_source_rgba(cr, 1, 1, 1, 1);
 		cairo_move_to(cr, descr_x + extents.height + 5,
 				extents.height / 2.0 - extents.y_bearing / 2.0);
@@ -2689,7 +2725,7 @@ static GdkPixbuf *analyzer_view_create_pixbuf(
 				extents.height / 2.0,
 				0, 2 * M_PI);
 		cairo_fill(cr);
-		
+
 		cairo_set_source_rgba(cr, 1, 1, 1, 1);
 
 		cairo_move_to(cr, descr_x + extents.height + 5,
@@ -3173,12 +3209,12 @@ static void analyzer_view_draw_speed(
 {
 	/* Pixels per units ("how many pixels wide is a second") */
 	gdouble pixels_per_sec = 0;
-	
+
 	gdouble mile_speed = 0;
 
 	gdouble duration_secs = 0;
 	guint counter = 0;
-	
+
 	gdouble x = 0;
 	gdouble y = 0;
 
@@ -3236,15 +3272,15 @@ static void analyzer_view_draw_speed(
 			{
 				mile_speed  = 	waypoint->speed_averaged;
 			y = graph_area->height - mile_speed *
-				pixels_per_unit;	
-				
+				pixels_per_unit;
+
 			}
 
 			if(counter == 0)
 			{
 				cairo_move_to(cr, x, y);
 			} else {
-				x += pixels_per_sec * 
+				x += pixels_per_sec *
 				((gdouble)waypoint->time_to_prev.tv_sec +
 				 (gdouble)waypoint->time_to_prev.tv_usec /
 					 1000000.0);
@@ -3324,12 +3360,12 @@ static void analyzer_view_draw_altitude(
 
 			if(!first_point)
 			{
-				x += pixels_per_sec * 
+				x += pixels_per_sec *
 				((gdouble)waypoint->time_to_prev.tv_sec +
 				 (gdouble)waypoint->time_to_prev.tv_usec /
 					 1000000.0);
 			}
-	
+
 			if(!waypoint->altitude_is_set)
 			{
 				draw_line = FALSE;
@@ -3503,12 +3539,12 @@ static void analyzer_view_set_units(AnalyzerView *self)
 					     METRIC,
 					     "English",
 	  				     ENGLISH,NULL);
-	
-	
+
+
 	do{
-		
+
 	result = gtk_dialog_run (GTK_DIALOG (dialog));
-	
+
 		switch (result)
 		{
 			case METRIC:
@@ -3517,7 +3553,7 @@ static void analyzer_view_set_units(AnalyzerView *self)
 				break;
 			case ENGLISH:
 			self->metric = FALSE;
-			loop = FALSE;	
+			loop = FALSE;
 				break;
 		}
 	}while(loop);
