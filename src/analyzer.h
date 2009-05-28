@@ -1,7 +1,7 @@
 /*
  *  eCoach
  *
- *  Copyright (C) 2008  Jukka Alasalmi
+ *  Copyright (C) 2009  Jukka Alasalmi, Sampo Savola
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -86,7 +86,7 @@ typedef struct _AnalyzerView {
 	GtkWidget *lbl_track_details;
 
 	GtkWidget *scrolled;
-
+	GtkWidget *pannable;
 	/* Container for the different views */
 	GtkWidget *fixed_view;
 
