@@ -263,7 +263,7 @@ static void hrm_settings_choose_device(AppData *app_data)
 				&error,
 
 				/* Parameters */
-				G_TYPE_STRING, "miscellaneous",
+				G_TYPE_STRING, "",
 				G_TYPE_STRING, "",
 				G_TYPE_STRV, service_classes_p,
 				G_TYPE_STRING, "require",
