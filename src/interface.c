@@ -59,6 +59,10 @@
 const gchar * MAPTILELOADER_DBUS_SERVICE = "org.ecoach.maptileloader";
 const gchar * MAPTILELOADER_DBUS_OBJECT_PATH = "/org/ecoach/maptileloader";
 const gchar * MAPTILELOADER_DBUS_INTERFACE = "org.ecoach.maptileloader";
+
+const gchar * HILDON_DBUS_SERVICE = "com.nokia.hildon_desktop";
+const gchar * HIDLON_DBUS_OBJECT_PATH = "/com/nokia/hildon_desktop";
+const gchar * HILDON_DBUS_INTERFACE = "com.nokia.hildon_desktop";
 /*****************************************************************************
  * Private function prototypes                                               *
  *****************************************************************************/
@@ -547,7 +551,18 @@ static void interface_minimize(GtkWidget *btn, gpointer user_data)
 	g_return_if_fail(app_data != NULL);
 	DEBUG_BEGIN();
 
-	gtk_window_iconify(GTK_WINDOW(app_data->window));
+	//gtk_window_iconify(GTK_WINDOW(app_data->window));
+	
+	/* Go to task switcher */
+	DBusConnection *conn;
+	conn = osso_get_dbus_connection(app_data->osso);
+	DBusMessage *message = NULL;
+	message = dbus_message_new_signal( HIDLON_DBUS_OBJECT_PATH,
+					   HILDON_DBUS_INTERFACE,"exit_app_view");
+	dbus_connection_send( conn, message,NULL);
+	
+	dbus_connection_flush(conn);
+	dbus_message_unref(message);
 
 	DEBUG_END();
 }
