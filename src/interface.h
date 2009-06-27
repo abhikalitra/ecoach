@@ -40,6 +40,7 @@
 #include <dbus/dbus-glib.h>
 
 /* Other modules */ 
+#include "calculate_bmi.h"
 #include "activity.h"
 #include "analyzer.h"
 #include "beat_detect.h"
@@ -51,7 +52,7 @@
 #include "navigation_menu.h"
 #include "settings.h"
 #include "general_settings.h"
-#include "calculate_bmi.h"
+
 #include "calculate_maxheartrate.h"
 #ifdef ENABLE_ECG_VIEW
 #include "ecg_view.h"
@@ -87,7 +88,8 @@ typedef struct _AppData {
 	gint ecg_view_tab_id;
 	EcgViewData *ecg_view;
 #endif
-
+		/*BMI Calculator*/
+	BMIData *bmidata;
 	/* Map view */
 	gint map_view_tab_id;
 	MapView *map_view;
@@ -113,6 +115,9 @@ typedef struct _AppData {
 
 	/* Activity chooser */
 	ActivityChooser *activity_chooser;
+
+
+
 } AppData;
 
 AppData *interface_create();
