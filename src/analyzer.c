@@ -42,6 +42,7 @@
 #include <hildon/hildon-file-chooser-dialog.h>
 #include <hildon/hildon-file-system-model.h>
 #include <hildon/hildon.h>
+#include <hildon/hildon-pannable-area.h>
 
 /* Location */
 #include "location-distance-utils-fix.h"
@@ -779,10 +780,9 @@ void analyzer_view_show(AnalyzerView *self)
 
 	self->pannable = hildon_pannable_area_new ();
 
-         g_object_set (G_OBJECT (self->pannable),
-                "mov-mode", HILDON_MOVEMENT_MODE_HORIZ );
+	 g_object_set (G_OBJECT(self->pannable),"mov-mode", HILDON_MOVEMENT_MODE_HORIZ );
 	
-	g_object_set (G_OBJECT (self->pannable),"low-friction-mode", TRUE);
+	//g_object_set (G_OBJECT (self->pannable),"low-friction-mode", TRUE);
 
 //	g_object_set (G_OBJECT (self->pannable),
 //               "deceleration", 0.01);	
@@ -1418,13 +1418,15 @@ static gchar *analyzer_view_choose_file_name(AnalyzerView *self)
 		DEBUG_END();
 		return NULL;
 	}
+    /*** TODO proper maemo5 filechooser implementation ***/
 
+/*
 	gconf_helper_set_value_string(
 			self->gconf_helper,
 			ECGC_DEFAULT_FOLDER,
 			gtk_file_chooser_get_current_folder(
 				GTK_FILE_CHOOSER(file_dialog)));
-
+*/
 	file_name = gtk_file_chooser_get_filename(
 			GTK_FILE_CHOOSER(file_dialog));
 
