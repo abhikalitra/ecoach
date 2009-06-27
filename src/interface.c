@@ -1,7 +1,7 @@
 /*
  *  eCoach
  *
- *  Copyright (C) 2008  Jukka Alasalmi, Kai Skiftesvik
+ *  Copyright (C) 2008  Jukka Alasalmi, Kai Skiftesvik, Sampo Savola
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -30,10 +30,11 @@
 /* Hildon */
 #include <hildon/hildon-caption.h>
 #include <hildon/hildon-note.h>
-
+#include <hildon/hildon-text-view.h>
+#include <hildon/hildon-pannable-area.h>
 /* Other modules */
 #include "config.h"
-
+#include "calculate_bmi.h"
 #include "beat_detect.h"
 #include "gconf_keys.h"
 #include "navigation_menu.h"
@@ -43,7 +44,6 @@
 #include "settings.h"
 #include "general_settings.h"
 #include "target_heart_rate.h"
-#include "calculate_bmi.h"
 #include "calculate_maxheartrate.h"
 #include "util.h"
 
@@ -682,6 +682,8 @@ static void interface_show_about_dialog(
 	GtkWidget *dialog = NULL;
 	GtkWidget *vbox = NULL;
 	GtkWidget *hbox = NULL;
+	GtkWidget *pannable = NULL;
+	GtkWidget *cont = NULL;
 	GtkWidget *view = NULL;
 	GtkWidget *scrollbar = NULL;
 	GtkTextBuffer *buffer = NULL;
@@ -698,35 +700,39 @@ static void interface_show_about_dialog(
 			_("About eCoach"),
 			GTK_WINDOW(app_data->window),
 			GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR,
-			GTK_STOCK_OK,
-			GTK_RESPONSE_OK,
 			NULL);
 
 	vbox = GTK_DIALOG(dialog)->vbox;
 
 	text_about = g_strdup_printf(_(
-				"eCoach version %s Copyright (C) 2008 \n"
+				"eCoach version %s Copyright (C) 2009 \n"
 				"Jukka Alasalmi Sampo Savola\n"
 				"Kai Skiftesvik Veli-Pekka Haajanen\n"),
 				PACKAGE_VERSION);
 	lbl_about = gtk_label_new(text_about);
 	g_free(text_about);
+      
+	pannable =  hildon_pannable_area_new();
 
 	gtk_box_pack_start(GTK_BOX(vbox), lbl_about, FALSE, FALSE, 0);
 
 	hbox = gtk_hbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
-	view = gtk_text_view_new();
+	//view = gtk_text_view_new();
+	
+	view = hildon_text_view_new();
+	hildon_pannable_area_add_with_viewport (HILDON_PANNABLE_AREA (pannable), view);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(view), FALSE);
-	gtk_widget_set_size_request(view, 720, 240);
+	//gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(view), FALSE);
+	gtk_widget_set_size_request(dialog, 800, 390);
 
 	desc = pango_font_description_from_string("Nokia Sans 14");
 	gtk_widget_modify_font(view, desc);
 	pango_font_description_free(desc);
 
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+	buffer = hildon_text_view_get_buffer(HILDON_TEXT_VIEW(view));
 
 	gtk_text_buffer_set_text(buffer, _(
 		"eCoach comes with ABSOLUTELY NO WARRANTY. This is "
@@ -1105,13 +1111,18 @@ static void interface_show_about_dialog(
 "library.  If this is what you want to do, use the GNU Library General\n"
 "Public License instead of this License.\n", -1);
 
-	gtk_box_pack_start(GTK_BOX(hbox), view, FALSE, FALSE, 0);
+	cont = gtk_table_new(1,1,TRUE);
+	gtk_widget_set_size_request(cont,
+			800,
+			240);
+	gtk_container_add (GTK_CONTAINER (cont),pannable);
+	gtk_box_pack_start(GTK_BOX(hbox), cont, FALSE, FALSE, 0);
+	
+	//scrollbar = gtk_vscrollbar_new(NULL);
+	//gtk_widget_set_scroll_adjustments(view, NULL,
+	//		GTK_RANGE(scrollbar)->adjustment);
 
-	scrollbar = gtk_vscrollbar_new(NULL);
-	gtk_widget_set_scroll_adjustments(view, NULL,
-			GTK_RANGE(scrollbar)->adjustment);
-
-	gtk_box_pack_start(GTK_BOX(hbox), scrollbar, FALSE, FALSE, 0);
+	//gtk_box_pack_start(GTK_BOX(hbox), scrollbar, FALSE, FALSE, 0);
 
 	gtk_widget_show_all(dialog);
 
