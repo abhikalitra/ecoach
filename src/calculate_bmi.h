@@ -23,7 +23,18 @@
 #define _CALCULATE_BMI_H
 #include "navigation_menu.h"
 #include <gtk/gtk.h>
-#include "interface.h"
+#include "hildon/hildon-picker-button.h"
+
+typedef struct _BMIData BMIData;
+
+struct _BMIData{
+    GtkWidget *val_label;
+    gdouble bmi;
+    gchar *char_bmi;
+    GtkWidget *height_picker;
+    GtkWidget *weight_picker;
+};
+
 
 void show_calculate_bmi(NavigationMenu *menu, GtkTreePath *path,
 				gpointer user_data);
