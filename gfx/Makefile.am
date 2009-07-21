@@ -22,6 +22,9 @@ gfx_DATA =							\
 	ec_button_stop.png					\
 	ec_button_small_bg.png					\
 	ec_button_small_bg_down.png				\
+	ec_button_personal.png					\
+	ec_button_device.png					\
+	ec_button_connection.png				\
 	ec_icon_altitude.png					\
 	ec_icon_arrow_left.png					\
 	ec_icon_arrow_right.png				\
