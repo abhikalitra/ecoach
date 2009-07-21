@@ -63,4 +63,9 @@
 
 #define DISPLAY_ON		ECGC_BASE_DIR "/display_on"
 
+#define USER_WEIGHT		ECGC_BASE_DIR "/user_weight"
+#define USER_HEIGHT		ECGC_BASE_DIR "/user_height"
+#define USER_AGE		ECGC_BASE_DIR "/user_age"
+
+
 #endif /* _GCONF_KEYS_H */
