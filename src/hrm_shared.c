@@ -63,7 +63,7 @@ HRMData *hrm_initialize(GConfHelperData *gconf_helper)
 	gconf_helper_add_key_string(
 			gconf_helper,
 			ECGC_BLUETOOTH_NAME,
-			"",
+			"none",
 			hrm_bluetooth_name_changed,
 			hrm_data,
 			NULL);
