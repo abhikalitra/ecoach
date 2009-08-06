@@ -966,7 +966,7 @@ static void map_view_location_changed(
 			osm_gps_map_draw_gps(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude,0);
 		}
 		else{
-		  osm_gps_map_clear_gps(OSM_GPS_MAP(self->map));
+		 // osm_gps_map_clear_gps(OSM_GPS_MAP(self->map));
 		  osm_gps_map_draw_gps(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude,0);
 		  
 		}
