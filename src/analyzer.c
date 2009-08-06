@@ -565,7 +565,8 @@ AnalyzerView *analyzer_view_new(
 
 
 	self->main_widget = gtk_fixed_new();
-
+	
+	
 	self->btn_back = ec_button_new();
 	ec_button_set_label_text(EC_BUTTON(self->btn_back), _("Back"));
 
@@ -580,8 +581,8 @@ AnalyzerView *analyzer_view_new(
 	ec_button_set_btn_down_offset(EC_BUTTON(self->btn_back), 2);
 
 	gtk_widget_set_size_request(self->btn_back, 74, 59);
-	gtk_fixed_put(GTK_FIXED(self->main_widget), self->btn_back,
-			708, 18);
+	//gtk_fixed_put(GTK_FIXED(self->main_widget), self->btn_back,
+	//		708, 18);
 
 	DEBUG_END();
 	return self;
@@ -640,7 +641,17 @@ void analyzer_view_show(AnalyzerView *self)
 
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
-
+	
+	self->win = hildon_stackable_window_new ();
+	gtk_window_set_title ( GTK_WINDOW (self->win), "eCoach >Activity log");
+	gtk_widget_set_name(GTK_WIDGET(self->win), "mainwindow");
+	
+	g_signal_connect (self->win, "destroy", G_CALLBACK (analyzer_view_hide), self);
+	 	
+	
+	self->main_table = gtk_table_new(5,2,TRUE);
+	
+	
 	/* Open button */
 	self->btn_open = ec_button_new();
 	ec_button_set_bg_image(EC_BUTTON(self->btn_open),
@@ -653,7 +664,9 @@ void analyzer_view_show(AnalyzerView *self)
 	gtk_widget_set_size_request(self->btn_open, 74, 59);
 	gtk_fixed_put(GTK_FIXED(self->main_widget), self->btn_open,
 			18, 18);
-
+	//gtk_table_attach_defaults (GTK_TABLE (self->main_table), self->btn_open, 0, 1, 0, 1);
+	
+     
 	g_signal_connect(G_OBJECT(self->btn_open), "clicked",
 			G_CALLBACK(analyzer_view_btn_open_clicked), self);
 
@@ -671,7 +684,7 @@ void analyzer_view_show(AnalyzerView *self)
 	gtk_widget_set_size_request(self->btn_track_prev, 74, 59);
 	gtk_fixed_put(GTK_FIXED(self->main_widget), self->btn_track_prev,
 			98, 18);
-
+	//gtk_table_attach_defaults (GTK_TABLE (self->main_table), self->btn_track_prev, 1, 2, 0, 1);
 	g_signal_connect(G_OBJECT(self->btn_track_prev), "clicked",
 			G_CALLBACK(analyzer_view_btn_track_prev_clicked),
 			self);
@@ -690,7 +703,7 @@ void analyzer_view_show(AnalyzerView *self)
 	gtk_widget_set_size_request(self->btn_track_next, 74, 59);
 	gtk_fixed_put(GTK_FIXED(self->main_widget), self->btn_track_next,
 			178, 18);
-
+	//gtk_table_attach_defaults (GTK_TABLE (self->main_table), self->btn_track_next, 2, 3, 0, 1);
 	g_signal_connect(G_OBJECT(self->btn_track_next), "clicked",
 			G_CALLBACK(analyzer_view_btn_track_next_clicked),
 			self);
@@ -701,65 +714,21 @@ void analyzer_view_show(AnalyzerView *self)
 			260, 20);
 	gtk_widget_set_size_request(self->lbl_track_number,
 			150, 55);
-
+	//gtk_table_attach_defaults (GTK_TABLE (self->main_table), self->lbl_track_number, 3, 4, 0, 1);
 	/* Track details */
 	self->lbl_track_details = gtk_label_new(_("No track information "
-				"avail."));
+				"available "));
 	gtk_fixed_put(GTK_FIXED(self->main_widget), self->lbl_track_details,
 			420, 20);
-	gtk_widget_set_size_request(self->lbl_track_details, 280, 55);
+	//gtk_table_attach_defaults (GTK_TABLE (self->main_table), self->lbl_track_details, 4, 5, 0, 1);
+	gtk_widget_set_size_request(self->lbl_track_details, 300, 55);
 	desc = pango_font_description_from_string("Nokia Sans 14");
 	gtk_widget_modify_font(self->lbl_track_details, desc);
 	pango_font_description_free(desc);
 
-	/* Previous view button */
-/*	self->btn_view_prev = ec_button_new();
-	ec_button_set_bg_image(EC_BUTTON(self->btn_view_prev),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_button_change_view_bg.png");
+	
 
-	ec_button_set_icon(EC_BUTTON(self->btn_view_prev),
-			GFXDIR "ec_icon_arrow_left.png");
-
-	ec_button_set_center_vertically(EC_BUTTON(self->btn_view_prev), TRUE);
-
-	gtk_widget_set_size_request(GTK_WIDGET(self->btn_view_prev),
-			49, 329);
-	gtk_fixed_put(GTK_FIXED(self->main_widget), self->btn_view_prev,
-			18, 83);
-
-	ec_button_set_btn_down_offset(EC_BUTTON(self->btn_view_prev), 2);
-
-	g_signal_connect(G_OBJECT(self->btn_view_prev), "clicked",
-			G_CALLBACK(analyzer_view_prev), self);
-*/
-	/* Next view button */
-/*	self->btn_view_next = ec_button_new();
-	ec_button_set_bg_image(EC_BUTTON(self->btn_view_next),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_button_change_view_bg.png");
-
-	ec_button_set_icon(EC_BUTTON(self->btn_view_next),
-			GFXDIR "ec_icon_arrow_right.png");
-
-	ec_button_set_center_vertically(EC_BUTTON(self->btn_view_next), TRUE);
-
-	gtk_widget_set_size_request(GTK_WIDGET(self->btn_view_next),
-			49, 329);
-	gtk_fixed_put(GTK_FIXED(self->main_widget), self->btn_view_next,
-			733, 83);
-
-	ec_button_set_btn_down_offset(EC_BUTTON(self->btn_view_next), 2);
-
-	g_signal_connect(G_OBJECT(self->btn_view_next), "clicked",
-			G_CALLBACK(analyzer_view_next), self);
-*/
-
-
-	GtkWidget *pan;
-	GtkWidget *data;
-
-	data = gtk_table_new(1,2,TRUE);
+	self->data = gtk_table_new(1,2,TRUE);
       /* Create the views */
 	self->views[ANALYZER_VIEW_INFO] =
 		analyzer_view_create_view_info(self);
@@ -775,31 +744,51 @@ void analyzer_view_show(AnalyzerView *self)
 				ANALYZER_VIEW_WIDTH, ANALYZER_VIEW_HEIGHT);
 	}
 
-	gtk_table_attach_defaults (GTK_TABLE (data), self->views[ANALYZER_VIEW_INFO], 0, 1, 0, 1);
-	gtk_table_attach_defaults (GTK_TABLE (data), self->views[ANALYZER_VIEW_GRAPHS], 1, 2, 0, 1);
+	gtk_table_attach_defaults (GTK_TABLE (self->data), self->views[ANALYZER_VIEW_INFO], 0, 1, 0, 1);
+	gtk_table_attach_defaults (GTK_TABLE (self->data), self->views[ANALYZER_VIEW_GRAPHS], 1, 2, 0, 1);
 
 	self->pannable = hildon_pannable_area_new ();
-
-	 g_object_set (G_OBJECT(self->pannable),"mov-mode", HILDON_MOVEMENT_MODE_HORIZ );
+	gtk_widget_set_name(GTK_WIDGET(self->pannable), "mainwindow");
+	g_object_set (G_OBJECT(self->pannable),"mov-mode", HILDON_MOVEMENT_MODE_HORIZ );
 	
 	//g_object_set (G_OBJECT (self->pannable),"low-friction-mode", TRUE);
 
 //	g_object_set (G_OBJECT (self->pannable),
 //               "deceleration", 0.01);	
 
-	hildon_pannable_area_add_with_viewport (HILDON_PANNABLE_AREA (self->pannable), data);
+	hildon_pannable_area_add_with_viewport (HILDON_PANNABLE_AREA (self->pannable), self->data);
 
-	pan = gtk_table_new(1,1,TRUE);
-	gtk_widget_set_size_request(pan,
+	self->pan = gtk_table_new(1,1,TRUE);
+	GtkWidget *weight_event;;
+	weight_event = gtk_event_box_new ();
+	
+	
+	GdkColor black;
+	black.red = 0;
+	black.green = 0;
+	black.blue = 0;
+	
+	gtk_widget_modify_bg(weight_event,0,&black);
+	
+	gtk_widget_set_size_request(self->pannable,
 			762,
 			340);
-	gtk_container_add (GTK_CONTAINER (pan), self->pannable);
-	gtk_fixed_put(GTK_FIXED(self->main_widget), pan,
+	gtk_container_add (GTK_CONTAINER (self->pan), self->pannable);
+	gtk_container_add (GTK_CONTAINER (weight_event), self->pan);
+
+	gtk_fixed_put(GTK_FIXED(self->main_widget), weight_event,
 			18, 85);
 
-
-	gtk_widget_show_all(self->main_widget);
-
+	
+	//gtk_table_attach_defaults (GTK_TABLE (self->main_table),self->pannable, 0,5, 1, 3);
+	
+	gtk_container_add (GTK_CONTAINER (self->win),self->main_widget);
+	
+	
+	//gtk_widget_show_all(self->main_widget);
+	
+	
+	gtk_widget_show_all(self->win);
 	self->current_view = 0;
 
 	DEBUG_END();
@@ -811,7 +800,7 @@ void analyzer_view_hide(AnalyzerView *self)
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
 
-	analyzer_view_clear_data(self);
+	//analyzer_view_clear_data(self);
 
 	analyzer_view_destroy_widget(self, &self->btn_open);
 	analyzer_view_destroy_widget(self, &self->btn_track_prev);
@@ -825,11 +814,11 @@ void analyzer_view_hide(AnalyzerView *self)
 	 * widget is enough */
 	for(i = 0; i < ANALYZER_VIEW_COUNT; i++)
 	{
-		gtk_widget_destroy(self->views[i]);
+		//gtk_widget_destroy(self->views[i]);
 		self->views[i] = NULL;
 	}
 
-	analyzer_view_destroy_widget(self, &self->scrolled);
+	//analyzer_view_destroy_widget(self, &self->scrolled);
 
 	DEBUG_END();
 }
@@ -841,7 +830,10 @@ void analyzer_view_hide(AnalyzerView *self)
 static GtkWidget *analyzer_view_create_view_info(AnalyzerView *self)
 {
 	gint i;
+	
+	  
 
+	
 	g_return_val_if_fail(self != NULL, NULL);
 	DEBUG_BEGIN();
 
@@ -911,6 +903,7 @@ static GtkWidget *analyzer_view_create_view_graphs(AnalyzerView *self)
 	DEBUG_BEGIN();
 
 	self->graphs_table = gtk_table_new(2, 3, FALSE);
+	
 
 	/* Speed button */
 	self->show_speed = TRUE;
