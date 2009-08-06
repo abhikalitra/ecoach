@@ -79,6 +79,9 @@ typedef struct _AnalyzerView {
 	/* Following members are created when the view is shown and destroyed
 	 * when the view is hidden */
 
+	GtkWidget *win;
+	GtkWidget *vbox;
+	GtkWidget *main_table;
 	GtkWidget *btn_open;
 	GtkWidget *btn_track_prev;
 	GtkWidget *btn_track_next;
@@ -98,6 +101,9 @@ typedef struct _AnalyzerView {
 	GtkWidget *btn_view_next;
 	GtkWidget *lbl_view_name;
 
+	GtkWidget *pan;
+	GtkWidget *data;
+	
 	/* Data for info view */
 	GtkWidget *info_table;
 
