@@ -66,6 +66,7 @@
 #define USER_WEIGHT		ECGC_BASE_DIR "/user_weight"
 #define USER_HEIGHT		ECGC_BASE_DIR "/user_height"
 #define USER_AGE		ECGC_BASE_DIR "/user_age"
-
+#define GPS_INTERVAL		ECGC_BASE_DIR "/gps_interval"
+#define MAP_SOURCE		ECGC_BASE_DIR "/map_source"
 
 #endif /* _GCONF_KEYS_H */
