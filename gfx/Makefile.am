@@ -70,6 +70,7 @@ gfx_DATA =							\
 	ec_button_map_selected.png				\
 	ec_button_data_unselected.png				\
 	ec_button_pause_unselected.png				\
+	ec_button_pause_selected.png				\
 	ec_button_rec_selected.png				\
 	ec_button_rec_unselected.png
 EXTRA_DIST = $(gfx_DATA)
