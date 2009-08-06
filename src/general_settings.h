@@ -15,17 +15,79 @@
     Boston, MA  02110-1301, USA.
 
     ---
-    Copyright (C) 2008, Sampo Savola, Kai Skiftesvik
+    Copyright (C) 2009, Sampo Savola, Kai Skiftesvik
  */
 
 
 #ifndef _GENERAL_SETTINGS_H
 #define _GENERAL_SETTINGS_H
-#include "navigation_menu.h"
 #include <gtk/gtk.h>
-#include "interface.h"
+#include "hildon/hildon-picker-button.h"
+#include "gconf_helper.h"
+#include "config.h"
+#include "hrm_shared.h"
 
-void show_general_settings(NavigationMenu *menu, GtkTreePath *path,
-				gpointer user_data);
+typedef struct _GeneralSettings{
+   
+  
+  GtkWindow *parent_window;
+  GConfHelperData *gconf_helper;
+  DBusGConnection *dbus_system;
+ 
+
+ /* Heart rate monitor settings etc. */
+  HRMData *hrm_data;
+
+  GtkWidget *dialog;
+  GtkWidget *win;
+  GtkWidget *table;
+  GtkWidget* fixed;
+  
+  GtkWidget *img_personal;
+  GtkWidget *img_device;
+  GtkWidget *img_connection;
+  
+  GtkWidget *weight_label;
+  GtkWidget *age_label;
+  GtkWidget *height_label;
+   
+  GtkWidget *display_label;
+  GtkWidget *units_label;
+   
+  GtkWidget *device_label;
+  GtkWidget *update_label;
+  
+  GtkWidget *weight_event;
+  GtkWidget *age_event;
+  GtkWidget *height_event;
+  GtkWidget *display_event;
+  GtkWidget *units_event;
+  GtkWidget *device_event;
+  GtkWidget *update_event;
+  
+/*   Weight picker*/
+  GtkWidget *weight_dialog;
+  GtkWidget *weight_selector;
+  
+/*    Age picker*/    
+  GtkWidget *age_dialog;
+  GtkWidget *age_selector;
+
+/*    Height picker*/    
+  GtkWidget *height_dialog;
+  GtkWidget *height_selector;
+  
+/*    GPS Update interval picker*/    
+  GtkWidget *update_dialog;
+  GtkWidget *update_selector;
+  
+  GtkWidget *test;
+}GeneralSettings;
+
+
+GeneralSettings *general_settings_new(GtkWindow *parent_window,GConfHelperData *gconf_helper,DBusGConnection *dbus_system);
+
+void general_settings_show(GeneralSettings *self);
 
 #endif /* _GENERAL_SETTINGS_H */
+
