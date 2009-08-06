@@ -56,10 +56,6 @@
 #define RCFILE_PATH DATADIR "/" PACKAGE_NAME "/ec_style.rc"
 #define GFXDIR DATADIR "/pixmaps/" PACKAGE_NAME "/"
 
-const gchar * MAPTILELOADER_DBUS_SERVICE = "org.ecoach.maptileloader";
-const gchar * MAPTILELOADER_DBUS_OBJECT_PATH = "/org/ecoach/maptileloader";
-const gchar * MAPTILELOADER_DBUS_INTERFACE = "org.ecoach.maptileloader";
-
 const gchar * HILDON_DBUS_SERVICE = "com.nokia.hildon_desktop";
 const gchar * HIDLON_DBUS_OBJECT_PATH = "/com/nokia/hildon_desktop";
 const gchar * HILDON_DBUS_INTERFACE = "com.nokia.hildon_desktop";
@@ -104,6 +100,11 @@ static void interface_show_analyzer_view(
 		NavigationMenu *menu,
 		GtkTreePath *path,
 		gpointer user_data);
+		
+static void interface_show_general_settings(
+		NavigationMenu *menu,
+		GtkTreePath *path,
+		gpointer user_data);
 
 static void interface_hide_map_view(GtkWidget *widget, gpointer user_data);
 
@@ -145,11 +146,14 @@ AppData *interface_create()
 	app_data->program = HILDON_PROGRAM(hildon_program_get_instance());
 	g_set_application_name(_("eCoach"));
 
-	app_data->window = HILDON_WINDOW(hildon_window_new());
-	hildon_program_add_window(app_data->program, app_data->window);
+	//app_data->window = HILDON_WINDOW(hildon_window_new());
+	app_data->window = hildon_stackable_window_new ();
+	
+	
+	//hildon_program_add_window(app_data->program, app_data->window);
 	gtk_widget_set_name(GTK_WIDGET(app_data->window), "mainwindow");
 
-	gtk_window_fullscreen(GTK_WINDOW(app_data->window));
+	//gtk_window_fullscreen(GTK_WINDOW(app_data->window));
 
 	/* Parse styles */
 	gtk_rc_parse(RCFILE_PATH);
@@ -172,12 +176,7 @@ AppData *interface_create()
 			(GtkWindow *)app_data->window,
 			app_data->gconf_helper);
 
-	app_data->hrm_data = hrm_initialize(app_data->gconf_helper);
-	if(!app_data->hrm_data)
-	{
-		g_critical("hrm_initialize() failed");
-		return NULL;
-	}
+	
 
 	interface_create_menu(app_data);
 
@@ -213,9 +212,9 @@ AppData *interface_create()
 			app_data->beat_detector,
 			app_data->osso);
 
-	app_data->map_view_tab_id = navigation_menu_append_page(
+	/*app_data->map_view_tab_id = navigation_menu_append_page(
 			app_data->navigation_menu,
-			app_data->map_view->main_widget);
+			app_data->map_view->main_widget);*/
 
 	g_signal_connect(G_OBJECT(app_data->map_view->btn_back),
 			"clicked",
@@ -230,19 +229,19 @@ AppData *interface_create()
 			GTK_WINDOW(app_data->window));
 
 	/* Create activity analyzer view */
-	app_data->analyzer_view = analyzer_view_new(
+	/*app_data->analyzer_view = analyzer_view_new(
 			GTK_WINDOW(app_data->window),
 			app_data->gconf_helper);
-
-	app_data->analyzer_view_tab_id = navigation_menu_append_page(
+*/
+	/*app_data->analyzer_view_tab_id = navigation_menu_append_page(
 			app_data->navigation_menu,
-			app_data->analyzer_view->main_widget);
-
+			app_data->analyzer_view->main_widget);*/
+/*
 	g_signal_connect(G_OBJECT(app_data->analyzer_view->btn_back),
 			"clicked",
 			G_CALLBACK(interface_hide_analyzer_view),
 			app_data);
-
+*/
 	/* Get the default folder for file operations */
 	gconf_helper_add_key_string(
 			app_data->gconf_helper,
@@ -266,8 +265,11 @@ AppData *interface_create()
 	gtk_container_add(GTK_CONTAINER(app_data->window),
 			app_data->navigation_menu->main_widget);
 
+	//g_signal_connect (app_data->window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+
+			
 	g_signal_connect(G_OBJECT(app_data->window), "delete_event",
-			G_CALLBACK(gtk_main_quit), NULL);
+			G_CALLBACK(interface_confirm_close), app_data);
 
 	gtk_widget_show_all(GTK_WIDGET(app_data->window));
 
@@ -289,8 +291,8 @@ static void interface_create_menu(AppData *app_data)
 	/* Setup the navigation menu widget */
 	app_data->navigation_menu = navigation_menu_new();
 
-	navigation_menu_set_navigation_bar_background(app_data->navigation_menu,
-			GFXDIR "ec_titlebar_background.png");
+	//navigation_menu_set_navigation_bar_background(app_data->navigation_menu,
+	//		GFXDIR "ec_titlebar_background.png");
 
 	navigation_menu_set_default_button_background(app_data->navigation_menu,
 			GFXDIR "menu_generic_btn.png");
@@ -318,14 +320,6 @@ static void interface_create_menu(AppData *app_data)
 	navigation_menu_set_alignment(app_data->navigation_menu,
 			PANGO_ALIGN_CENTER);
 
-	g_signal_connect(G_OBJECT(app_data->navigation_menu->btn_close),
-			"clicked",
-			G_CALLBACK(interface_confirm_close), app_data);
-
-	g_signal_connect(G_OBJECT(app_data->navigation_menu->btn_minimize),
-			"clicked",
-			G_CALLBACK(interface_minimize), app_data);
-
 	/* Create the menus */
 	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
@@ -346,7 +340,7 @@ static void interface_create_menu(AppData *app_data)
 			FALSE);
 
 	/* TODO: Add old activities here */
-
+	/*
 	path_level_1 = navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			NULL,
@@ -355,7 +349,9 @@ static void interface_create_menu(AppData *app_data)
 			NULL,
 			NULL,
 			TRUE);
-
+			
+	  */
+	/*
 	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
    			path_level_1,
@@ -364,7 +360,8 @@ static void interface_create_menu(AppData *app_data)
 			show_calculate_bmi,
 			app_data,
 			FALSE);
-
+	*/
+	/*
 	path_level_2 = navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			path_level_1,
@@ -372,7 +369,7 @@ static void interface_create_menu(AppData *app_data)
 			GFXDIR "menu_max_heart_btn",
 			show_calculate_maxheartrate,
 			app_data,
-			TRUE);
+			TRUE);*/
 	/*
 	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
@@ -392,8 +389,8 @@ static void interface_create_menu(AppData *app_data)
 			NULL,
 			FALSE);*/
 
-	gtk_tree_path_free(path_level_2);
-
+	//gtk_tree_path_free(path_level_2);
+/*
 	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			path_level_1,
@@ -401,7 +398,7 @@ static void interface_create_menu(AppData *app_data)
 			GFXDIR "menu_target_heart_btn",
 			target_heart_rate_dialog_show,
 			app_data,
-			FALSE);
+			FALSE);*/
 	/*
 	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
@@ -412,17 +409,19 @@ static void interface_create_menu(AppData *app_data)
 			NULL,
 			FALSE);
 	*/
-	gtk_tree_path_free(path_level_1);
+	//gtk_tree_path_free(path_level_1);
 
-	path_level_1 = navigation_menu_item_new_for_path(
+	
+	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			NULL,
 			_("Settings"),
 			GFXDIR "menu_settings_btn",
-			NULL,
-			NULL,
-			TRUE);
+			interface_show_general_settings,
+			app_data,
+			FALSE);
 
+	/*		
 	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			path_level_1,
@@ -449,8 +448,8 @@ static void interface_create_menu(AppData *app_data)
 			interface_show_about_dialog,
 			app_data,
 			FALSE);
-
-	gtk_tree_path_free(path_level_1);
+*/
+	//gtk_tree_path_free(path_level_1);
 
 #ifdef ENABLE_ECG_VIEW
 	navigation_menu_item_new_for_path(
@@ -544,28 +543,6 @@ static void interface_default_folder_changed(
 	DEBUG_END();
 }
 
-static void interface_minimize(GtkWidget *btn, gpointer user_data)
-{
-	AppData *app_data = (AppData *)user_data;
-
-	g_return_if_fail(app_data != NULL);
-	DEBUG_BEGIN();
-
-	//gtk_window_iconify(GTK_WINDOW(app_data->window));
-	
-	/* Go to task switcher */
-	DBusConnection *conn;
-	conn = osso_get_dbus_connection(app_data->osso);
-	DBusMessage *message = NULL;
-	message = dbus_message_new_signal( HIDLON_DBUS_OBJECT_PATH,
-					   HILDON_DBUS_INTERFACE,"exit_app_view");
-	dbus_connection_send( conn, message,NULL);
-	
-	dbus_connection_flush(conn);
-	dbus_message_unref(message);
-
-	DEBUG_END();
-}
 
 static void interface_confirm_close(GtkWidget *btn, gpointer user_data)
 {
@@ -588,20 +565,10 @@ static void interface_confirm_close(GtkWidget *btn, gpointer user_data)
 
 	if(result == GTK_RESPONSE_OK)
 	{
-		DBusConnection *conn;
-		conn = osso_get_dbus_connection(app_data->osso);
-		DBusMessage *message = NULL;
-		message = dbus_message_new_method_call( MAPTILELOADER_DBUS_SERVICE,
-                                            MAPTILELOADER_DBUS_OBJECT_PATH,
-                                            MAPTILELOADER_DBUS_INTERFACE,
-                                            "MaptileLoaderTerminate");
-		dbus_connection_send( conn, message,NULL);
-		dbus_message_unref(message);
-
 		control = location_gpsd_control_get_default ();
 		location_gpsd_control_stop(control);
 		map_view_stop(app_data->map_view);
-		osso_deinitialize(app_data->osso);
+		//osso_deinitialize(app_data->osso);
 		gtk_main_quit();
 		
 	}
@@ -618,11 +585,11 @@ static void interface_show_map_view(
 
 	g_return_if_fail(app_data != NULL);
 	DEBUG_BEGIN();
-
+/*
 	navigation_menu_set_current_page(
 			app_data->navigation_menu,
 			app_data->map_view_tab_id);
-
+*/
 	map_view_show(app_data->map_view);
 
 	DEBUG_END();
@@ -634,18 +601,48 @@ static void interface_show_analyzer_view(
 		gpointer user_data)
 {
 	AppData *app_data = (AppData *)user_data;
-
+  
 	g_return_if_fail(app_data != NULL);
 	DEBUG_BEGIN();
+	
+	app_data->analyzer_view = analyzer_view_new(
+			GTK_WINDOW(app_data->window),
+			app_data->gconf_helper);
+	//navigation_menu_set_current_page(
+	//		app_data->navigation_menu,
+	//		app_data->analyzer_view_tab_id);
+	
 
-	navigation_menu_set_current_page(
-			app_data->navigation_menu,
-			app_data->analyzer_view_tab_id);
-
+	
 	analyzer_view_show(app_data->analyzer_view);
+
+	//gtk_container_add (GTK_CONTAINER (app_data->analyzer_view->win),
+          //             app_data->analyzer_view->vbox);
 
 	DEBUG_END();
 }
+
+static void interface_show_general_settings(
+		NavigationMenu *menu,
+		GtkTreePath *path,
+		gpointer user_data)
+{
+	AppData *app_data = (AppData *)user_data;
+  
+	g_return_if_fail(app_data != NULL);
+	DEBUG_BEGIN();
+	
+	app_data->general_settings = general_settings_new(
+			GTK_WINDOW(app_data->window),
+			app_data->gconf_helper,app_data->dbus_system);
+	general_settings_show(app_data->general_settings);
+	
+	DEBUG_END();
+}
+
+
+
+
 
 static void interface_hide_map_view(GtkWidget *widget, gpointer user_data)
 {
