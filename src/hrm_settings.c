@@ -1,7 +1,7 @@
 /*
  *  eCoach
  *
- *  Copyright (C) 2008  Jukka Alasalmi
+ *  Copyright (C) 2009 Sampo Savola,  Jukka Alasalmi
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,12 +37,14 @@
 #include "gconf_helper.h"
 
 #define RESPONSE_CHANGE_DEVICE 1
+#define RESPONSE_REMOVE_DEVICE 5
 
-static void hrm_settings_cleanup(AppData *app_data);
-static void hrm_settings_create_dialog(AppData *app_data);
-static void hrm_settings_choose_device(AppData *app_data);
-static gboolean hrm_settings_setup_dbus(AppData *app_data);
-static void hrm_settings_disconnect_dbus_signal(AppData *app_data);
+static void hrm_settings_cleanup(GeneralSettings *app_data);
+static void hrm_settings_create_dialog(GeneralSettings *app_data);
+static void hrm_settings_choose_device(GeneralSettings *app_data);
+static gboolean hrm_settings_setup_dbus(GeneralSettings *app_data);
+static void hrm_settings_disconnect_dbus_signal(GeneralSettings *app_data);
+static void hrm_remove(GeneralSettings *app_data);
 
 static void hrm_settings_set_dialog_sensitive(
 		HRMSettingsPriv *priv,
@@ -61,16 +63,14 @@ static void hrm_settings_device_chosen(
 		);
 
 
-void hrm_settings_show(NavigationMenu *menu, GtkTreePath *path,
-		gpointer user_data)
+void hrm_settings_show(GeneralSettings *app_data)
 {
-	AppData *app_data = (AppData *)user_data;
+	// *app_data = (GeneralSettings *)user_data;
 	HRMSettingsPriv *priv = NULL;
 	gint response = 0;
-
+	
 	g_return_if_fail(app_data != NULL);
 	DEBUG_BEGIN();
-
 	if(app_data->hrm_data->settings_priv != NULL)
 	{
 		g_critical("Settings structure already allocated");
@@ -79,6 +79,7 @@ void hrm_settings_show(NavigationMenu *menu, GtkTreePath *path,
 	}
 
 	priv = g_new0(HRMSettingsPriv, 1);
+	
 	if(!priv)
 	{
 		g_critical("Not enough memory");
@@ -94,15 +95,55 @@ void hrm_settings_show(NavigationMenu *menu, GtkTreePath *path,
 			app_data->hrm_data->bluetooth_name);
 
 	hrm_settings_create_dialog(app_data);
+	
+	
+	
+	
+	/*
+	response = gtk_dialog_run (GTK_DIALOG (priv->dialog));
+	switch (response)
+	  {
+	    case GTK_RESPONSE_ACCEPT:
+		do_application_specific_something ();
+		break;
+	    default:
+		do_nothing_since_dialog_was_cancelled ();
+		break;
+	  }
+	  
+	gtk_widget_destroy (dialog);
+	  */    
+	
+	
+	/*
 
 	do {
-		response = gtk_dialog_run(GTK_DIALOG(priv->dialog));
+		
 		if(response == RESPONSE_CHANGE_DEVICE)
 		{
 			hrm_settings_choose_device(app_data);
 		}
-	} while(response == RESPONSE_CHANGE_DEVICE);
-
+		if(response = RESPONSE_REMOVE_DEVICE)
+		{
+			hrm_remove(app_data);
+		}
+	} while();
+	*
+	**/
+	do{
+	response = gtk_dialog_run(GTK_DIALOG(priv->dialog));
+	if(response == RESPONSE_CHANGE_DEVICE)
+		{
+			hrm_settings_choose_device(app_data);
+		}
+	if(response == RESPONSE_REMOVE_DEVICE)
+	{
+		hrm_remove(app_data);
+	}
+	if(response == GTK_RESPONSE_DELETE_EVENT)
+	{
+		break;
+	}
 	if(response == GTK_RESPONSE_ACCEPT)
 	{
 		app_data->hrm_data->bluetooth_address = priv->bluetooth_address;
@@ -119,14 +160,17 @@ void hrm_settings_show(NavigationMenu *menu, GtkTreePath *path,
 				app_data->gconf_helper,
 				ECGC_BLUETOOTH_NAME,
 				app_data->hrm_data->bluetooth_name);
+				
+	        break;
 	}
+	}while (1);
 
 	hrm_settings_cleanup(app_data);
 
 	DEBUG_END();
 }
 
-static void hrm_settings_create_dialog(AppData *app_data)
+static void hrm_settings_create_dialog(GeneralSettings *app_data)
 {
 	HRMSettingsPriv *priv = NULL;
 	GtkBox *vbox = NULL;
@@ -139,11 +183,11 @@ static void hrm_settings_create_dialog(AppData *app_data)
 
 	priv->dialog = gtk_dialog_new_with_buttons(
 			_("Heart Rate Monitor settings"),
-			GTK_WINDOW(app_data->window),
+			GTK_WINDOW(app_data->win),
 			GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR,
 			_("OK"), GTK_RESPONSE_ACCEPT,
 			_("Change device"), RESPONSE_CHANGE_DEVICE,
-			_("Cancel"), GTK_RESPONSE_REJECT,
+			_("Remove device"), RESPONSE_REMOVE_DEVICE,
 			NULL);
 
 	vbox = GTK_BOX(GTK_DIALOG(priv->dialog)->vbox);
@@ -214,7 +258,7 @@ static void hrm_settings_create_dialog(AppData *app_data)
 	DEBUG_END();
 }
 
-static void hrm_settings_cleanup(AppData *app_data)
+static void hrm_settings_cleanup(GeneralSettings *app_data)
 {
 	g_return_if_fail(app_data != NULL);
 	DEBUG_BEGIN();
@@ -234,7 +278,7 @@ static void hrm_settings_cleanup(AppData *app_data)
 	DEBUG_END();
 }
 
-static void hrm_settings_choose_device(AppData *app_data)
+static void hrm_settings_choose_device(GeneralSettings *app_data)
 {
 	HRMSettingsPriv *priv = NULL;
 	GError *error = NULL;
@@ -299,6 +343,11 @@ static void hrm_settings_set_dialog_sensitive(
 			GTK_DIALOG(priv->dialog),
 			RESPONSE_CHANGE_DEVICE,
 			sensitive);
+			
+	gtk_dialog_set_response_sensitive(
+			GTK_DIALOG(priv->dialog),
+			RESPONSE_REMOVE_DEVICE,
+			sensitive);
 
 	gtk_dialog_set_response_sensitive(
 			GTK_DIALOG(priv->dialog),
@@ -308,7 +357,7 @@ static void hrm_settings_set_dialog_sensitive(
 	DEBUG_END();
 }
 
-static gboolean hrm_settings_setup_dbus(AppData *app_data)
+static gboolean hrm_settings_setup_dbus(GeneralSettings *app_data)
 {
 	HRMSettingsPriv *priv = NULL;
 
@@ -376,7 +425,7 @@ static gboolean hrm_settings_setup_dbus(AppData *app_data)
 	return TRUE;
 }
 
-static void hrm_settings_disconnect_dbus_signal(AppData *app_data)
+static void hrm_settings_disconnect_dbus_signal(GeneralSettings *app_data)
 {
 	HRMSettingsPriv *priv = NULL;
 
@@ -407,7 +456,7 @@ static void hrm_settings_device_chosen(
 		)
 {
 	HRMSettingsPriv *priv = NULL;
-	AppData *app_data = (AppData *)user_data;
+	GeneralSettings *app_data = (GeneralSettings *)user_data;
 
 	g_return_if_fail(app_data != NULL);
 	DEBUG_BEGIN();
@@ -442,6 +491,13 @@ static void hrm_settings_device_chosen(
 	gtk_label_set_text(
 			GTK_LABEL(priv->lbl_bt_addr),
 			priv->bluetooth_address);
+	gchar* bt_name = g_strndup(priv->bluetooth_name, 4);
+			  
+	gtk_label_set_text(
+			GTK_LABEL(app_data->device_label),
+			bt_name);
+	g_free(bt_name);
+			
 
 device_selection_finished:
 	hrm_settings_disconnect_dbus_signal(app_data);
@@ -452,4 +508,25 @@ device_selection_finished:
 			TRUE);
 
 	DEBUG_END();
+}
+static void hrm_remove(GeneralSettings *app_data){
+  
+    DEBUG_BEGIN();
+     
+ /*   g_free(app_data->hrm_data->bluetooth_address);
+    app_data->hrm_data->bluetooth_address = NULL;
+    g_free(app_data->hrm_data->bluetooth_name);
+    app_data->hrm_data->bluetooth_name = NULL;*/
+    gconf_helper_set_value_string(
+				app_data->gconf_helper,
+				ECGC_BLUETOOTH_ADDRESS,
+				"");
+
+    gconf_helper_set_value_string(
+		    app_data->gconf_helper,
+		    ECGC_BLUETOOTH_NAME,
+		    "");
+app_data->hrm_data->bluetooth_address = NULL;	    
+ app_data->hrm_data->bluetooth_name = NULL;		    
+    DEBUG_END();
 }
