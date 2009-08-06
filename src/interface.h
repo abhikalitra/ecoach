@@ -47,7 +47,7 @@
 #include "ecg_data.h"
 #include "gconf_helper.h"
 #include "heart_rate_settings.h"
-#include "hrm_shared.h"
+
 #include "map_view.h"
 #include "navigation_menu.h"
 #include "settings.h"
@@ -64,7 +64,7 @@
 
 typedef struct _AppData {
 	HildonProgram *program;
-	HildonWindow *window;
+	GtkWidget *window;
 
 	osso_context_t *osso;
 
@@ -90,6 +90,10 @@ typedef struct _AppData {
 #endif
 		/*BMI Calculator*/
 	BMIData *bmidata;
+	
+	/* General settings*/
+	GeneralSettings *general_settings;
+
 	/* Map view */
 	gint map_view_tab_id;
 	MapView *map_view;
@@ -107,9 +111,7 @@ typedef struct _AppData {
 	/* Settings */
 	Settings *settings;
 
-	/* Heart rate monitor settings etc. */
-	HRMData *hrm_data;
-
+	
 	/* Heart rate settings */
 	HeartRateSettings *heart_rate_settings;
 
