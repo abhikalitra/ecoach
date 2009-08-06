@@ -55,6 +55,12 @@ PKG_CHECK_MODULES(LIBXML2, libxml-2.0 >= 2.6.27)
 AC_SUBST(LIBXML_CFLAGS)
 AC_SUBST(LIBXML_LIBS)
 
+PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4 )
+AC_SUBST(LIBSOUP_CFLAGS)
+AC_SUBST(LIBSOUP_LIBS)
+
+
+
 AC_ARG_ENABLE(ecg-view,
 	      [  --enable-ecg-view		Enable ecg view], , enable_ecg_view=no )
 
