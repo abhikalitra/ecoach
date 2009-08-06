@@ -1,7 +1,7 @@
 /*
  *  eCoach
  *
- *  Copyright (C) 2008  Jukka Alasalmi
+ *  Copyright (C) 2009 Sampo Savola,  Jukka Alasalmi
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,6 +38,13 @@
 #include <location/location-gps-device.h>
 #include <location/location-gpsd-control.h>
 
+/* Hildon */
+#include <hildon/hildon.h>
+
+
+/*osm-gps-map*/
+
+#include "osm_gps_map/osm-gps-map.h"
 /* Osso */
 #include <libosso.h>
 
@@ -86,7 +93,11 @@ struct _MapViewGpsPoint {
 
 struct _MapView {
 	GtkWindow *parent_window;	/**< Parent window		*/
+	GtkWidget *win;			/**Stackable window		*/
 	GtkWidget *main_widget;		/**< Main layout item		*/
+	
+	GtkWidget *data_widget;	
+	HildonAppMenu *menu;	 	/** Menu			*/
 
 	/* Buttons		*/
 	/*	General		*/
@@ -104,7 +115,15 @@ struct _MapView {
 	GtkWidget *btn_map_scrl_down;	/**< Scroll the map down	*/
 	GtkWidget *btn_map_scrl_left;	/**< Scroll the map left	*/
 	GtkWidget *btn_map_scrl_right;	/**< Scroll the map right	*/
-
+	GdkPixbuf *zoom_in;		/** Zoom in			*/
+	GdkPixbuf *zoom_out;		/** Zoom out			*/
+	GtkWidget *map;				
+	GtkWidget *map_btn;	
+	GtkWidget *data_btn;
+	GtkWidget *rec_btn_selected;	
+	GtkWidget *rec_btn_unselected;	
+	GtkWidget *pause_btn_unselected;
+	GtkWidget *pause_btn_selected;
 	/* Info buttons		*/
 	GtkWidget *info_distance;	/**< Travelled distance		*/
 	GtkWidget *info_time;		/**< Elapsed time		*/
@@ -112,7 +131,7 @@ struct _MapView {
 	GtkWidget *info_avg_speed;	/**< Average speed		*/
 	GtkWidget *info_heart_rate;	/**< Heart rate			*/
 	GtkWidget *info_units;		/**< Distance units		*/
-
+	gboolean is_auto_center;
 	/* Progress indicators	*/
 	GtkWidget *indicator_1;		/**< "Progress indicator"	*/
 
@@ -136,7 +155,8 @@ struct _MapView {
 	LocationGPSDevice *gps_device;	/**< GPS device connection	*/
 	LocationGPSDControl
 		*gpsd_control;		/**< GPSD control		*/
-
+	gint	gps_update_interval;	/** GPS update interval		*/
+	guint   hide_buttons_timeout_id; /** timeout for hiding buttons */
 	MapViewMapWidgetState
 		map_widget_state;	/**< State of map widget	*/
 
@@ -169,17 +189,46 @@ struct _MapView {
 
 	GdkPixbuf *pxb_hrm_status[MAP_VIEW_HRM_STATUS_COUNT];
 					/**< Heart rate status		*/
-
+	
+					
 	/*distance unit*/
 	
 	gboolean metric;
 	
 	
+	OsmGpsMapSource_t map_provider ;
+	
 	/* Temporary stuff	*/
 	gboolean point_added;
 	MapViewGpsPoint previous_added_point;
 	gdouble travelled_distance;
+	const char *friendly_name;
+	char *cachedir;
+	gboolean fullpath;
+	gint buttons_hide_timeout;
+	
+	/* for data view */
+	GtkWidget *data_win;
+
+
 };
+
+typedef struct _MapPoint MapPoint;
+struct _MapPoint 
+{
+  gfloat latitude;
+  gfloat longitude;
+};
+
+
+
+typedef struct _Point Point;
+struct _Point 
+{
+    guint unitx;
+    guint unity;
+};
+
 
 /**
  * @brief Create a new map view.
