@@ -33,6 +33,14 @@ struct _BMIData{
     gchar *char_bmi;
     GtkWidget *height_picker;
     GtkWidget *weight_picker;
+    
+    
+    
+    /*Weight picker*/
+    
+    	GtkWidget *weight_dialog;
+	GtkWidget *weight_table;
+	GtkWidget *weight_selector;
 };
 
 
