@@ -550,8 +550,8 @@ static gboolean navigation_menu_create_layout(
 
 	gtk_widget_set_size_request(self->btn_minimize, 50, 50);
 
-	gtk_box_pack_start(GTK_BOX(self->hbox_navigation),
-			self->btn_minimize, FALSE, FALSE, 0);
+	//gtk_box_pack_start(GTK_BOX(self->hbox_navigation),
+	//		self->btn_minimize, FALSE, FALSE, 0);
 
 	/* Create the close button */
 	self->btn_close = ec_button_new();
@@ -569,8 +569,8 @@ static gboolean navigation_menu_create_layout(
 
 	gtk_widget_set_size_request(self->btn_close, 50, 50);
 
-	gtk_box_pack_start(GTK_BOX(self->hbox_navigation),
-			self->btn_close, FALSE, FALSE, 0);
+//	gtk_box_pack_start(GTK_BOX(self->hbox_navigation),
+//			self->btn_close, FALSE, FALSE, 0);
 
 	/* Create the main notebook */
 	self->notebook_main = gtk_notebook_new();
@@ -822,8 +822,8 @@ static void navigation_menu_update_location_widget(NavigationMenu *self)
 	do {
 		if(!path)
 		{
-			stack = g_slist_prepend(stack,
-					g_strdup(_("eCoach")));
+			//stack = g_slist_prepend(stack,
+			//		g_strdup(_("eCoach")));
 			break;
 		}
 		gtk_tree_model_get_iter(
