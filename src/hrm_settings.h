@@ -31,7 +31,7 @@
 
 /* Custom modules */
 #include "hrm_shared.h"
-#include "interface.h"
+#include "general_settings.h"
 #include "navigation_menu.h"
 
 struct _HRMSettingsPriv {
@@ -60,7 +60,6 @@ struct _HRMSettingsPriv {
 	gchar *bluetooth_address;
 };
 
-void hrm_settings_show(NavigationMenu *menu, GtkTreePath *path,
-		gpointer user_data);
+void hrm_settings_show(GeneralSettings *app_data);
 
 #endif /* _HRM_SETTINGS_H */
