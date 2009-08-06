@@ -78,7 +78,12 @@ ecoach_SOURCES =			\
 	osea/rythmchk.c			\
 	map_widget/map_widget.h		\
 	map_widget/map_widget_defs.h	\
-	map_widget/map_widget.c
+	map_widget/map_widget.c		\
+	osm_gps_map/converter.c		\
+	osm_gps_map/converter.h			\
+	osm_gps_map/osm-gps-map.h		\
+	osm_gps_map/osm-gps-map.c		\
+	osm_gps_map/osm-gps-map-types.h		
 
 if WANT_ECG_VIEW
 ecoach_SOURCES += ecg_view.h ecg_view.c
@@ -105,6 +110,7 @@ AM_CPPFLAGS =				\
 	@OSSO_CFLAGS@			\
 	@LOCATION_CFLAGS@		\
 	@LIBXML2_CFLAGS@		\
+	@LIBSOUP_CFLAGS@		\
 	-DDATADIR=\"/usr/share/\"	\
 	-Wall
 
@@ -118,4 +124,5 @@ LIBS =					\
 	@GCONF_LIBS@			\
 	@OSSO_LIBS@			\
 	@LOCATION_LIBS@			\
-	@LIBXML2_LIBS@
+	@LIBXML2_LIBS@			\
+	@LIBSOUP_LIBS@
