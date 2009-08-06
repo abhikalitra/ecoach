@@ -54,7 +54,10 @@
 #include "ec-button.h"
 #include "ec-progress.h"
 #include "util.h"
-#include "map_widget/map_widget.h"
+//#include "map_widget/map_widget.h"
+
+
+#include <gdk/gdkx.h>
 
 #include "config.h"
 #include "debug.h"
@@ -65,8 +68,10 @@
 
 #define MAPTILE_LOADER_EXEC_NAME "ecoach-maptile-loader"
 #define GFXDIR DATADIR "/pixmaps/ecoach/"
-
 #define MAP_VIEW_SIMULATE_GPS 0
+
+
+
 
 /*****************************************************************************
  * Private function prototypes                                               *
@@ -126,7 +131,11 @@ static void map_view_continue_activity(MapView *self);
 static void map_view_set_travelled_distance(MapView *self, gdouble distance);
 static void map_view_update_autocenter(MapView *self);
 static void map_view_units_clicked(GtkWidget *button, gpointer user_data);
-
+gboolean map_button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+gboolean map_button_release_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+void select_map_source_cb (HildonButton *button, gpointer user_data);
+void map_source_selected(HildonTouchSelector * selector, gint column, gpointer user_data);
+static HildonAppMenu *create_menu (MapView *self);
 #if (MAP_VIEW_SIMULATE_GPS)
 static void map_view_simulate_gps(MapView *self);
 static gboolean map_view_simulate_gps_timeout(gpointer user_data);
@@ -139,7 +148,12 @@ static GtkWidget *map_view_create_info_button(
 		gint x, gint y);
 
 static GdkPixbuf *map_view_load_image(const gchar *path);
-
+static gboolean _hide_buttons_timeout(gpointer user_data);
+static void add_hide_buttons_timeout(gpointer user_data);
+static void toggle_map_centering(HildonCheckButton *button, gpointer user_data);
+static void map_view_show_data(MapView *self);
+static void map_view_create_data(MapView *self);
+static void map_view_hide(MapView *self);
 /*****************************************************************************
  * Function declarations                                                     *
  *****************************************************************************/
@@ -156,394 +170,168 @@ MapView *map_view_new(
 {
 	MapView *self = NULL;
 	GdkColor color;
-
+	
 	g_return_val_if_fail(parent_window != NULL, NULL);
 	g_return_val_if_fail(gconf_helper != NULL, NULL);
 	g_return_val_if_fail(beat_detector != NULL, NULL);
 	g_return_val_if_fail(osso != NULL, NULL);
 	DEBUG_BEGIN();
 
-	self = g_new0(MapView, 1);
-
+	self = g_new0(MapView, 1);	
 	self->parent_window = parent_window;
 	self->gconf_helper = gconf_helper;
 	self->beat_detector = beat_detector;
-	self->osso = osso;
-
+	self->osso = osso;	
 	self->track_helper = track_helper_new();
 
-	self->map_widget_state = MAP_VIEW_MAP_WIDGET_STATE_NOT_CONFIGURED;
-	self->has_gps_fix = FALSE;
+	
+	self->win = hildon_stackable_window_new();
+	
+	g_signal_connect(self->win, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete), NULL);
+	g_signal_connect( G_OBJECT(self->win), "key-press-event",
+                    G_CALLBACK(key_press_cb), self);
+		    
+	self->gps_update_interval = gconf_helper_get_value_int_with_default(self->gconf_helper,GPS_INTERVAL,5);
+	self->map_provider = gconf_helper_get_value_int_with_default(self->gconf_helper,MAP_SOURCE,1);
+	if(self->map_provider==0)
+	{
+	  self->map_provider = 1;
+	}
+	self->menu = HILDON_APP_MENU (hildon_app_menu_new ());
+	self->menu = create_menu(self);
+	hildon_window_set_app_menu (HILDON_WINDOW (self->win), self->menu);
+	
+	self->friendly_name = osm_gps_map_source_get_friendly_name(self->map_provider);
+	self->cachedir = g_build_filename(
+                        g_get_user_cache_dir(),
+                        "osmgpsmap",
+                        self->friendly_name,
+                        NULL);
+        self->fullpath = TRUE;
+	
+	self->buttons_hide_timeout = 8000;
+	self->map = g_object_new (OSM_TYPE_GPS_MAP,
+                        "map-source",(OsmGpsMapSource_t)self->map_provider,
+                        "tile-cache",self->cachedir,
+                        "tile-cache-is-full-path",self->fullpath,
+                        "proxy-uri",g_getenv("http_proxy"),
+                        NULL);
+
+	g_free(self->cachedir);
 	
 	
-
-
-	/* Main layout item		*/
+	self->is_auto_center = TRUE;
+	/* Main layout 		*/
 	self->main_widget = gtk_fixed_new();
 	gdk_color_parse("#000", &color);
+	
 	gtk_widget_modify_bg(self->main_widget, GTK_STATE_NORMAL, &color);
-	g_signal_connect(G_OBJECT(self->main_widget), "expose-event",
-			G_CALLBACK(fixed_expose_event),
-			self);
+	
+	self->zoom_in = gdk_pixbuf_new_from_file(GFXDIR "ec_map_zoom_in.png",NULL);
+	self->zoom_out = gdk_pixbuf_new_from_file(GFXDIR "ec_map_zoom_out.png",NULL);
+	self->map_btn = gdk_pixbuf_new_from_file(GFXDIR "ec_button_map_selected.png",NULL);
+	self->data_btn = gdk_pixbuf_new_from_file(GFXDIR "ec_button_data_unselected.png",NULL);
+	
+	
+	self->rec_btn_unselected = gdk_pixbuf_new_from_file(GFXDIR "ec_button_rec_unselected.png",NULL);
+	self->rec_btn_selected = gdk_pixbuf_new_from_file(GFXDIR "ec_button_rec_selected.png",NULL);
+	  
+	
+	self->pause_btn_unselected = gdk_pixbuf_new_from_file(GFXDIR "ec_button_pause_unselected.png",NULL);
+	self->pause_btn_selected = gdk_pixbuf_new_from_file(GFXDIR "ec_button_pause_selected.png",NULL);
+	
+	self->info_speed = gtk_label_new("Speed");
+	self->info_distance = gtk_label_new("Distance");;	
+	self->info_time = gtk_label_new("Time");		
+	self->info_avg_speed = gtk_label_new("Average Speed");
+	self->info_heart_rate = gtk_label_new("HR");
 
-	/* Map buttons			*/
-	/*	Zoom in			*/
+	
+	gtk_fixed_put(GTK_FIXED(self->main_widget),self->map, 0, 0);
+	gtk_widget_set_size_request(self->map, 800, 420);
+	
+	osm_gps_map_add_button(self->map,0, 150, self->zoom_out);
+	osm_gps_map_add_button(self->map,720, 150, self->zoom_in);
+	osm_gps_map_add_button(self->map,50, 346, self->map_btn);
+	osm_gps_map_add_button(self->map,213, 346, self->data_btn);
+	
+	gtk_container_add (GTK_CONTAINER (self->win),self->main_widget);	
+	g_signal_connect (self->map, "button-press-event",
+                      G_CALLBACK (map_button_press_cb),self);
+	g_signal_connect (self->map, "button-release-event",
+                    G_CALLBACK (map_button_release_cb), self);
+		    
+		/* Createa data view*/
+	map_view_create_data(self);
+	DEBUG_END();
+	return self;
+}
 
-	self->btn_zoom_in = ec_button_new();
 
-	ec_button_set_bg_image(
-			EC_BUTTON(self->btn_zoom_in),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_widget_map_background_topleft.png");
 
-	gtk_widget_set_size_request(self->btn_zoom_in, 30, 30);
-
-	gtk_fixed_put(GTK_FIXED(self->main_widget), self->btn_zoom_in,
-			20, 20);
-
-	g_signal_connect(G_OBJECT(self->btn_zoom_in), "clicked",
-			G_CALLBACK(map_view_zoom_in), self);
-
-	/*	Zoom out		*/
-	self->btn_zoom_out = ec_button_new();
-
-	ec_button_set_bg_image(
-			EC_BUTTON(self->btn_zoom_out),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_widget_map_background_bottomleft.png");
-
-	gtk_widget_set_size_request(self->btn_zoom_out, 30, 30);
-
-	gtk_fixed_put(GTK_FIXED(self->main_widget), self->btn_zoom_out,
-			20, 376);
-
-	g_signal_connect(G_OBJECT(self->btn_zoom_out), "clicked",
-			G_CALLBACK(map_view_zoom_out), self);
-
-	/*	Auto-center		*/
-	self->btn_autocenter = ec_button_new();
-
-	ec_button_set_bg_image(
-			EC_BUTTON(self->btn_autocenter),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_widget_map_background_topright.png");
-
-	self->pxb_autocenter_on = map_view_load_image(
-			GFXDIR "ec_icon_autocenter_on.png");
-	self->pxb_autocenter_off = map_view_load_image(
-			GFXDIR "ec_icon_autocenter_off.png");
-
-	ec_button_set_center_text_vertically(EC_BUTTON(self->btn_autocenter),
-			TRUE);
-
-	gtk_widget_set_size_request(self->btn_autocenter, 30, 30);
-
-	gtk_fixed_put(GTK_FIXED(self->main_widget),
-			self->btn_autocenter, 376, 20);
-
-	g_signal_connect(G_OBJECT(self->btn_autocenter), "clicked",
-			G_CALLBACK(map_view_btn_autocenter_clicked), self);
-
-	/*	Fill (no function at the moment)	*/
-	self->btn_fill = ec_button_new();
-
-	ec_button_set_bg_image(
-			EC_BUTTON(self->btn_fill),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_widget_map_background_bottomright.png");
-
-	gtk_widget_set_size_request(self->btn_fill, 30, 30);
-
-	gtk_fixed_put(GTK_FIXED(self->main_widget),
-			self->btn_fill, 376, 376);
-
-	/* Move map up			*/
-	self->btn_map_scrl_up = ec_button_new();
-
-	g_signal_connect(G_OBJECT(self->btn_map_scrl_up), "clicked",
-			G_CALLBACK(map_view_scroll_up), self);
-
-	ec_button_set_bg_image(
-			EC_BUTTON(self->btn_map_scrl_up),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_widget_map_background_top.png");
-
-	ec_button_set_icon(
-			EC_BUTTON(self->btn_map_scrl_up),
-			GFXDIR "ec_widget_map_up_btn.png");
-
-	gtk_widget_set_size_request(
-			self->btn_map_scrl_up,
-			326, 30);
-
-	gtk_fixed_put(GTK_FIXED(self->main_widget),
-			self->btn_map_scrl_up,
-			50, 20);
-
-	/* Move map left		*/
-	self->btn_map_scrl_left = ec_button_new();
-
-	g_signal_connect(G_OBJECT(self->btn_map_scrl_left), "clicked",
-			G_CALLBACK(map_view_scroll_left), self);
-
-	ec_button_set_bg_image(
-			EC_BUTTON(self->btn_map_scrl_left),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_widget_map_background_left.png");
-
-	ec_button_set_icon(
-			EC_BUTTON(self->btn_map_scrl_left),
-			GFXDIR "ec_widget_map_left_btn.png");
-
-	ec_button_set_center_vertically(
-			EC_BUTTON(self->btn_map_scrl_left),
-			TRUE);
-
-	gtk_widget_set_size_request(
-			self->btn_map_scrl_left,
-			30, 326);
-
-	gtk_fixed_put(GTK_FIXED(self->main_widget),
-			self->btn_map_scrl_left,
-			20, 50);
-
-	/* Move map right		*/
-	self->btn_map_scrl_right = ec_button_new();
-
-	g_signal_connect(G_OBJECT(self->btn_map_scrl_right), "clicked",
-			G_CALLBACK(map_view_scroll_right), self);
-
-	ec_button_set_bg_image(
-			EC_BUTTON(self->btn_map_scrl_right),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_widget_map_background_right.png");
-
-	ec_button_set_icon(
-			EC_BUTTON(self->btn_map_scrl_right),
-			GFXDIR "ec_widget_map_right_btn.png");
-
-	ec_button_set_center_vertically(
-			EC_BUTTON(self->btn_map_scrl_right),
-			TRUE);
-
-	gtk_widget_set_size_request(
-			self->btn_map_scrl_right,
-			30, 326);
-
-	gtk_fixed_put(GTK_FIXED(self->main_widget),
-			self->btn_map_scrl_right,
-			376, 50);
-
-	/* Move map down		*/
-	self->btn_map_scrl_down = ec_button_new();
-
-	g_signal_connect(G_OBJECT(self->btn_map_scrl_down), "clicked",
-			G_CALLBACK(map_view_scroll_down), self);
-
-	ec_button_set_bg_image(
-			EC_BUTTON(self->btn_map_scrl_down),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_widget_map_background_bottom.png");
-
-	ec_button_set_icon(
-			EC_BUTTON(self->btn_map_scrl_down),
-			GFXDIR "ec_widget_map_down_btn.png");
-
-	gtk_widget_set_size_request(
-			self->btn_map_scrl_down,
-			326, 30);
-
-	gtk_fixed_put(GTK_FIXED(self->main_widget),
-			self->btn_map_scrl_down,
-			50, 376);
-
-	/* Create the container for the map widget and GPS status */
-	self->notebook_map = gtk_notebook_new();
-	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(self->notebook_map), FALSE);
-	gtk_notebook_set_show_border(GTK_NOTEBOOK(self->notebook_map), FALSE);
-
-	self->gps_status = ec_button_new();
-	ec_button_set_label_text(EC_BUTTON(self->gps_status),
-			_("Searching\nsatellites..."));
-	ec_button_set_center_vertically(EC_BUTTON(self->gps_status), TRUE);
-	ec_button_set_center_text_vertically(EC_BUTTON(self->gps_status),
-			TRUE);
-	ec_button_set_bg_image(EC_BUTTON(self->gps_status),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_widget_generic_small_background.png");
-
-	PangoFontDescription *desc;
-	desc = pango_font_description_new();
-	pango_font_description_set_family(desc, "Nokia Sans");
-	pango_font_description_set_absolute_size(desc, 22 * PANGO_SCALE);
-	ec_button_set_font_description_label(EC_BUTTON(self->gps_status), desc);
-
-	gtk_widget_set_size_request(self->gps_status, 326, 326);
-
-	self->page_id_gps_status = gtk_notebook_append_page(
-			GTK_NOTEBOOK(self->notebook_map),
-			self->gps_status, NULL);
-	gtk_fixed_put(GTK_FIXED(self->main_widget),
-			self->notebook_map,
-			50, 50);
-
-	/* Indicator bars		*/
-	self->indicator_1 = ec_progress_new_with_label(_("<span font_desc=\"Nokia sans 16\">Speed</span>"));
-	ec_progress_set_use_markup(EC_PROGRESS(self->indicator_1), TRUE);
-	gtk_widget_set_size_request(self->indicator_1, 350, 78);
-	gtk_fixed_put(GTK_FIXED(self->main_widget),
-			self->indicator_1, 427 + 180 * 0, 20 + 80 * 3);
-
-	map_view_setup_progress_indicator(EC_PROGRESS(self->indicator_1));
-	gtk_widget_set_name(self->indicator_1, "indicator_1");
-
-	/*
-	self->indicator_2 = ec_progress_new_with_label("(Heart rate)");
-	gtk_widget_set_size_request(self->indicator_2, 350, 78);
-	gtk_fixed_put(GTK_FIXED(self->main_widget), self->indicator_2,
-			427, 285);
-	map_view_setup_progress_indicator(EC_PROGRESS(self->indicator_2));
-	gdk_color_parse("#999", &color);
-	ec_progress_set_fg_color(EC_PROGRESS(self->indicator_2), &color);
-	gtk_widget_set_name(self->indicator_2, "indicator_2");
-	*/
-
-	/* Start/pause button		*/
-	self->btn_start_pause = ec_button_new();
-	ec_button_set_bg_image(EC_BUTTON(self->btn_start_pause),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_button_rec.png");
-	ec_button_set_btn_down_offset(EC_BUTTON(self->btn_start_pause), 2);
-	ec_button_set_center_vertically(
-			EC_BUTTON(self->btn_start_pause),
-			TRUE);
-	gtk_widget_set_size_request(self->btn_start_pause, 116, 74);
-	gtk_fixed_put(GTK_FIXED(self->main_widget),
-			self->btn_start_pause, 425, 334);
-	g_signal_connect(G_OBJECT(self->btn_start_pause), "clicked",
-			G_CALLBACK(map_view_btn_start_pause_clicked), self);
-
-	/* Stop button			*/
-	self->btn_stop = ec_button_new();
-	ec_button_set_bg_image(EC_BUTTON(self->btn_stop),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_button_stop.png");
-	ec_button_set_btn_down_offset(EC_BUTTON(self->btn_stop), 2);
-	ec_button_set_center_vertically(
-			EC_BUTTON(self->btn_stop),
-			TRUE);
-	gtk_widget_set_size_request(self->btn_stop, 116, 74);
-	gtk_fixed_put(GTK_FIXED(self->main_widget),
-			self->btn_stop, 545, 334);
-	g_signal_connect(G_OBJECT(self->btn_stop), "clicked",
-			G_CALLBACK(map_view_btn_stop_clicked), self);
-
-	/* Back button			*/
-	self->btn_back = ec_button_new();
-	ec_button_set_bg_image(EC_BUTTON(self->btn_back),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_button_generic.png");
-	ec_button_set_btn_down_offset(EC_BUTTON(self->btn_back), 2);
-	ec_button_set_label_text(EC_BUTTON(self->btn_back), _("Back"));
-	ec_button_set_center_vertically(
-			EC_BUTTON(self->btn_back),
-			TRUE);
-	ec_button_set_center_text_vertically(EC_BUTTON(self->btn_back), TRUE);
-	gtk_widget_set_size_request(self->btn_back, 116, 74);
-	gtk_fixed_put(GTK_FIXED(self->main_widget),
-			self->btn_back, 665, 334);
-	g_signal_connect(G_OBJECT(self->btn_back), "clicked",
-			G_CALLBACK(map_view_btn_back_clicked), self);
-
-	/* Elapsed time label		*/
-	self->info_time = map_view_create_info_button(
-			self,
-			_("Time"),
-			_("00:00:00"),
-			0, 0);
-
-	/* Traveled distance		*/
-	if(self->metric)
-	{
-	self->info_distance = map_view_create_info_button(
-			self,
-			_("Distance"),
-			_("0 m"),
-			1, 0);
-	}
-	else
-	{
-		self->info_distance = map_view_create_info_button(
-				self,
-				_("Distance"),
-				_("0 ft"),
-				1, 0);	
-	}
-
-	/* Speed			*/
-	if(self->metric)
-	{
-	self->info_speed = map_view_create_info_button(
-			self,
-			_("Speed"),
-			_("0.0 km/h"),
-			0, 1);
-	}
-	else
-	{
-	self->info_speed = map_view_create_info_button(
-				self,
-				_("Speed"),
-				_("0.0 mph"),0, 1);
-	}
+void map_view_show(MapView *self)
+{
+  
+	g_return_if_fail(self != NULL);
+	DEBUG_BEGIN();
+	
+	
+	//self->map_widget_state = MAP_VIEW_MAP_WIDGET_STATE_NOT_CONFIGURED;
+	//self->has_gps_fix = FALSE;
+	 
+	
+	
 	
 
-	/* Average speed		*/
-	if(self->metric)
+	
+	
+	if((self->activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED) ||
+	   (self->activity_state == MAP_VIEW_ACTIVITY_STATE_NOT_STARTED))
 	{
-	self->info_avg_speed = map_view_create_info_button(
-			self,
-			_("Avg. speed"),
-			_("0.0 km/h"),
-			1, 1);
+	osm_gps_map_add_button(self->map,394, 346, self->rec_btn_unselected);
+	osm_gps_map_add_button(self->map,557, 346, self->pause_btn_unselected);
 	}
-	else
+	else{
+	osm_gps_map_add_button(self->map,394, 346, self->rec_btn_selected);
+	
+	}
+	if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_PAUSED)
 	{
-	self->info_avg_speed = map_view_create_info_button(
-			self,
-    			_("Avg. speed"),
-			_("0.0 mph"),
-			1, 1);	
+	osm_gps_map_add_button(self->map,557, 346, self->pause_btn_selected);
 	}
+		    
 
-	/* Heart rate			*/
-	self->info_heart_rate = map_view_create_info_button(
-			self,
-			_("Heart rate"),
-			_("Wait..."),
-			0, 2);
+		    
 
-	self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_LOW] =
-		map_view_load_image(GFXDIR "ec_icon_heart_yellow.png");
-
-	self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_GOOD] =
-		map_view_load_image(GFXDIR "ec_icon_heart_green.png");
-
-	self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_HIGH] =
-		map_view_load_image(GFXDIR "ec_icon_heart_red.png");
-
-	self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_NOT_CONNECTED] =
-		map_view_load_image(GFXDIR "ec_icon_heart_grey.png");
-
-	ec_button_set_icon_pixbuf(EC_BUTTON(self->info_heart_rate),
-			self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_NOT_CONNECTED]
-			);
-	/* GPS device			*/
-#if (MAP_VIEW_SIMULATE_GPS)
+       #if (MAP_VIEW_SIMULATE_GPS)
 	self->show_map_widget_handler_id = 1;
 #else
 	self->gps_device = g_object_new(LOCATION_TYPE_GPS_DEVICE, NULL);
 	self->gpsd_control = location_gpsd_control_get_default();
+	
+	switch(self->gps_update_interval)
+	{
+	  case 0:
+	    g_object_set(G_OBJECT(self->gpsd_control), "preferred-interval", LOCATION_INTERVAL_5S, NULL);
+	    break;
+	    
+	  case 2:
+	    g_object_set(G_OBJECT(self->gpsd_control), "preferred-interval", LOCATION_INTERVAL_2S, NULL);
+	    break;
+	    
+	  case 5:
+	    g_object_set(G_OBJECT(self->gpsd_control), "preferred-interval", LOCATION_INTERVAL_5S, NULL);
+	    break;
+	    
+	  case 10:
+	    g_object_set(G_OBJECT(self->gpsd_control), "preferred-interval", LOCATION_INTERVAL_10S, NULL);
+	  break;
+	  
+	  case 20:
+	       g_object_set(G_OBJECT(self->gpsd_control), "preferred-interval", LOCATION_INTERVAL_20S, NULL);
+	  break;
+	}
+	
 	g_signal_connect(G_OBJECT(self->gps_device), "changed",
 			G_CALLBACK(map_view_location_changed), self);
 	self->show_map_widget_handler_id = g_signal_connect(
@@ -551,9 +339,69 @@ MapView *map_view_new(
 			G_CALLBACK(map_view_show_map_widget), self);
 #endif
 
+	if(gconf_helper_get_value_bool_with_default(self->gconf_helper,
+	   USE_METRIC,TRUE))
+	{
+		self->metric = TRUE;
+	}
+	else
+	{
+		self->metric = FALSE;
+	}
+
+	if(!self->beat_detector_connected)
+	{
+		self->beat_detector_connected = TRUE;
+		g_idle_add(map_view_connect_beat_detector_idle, self);
+	}
+
+	if(self->map_widget_state == MAP_VIEW_MAP_WIDGET_STATE_NOT_CONFIGURED)
+	{
+		self->has_gps_fix = FALSE;
+		self->map_widget_state = MAP_VIEW_MAP_WIDGET_STATE_CONFIGURING;
+	//	g_idle_add(map_view_load_map_idle, self);
+	} else {
+#if (MAP_VIEW_SIMULATE_GPS)
+		self->show_map_widget_handler_id = 1;
+#else
+		self->show_map_widget_handler_id = g_signal_connect(
+			G_OBJECT(self->gps_device), "changed",
+			G_CALLBACK(map_view_show_map_widget), self);
+#endif
+	}
+	
+	
+	
+	
+	
+	/* Connect to GPS */
+	/** @todo: Request the status and act according to it */	
+
+#if (MAP_VIEW_SIMULATE_GPS)
+	map_view_simulate_gps(self);
+#else
+	location_gps_device_reset_last_known(self->gps_device);
+	location_gpsd_control_start(self->gpsd_control);
+#endif
+	
+	
+	gtk_widget_show_all(self->win);
+	add_hide_buttons_timeout(self);
+	
+		unsigned char value = 1;
+	
+	Atom hildon_zoom_key_atom = 
+	gdk_x11_get_xatom_by_name("_HILDON_ZOOM_KEY_ATOM"),integer_atom = gdk_x11_get_xatom_by_name("INTEGER");
+	
+	Display *dpy = GDK_DISPLAY_XDISPLAY(gdk_drawable_get_display(self->win->window));
+	
+	Window w = GDK_WINDOW_XID(self->win->window);
+
+	XChangeProperty(dpy, w, hildon_zoom_key_atom, integer_atom, 8, PropModeReplace, &value, 1);
 	DEBUG_END();
-	return self;
 }
+
+
 
 gboolean map_view_setup_activity(
 		MapView *self,
@@ -600,63 +448,29 @@ gboolean map_view_setup_activity(
 	return TRUE;
 }
 
-void map_view_show(MapView *self)
+
+static void map_view_hide(MapView *self)
 {
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
 	
-	if(gconf_helper_get_value_bool_with_default(self->gconf_helper,
-	   USE_METRIC,TRUE))
-	{
-		self->metric = TRUE;
-	}
-	else
-	{
-		self->metric = FALSE;
-	}
-
-	if(!self->beat_detector_connected)
-	{
-		self->beat_detector_connected = TRUE;
-		g_idle_add(map_view_connect_beat_detector_idle, self);
-	}
-
-	if(self->map_widget_state == MAP_VIEW_MAP_WIDGET_STATE_NOT_CONFIGURED)
-	{
-		self->has_gps_fix = FALSE;
-		self->map_widget_state = MAP_VIEW_MAP_WIDGET_STATE_CONFIGURING;
-		g_idle_add(map_view_load_map_idle, self);
-	} else {
-#if (MAP_VIEW_SIMULATE_GPS)
-		self->show_map_widget_handler_id = 1;
-#else
-		self->show_map_widget_handler_id = g_signal_connect(
-			G_OBJECT(self->gps_device), "changed",
-			G_CALLBACK(map_view_show_map_widget), self);
-#endif
-	}
-
-	/* Connect to GPS */
-	/** @todo: Request the status and act according to it */	
-#if (MAP_VIEW_SIMULATE_GPS)
-	map_view_simulate_gps(self);
-#else
-	location_gpsd_control_start(self->gpsd_control);
-#endif
 	
-	g_signal_connect(G_OBJECT(self->parent_window), 
-			 "key_press_event", G_CALLBACK(key_press_cb), self);
+	if((self->activity_state == MAP_VIEW_ACTIVITY_STATE_STARTED) ||
+	   (self->activity_state == MAP_VIEW_ACTIVITY_STATE_PAUSED))
+	{
+		ec_error_show_message_error_ask_dont_show_again(
+				_("When activity is in started or paused "
+					"state, it is not stopped when going "
+					"back. You can return to activity by "
+					"clicking on the New activity button."
+					"\n\nTo start a new activity, please "
+					"press on the stop button first, "
+					"then return to menu and click on the "
+					"New activity button."),
+				ECGC_MAP_VIEW_STOP_DIALOG_SHOWN,
+				FALSE);
+	}
 	
-	
-
-	DEBUG_END();
-}
-
-void map_view_hide(MapView *self)
-{
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
-
 	if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED)
 	{
 		if(self->beat_detector_connected)
@@ -670,13 +484,15 @@ void map_view_hide(MapView *self)
 
 		
 
-		self->has_gps_fix = FALSE;
-		map_view_hide_map_widget(self);
-		track_helper_clear(self->track_helper, FALSE);
-		map_widget_clear_track(self->map_widget);
-		map_view_update_stats(self);
-		location_gpsd_control_stop(self->gpsd_control);
+	//	self->has_gps_fix = FALSE;
+	//	map_view_hide_map_widget(self);
+	//	track_helper_clear(self->track_helper, FALSE);
+	// ei	map_widget_clear_track(self->map_widget);
+	//	map_view_update_stats(self);
+	//	location_gpsd_control_stop(self->gpsd_control);
+		
 	}
+	//gtk_widget_hide_all(self->win);
 	DEBUG_END();
 }
 
@@ -689,6 +505,27 @@ MapViewActivityState map_view_get_activity_state(MapView *self)
 
 	DEBUG_END();
 }
+static void map_view_create_data(MapView *self){
+  
+ self->data_win = hildon_stackable_window_new();
+ self->data_widget = gtk_fixed_new(); 
+ g_signal_connect(self->data_win, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete), NULL);
+ 
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_distance,353, 100);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_speed,353, 120);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_time,353, 140);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_avg_speed,353, 160);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_heart_rate,353, 180);
+ 
+ gtk_container_add (GTK_CONTAINER (self->data_win),self->data_widget);	
+ 	
+  
+}
+static void map_view_show_data(MapView *self){
+
+  gtk_widget_show_all( self->data_win);
+}
+
 
 void map_view_stop(MapView *self)
 {
@@ -708,9 +545,9 @@ void map_view_stop(MapView *self)
 	g_source_remove(self->activity_timer_id);
 	self->activity_timer_id = 0;
 
-	ec_button_set_bg_image(EC_BUTTON(self->btn_start_pause),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_button_rec.png");
+	//ec_button_set_bg_image(EC_BUTTON(self->btn_start_pause),
+	//		EC_BUTTON_STATE_RELEASED,
+	//		GFXDIR "ec_button_rec.png");
 
 	DEBUG_END();
 }
@@ -722,7 +559,7 @@ void map_view_clear_all(MapView *self)
 
 	track_helper_clear(self->track_helper, TRUE);
 	map_view_update_stats(self);
-	map_widget_clear_track(self->map_widget);
+	//map_widget_clear_track(self->map_widget);
 
 	DEBUG_END();
 }
@@ -797,9 +634,10 @@ static gboolean map_view_connect_beat_detector_idle(gpointer user_data)
 			ec_error_show_message_error(error->message);
 		}
 
-		ec_button_set_label_text(EC_BUTTON(self->info_heart_rate),
-				_("N/A"));
-
+	//	ec_button_set_label_text(EC_BUTTON(self->info_heart_rate),
+	//			_("N/A"));
+	      gtk_label_set_text(GTK_LABEL(self->info_heart_rate),"N/A");
+	      
 		gdk_threads_leave();
 		DEBUG_END();
 		return FALSE;
@@ -810,7 +648,7 @@ static gboolean map_view_connect_beat_detector_idle(gpointer user_data)
 	/* This only needs to be done once */
 	return FALSE;
 }
-
+/*
 static gboolean map_view_load_map_idle(gpointer user_data)
 {
 	MapView *self = (MapView *)user_data;	
@@ -820,13 +658,13 @@ static gboolean map_view_load_map_idle(gpointer user_data)
 	DEBUG_BEGIN();
 
 	center.latitude = 51.50;
-	center.longitude = -.1;
+	center.longitude = -.1;*/
 	/** @todo Save the latitude & longitude to gconf */
 
-	gboolean is_running = FALSE;
+//	gboolean is_running = FALSE;
 
 	/* Start maptile-loader if it is not already running */
-	if(system("pidof " MAPTILE_LOADER_EXEC_NAME) != 0)
+/*	if(system("pidof " MAPTILE_LOADER_EXEC_NAME) != 0)
 	{
 		DEBUG_LONG("Starting maptile-loader process");
 		system(MAPTILE_LOADER_EXEC_NAME " &");
@@ -854,38 +692,47 @@ static gboolean map_view_load_map_idle(gpointer user_data)
 	}
 	if(!is_running)
 	{
-		DEBUG("Maptile-loader did not start");
+		*///DEBUG("Maptile-loader did not start");
 		/** @todo Handle the error */
-	}
+//	}
 
-	gdk_threads_enter();
+//	gdk_threads_enter();
 
+	
 	/* Create and setup the map widget */
+	/*
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(self->notebook_map),
 			self->page_id_gps_status);
-
-	self->map_widget = map_widget_create();
-	gtk_widget_set_size_request(GTK_WIDGET(self->map_widget), 326, 326);
-	self->page_id_map_widget = gtk_notebook_append_page(
+*/
+	//self->map_widget = map_widget_create();
+	//gtk_widget_set_size_request(GTK_WIDGET(self->map_widget), 760, 425);
+/*	self->page_id_map_widget = gtk_notebook_append_page(
 			GTK_NOTEBOOK(self->notebook_map),
 			self->map_widget, NULL);
+*/
+//	gtk_fixed_put(GTK_FIXED(self->main_widget),
+//			self->map_widget, 0, 0);
+			
+	
+	
+	//gtk_widget_set_size_request(self->notebook_map, 800, 410);
 
-	gtk_widget_set_size_request(self->notebook_map, 326, 326);
+//	map_widget_new_from_center_zoom_type(self->map_widget, &center, 15.0,
+//			MAP_ORIENTATION_NORTH, "Open Street",
+//			self->osso);
 
-	map_widget_new_from_center_zoom_type(self->map_widget, &center, 15.0,
-			MAP_ORIENTATION_NORTH, "Open Street",
-			self->osso);
+	
 
-	gtk_widget_show_all(self->notebook_map);
+//	self->map_widget_state = MAP_VIEW_MAP_WIDGET_STATE_CONFIGURED;
+//	map_view_update_autocenter(self);
+	
+//	gtk_widget_show_all(self->main_widget);	
 
-	self->map_widget_state = MAP_VIEW_MAP_WIDGET_STATE_CONFIGURED;
-	map_view_update_autocenter(self);
-
-	gdk_threads_leave();
+//	gdk_threads_leave();
 
 	/* This only needs to be done once */
-	return FALSE;
-}
+//	return FALSE;
+//}
 
 static gboolean fixed_expose_event(
 		GtkWidget *widget,
@@ -965,9 +812,10 @@ static void map_view_heart_rate_changed(
 	if(heart_rate >= 0)
 	{
 		text = g_strdup_printf(_("%d bpm"), (gint)heart_rate);
-		ec_button_set_label_text(
-				EC_BUTTON(self->info_heart_rate),
-				text);
+	//	ec_button_set_label_text(
+	//			EC_BUTTON(self->info_heart_rate),
+	  //			text);
+		gtk_label_set_text(GTK_LABEL(self->info_heart_rate),text);
 		g_free(text);
 
 		map_view_update_heart_rate_icon(self, heart_rate);
@@ -1036,8 +884,8 @@ static void map_view_hide_map_widget(MapView *self)
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
 
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(self->notebook_map),
-			self->page_id_gps_status);
+//	gtk_notebook_set_current_page(GTK_NOTEBOOK(self->notebook_map),
+//			self->page_id_gps_status);
 
 	DEBUG_END();
 }
@@ -1058,8 +906,8 @@ static void map_view_show_map_widget(
 
 	self->show_map_widget_handler_id = 0;
 
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(self->notebook_map),
-			self->page_id_map_widget);
+//	gtk_notebook_set_current_page(GTK_NOTEBOOK(self->notebook_map),
+//			self->page_id_map_widget);
 
 	DEBUG_END();
 }
@@ -1070,7 +918,7 @@ static void map_view_location_changed(
 {
 	MapPoint point;
 	MapView *self = (MapView *)user_data;
-	gboolean map_widget_ready = TRUE;
+	//gboolean map_widget_ready = TRUE;
 	
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
@@ -1086,19 +934,20 @@ static void map_view_location_changed(
 			device->fix->latitude,
 			device->fix->longitude,
 			device->fix->altitude);
-
+/*
 	if(self->map_widget_state != MAP_VIEW_MAP_WIDGET_STATE_CONFIGURED)
 	{
 		DEBUG("MapWidget not yet ready");
 		map_widget_ready = FALSE;
 	}
+*/
 
 	if(device->fix->fields & LOCATION_GPS_DEVICE_LATLONG_SET)
 	{
 		DEBUG("Latitude and longitude are valid");
 		point.latitude = device->fix->latitude;
 		point.longitude = device->fix->longitude;
-
+	/*
 		if(!self->has_gps_fix)
 		{
 			self->has_gps_fix = TRUE;
@@ -1109,26 +958,43 @@ static void map_view_location_changed(
 				map_view_update_autocenter(self);
 			}
 		}
-
+*/
 		if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STARTED)
 		{
 			map_view_check_and_add_route_point(self, &point,
 					device->fix);
+			osm_gps_map_draw_gps(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude,0);
 		}
-
+		else{
+		  osm_gps_map_clear_gps(OSM_GPS_MAP(self->map));
+		  osm_gps_map_draw_gps(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude,0);
+		  
+		}
+/*
 		if(map_widget_ready)
 		{
 			map_widget_set_current_location(
 					self->map_widget,
 					&point);
 		}
+		*/
 	} else {
 		DEBUG("Latitude and longitude are not valid");
-	}
-	if(device->status == LOCATION_GPS_DEVICE_STATUS_NO_FIX) {
-		hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "No GPS fix!");
-	}
+	} 
 
+
+	/*
+	if(device->status == LOCATION_GPS_DEVICE_STATUS_NO_FIX) {
+		//hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "No GPS fix!");
+	}
+*/	
+	
+	if(self->is_auto_center)
+	{
+	osm_gps_map_set_center(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude);
+	}
+	
+	
 	DEBUG_END();
 }
 
@@ -1153,16 +1019,16 @@ static void map_view_check_and_add_route_point(
 		DEBUG_END();
 		return;
 	}
-
+/*
 	if(self->map_widget_state != MAP_VIEW_MAP_WIDGET_STATE_CONFIGURED)
 	{
 		DEBUG("MapWidget not yet ready");
 		map_widget_ready = FALSE;
 	}
-
+*/
 	if(!self->point_added)
 	{
-		DEBUG("First point. Adding to track.");
+	//	DEBUG("First point. Adding to track.");
 		/* Always add the first point to the route */
 		add_point_to_track = TRUE;
 		self->point_added = TRUE;
@@ -1173,11 +1039,12 @@ static void map_view_check_and_add_route_point(
 				fix->latitude,
 				fix->longitude) * 1000.0;
 		DEBUG("Distance: %f meters", distance);
-
+		
 		/* Only add additional points if distance is at
 		 * least 10 meters, or if elevation has changed at least
 		 * 2 meters */
 		/* @todo: Are the 10 m / 2 m values sane? */
+		
 		if(self->previous_added_point.altitude_set &&
 				fix->fields & LOCATION_GPS_DEVICE_ALTITUDE_SET
 				&& fabs(self->previous_added_point.altitude -
@@ -1222,10 +1089,10 @@ static void map_view_check_and_add_route_point(
 		point_copy->latitude = point->latitude;
 		point_copy->longitude = point->longitude;
 
-		map_view_set_travelled_distance(
-				self,
-				self->travelled_distance + distance);
-
+	//	map_view_set_travelled_distance(
+	//			self,
+	//			self->travelled_distance + distance);
+	/*
 		if(map_widget_ready)
 		{
 			map_widget_add_point_to_track(self->map_widget,
@@ -1233,6 +1100,8 @@ static void map_view_check_and_add_route_point(
 			map_widget_show_track(self->map_widget,
 					TRUE);
 		}
+		
+		*/
 	}
 
 	DEBUG_END();
@@ -1405,15 +1274,23 @@ static void map_view_btn_start_pause_clicked(GtkWidget *button,
 	{
 		case MAP_VIEW_ACTIVITY_STATE_NOT_STARTED:
 			map_view_start_activity(self);
+			osm_gps_map_remove_button(self->map,394, 346);
+			osm_gps_map_add_button(self->map,394, 346, self->rec_btn_selected);
 			break;
 		case MAP_VIEW_ACTIVITY_STATE_STARTED:
 			map_view_pause_activity(self);
+			osm_gps_map_remove_button(self->map,557, 346);
+			osm_gps_map_add_button(self->map,557, 345, self->pause_btn_selected);
 			break;
 		case MAP_VIEW_ACTIVITY_STATE_PAUSED:
 			map_view_continue_activity(self);
+			osm_gps_map_remove_button(self->map,557, 345);
+			osm_gps_map_add_button(self->map,557, 346, self->pause_btn_unselected);
 			break;
 		case MAP_VIEW_ACTIVITY_STATE_STOPPED:
 			map_view_start_activity(self);
+			osm_gps_map_remove_button(self->map,394, 346);
+			osm_gps_map_add_button(self->map,394, 346, self->rec_btn_selected);
 			break;
 	}
 
@@ -1457,6 +1334,10 @@ static void map_view_btn_stop_clicked(GtkWidget *button, gpointer user_data)
 		DEBUG_END();
 		return;
 	}
+	osm_gps_map_remove_button(self->map,394, 346);
+	osm_gps_map_add_button(self->map,394, 346, self->rec_btn_unselected);
+	osm_gps_map_remove_button(self->map,557, 345);
+	osm_gps_map_add_button(self->map,557, 346, self->pause_btn_unselected);
 	map_view_stop(self);
 	DEBUG_END();
 }
@@ -1530,7 +1411,9 @@ static void map_view_start_activity(MapView *self)
 	{
 		track_helper_clear(self->track_helper, FALSE);
 		map_view_update_stats(self);
-		map_widget_clear_track(self->map_widget);
+	
+	osm_gps_map_remove_button(self->map,394, 346);
+	osm_gps_map_add_button(self->map,394, 346, self->rec_btn_selected);
 	}
 
 	gettimeofday(&self->start_time, NULL);
@@ -1542,9 +1425,10 @@ static void map_view_start_activity(MapView *self)
 
 	self->activity_state = MAP_VIEW_ACTIVITY_STATE_STARTED;
 
-	ec_button_set_bg_image(EC_BUTTON(self->btn_start_pause),
-			EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_button_pause.png");
+	
+//	ec_button_set_bg_image(EC_BUTTON(self->btn_start_pause),
+//			EC_BUTTON_STATE_RELEASED,
+//			GFXDIR "ec_button_pause.png");
 
 	DEBUG_END();
 }
@@ -1632,7 +1516,8 @@ static gboolean map_view_update_stats(gpointer user_data)
 					travelled_distance / 1000.0);
 		}
 
-		ec_button_set_label_text(EC_BUTTON(self->info_distance), lbl_text);
+		//ec_button_set_label_text(EC_BUTTON(self->info_distance), lbl_text);
+		gtk_label_set_text(GTK_LABEL(self->info_distance),lbl_text);
 		g_free(lbl_text);
 	}
 	else
@@ -1647,8 +1532,9 @@ static gboolean map_view_update_stats(gpointer user_data)
 			lbl_text = g_strdup_printf(_("%.1f mi"),
 					travelled_distance / 1000.0);
 		}
+		gtk_label_set_text(GTK_LABEL(self->info_distance),lbl_text);
 
-		ec_button_set_label_text(EC_BUTTON(self->info_distance), lbl_text);
+	//	ec_button_set_label_text(EC_BUTTON(self->info_distance), lbl_text);
 		g_free(lbl_text);
 	}
 	/* Elapsed time */
@@ -1675,28 +1561,31 @@ static gboolean map_view_update_stats(gpointer user_data)
 		if(self->metric)
 		{
 		lbl_text = g_strdup_printf(_("%.1f km/h"), avg_speed);
-		ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
-				lbl_text);
+	//	ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
+	//			lbl_text);
+	
+		gtk_label_set_text(GTK_LABEL(self->info_avg_speed),lbl_text);
 		g_free(lbl_text);
 		}
 		else
 		{
 		avg_speed = avg_speed *	0.621;
 		lbl_text = g_strdup_printf(_("%.1f mph"), avg_speed);
-		ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
-					 lbl_text);
+		gtk_label_set_text(GTK_LABEL(self->info_avg_speed),lbl_text);
 		g_free(lbl_text);
 		}
 	} else {
 		if(self->metric)
 		{
-		ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
-				_("0 km/h"));
+	//	ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
+	//			_("0 km/h"));
+		gtk_label_set_text(GTK_LABEL(self->info_avg_speed),"O km/h");
 		}
 		else
 		{
-		ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
-					_("0 mph"));		
+		gtk_label_set_text(GTK_LABEL(self->info_avg_speed),"O mph");
+	//	ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
+	//				_("0 mph"));		
 		}
 	}
 
@@ -1708,28 +1597,33 @@ static gboolean map_view_update_stats(gpointer user_data)
 		if(self->metric)
 		{
 		lbl_text = g_strdup_printf(_("%.1f km/h"), curr_speed);
-		ec_button_set_label_text(EC_BUTTON(self->info_speed),
-				lbl_text);
+//		ec_button_set_label_text(EC_BUTTON(self->info_speed),
+//				lbl_text);
+		gtk_label_set_text(GTK_LABEL(self->info_speed),lbl_text);
 		g_free(lbl_text);
 		}
 		else
 		{
 			curr_speed = curr_speed*0.621;
 			lbl_text = g_strdup_printf(_("%.1f mph"), curr_speed);
-			ec_button_set_label_text(EC_BUTTON(self->info_speed),
-					lbl_text);
+			//ec_button_set_label_text(EC_BUTTON(self->info_speed),
+			//		lbl_text);
+					
+			gtk_label_set_text(GTK_LABEL(self->info_speed),lbl_text);
 			g_free(lbl_text);
 		}
 	} else {
 		if(self->metric)
 		{
-			ec_button_set_label_text(EC_BUTTON(self->info_speed),
-						 _("0 km/h"));
+			//ec_button_set_label_text(EC_BUTTON(self->info_speed),
+			//			 _("0 km/h"));
+			gtk_label_set_text(GTK_LABEL(self->info_speed),"0 km/h");
 		}
 		else
 		{
-			ec_button_set_label_text(EC_BUTTON(self->info_speed),
-					_("0 mph"));
+			//ec_button_set_label_text(EC_BUTTON(self->info_speed),
+			//		_("0 mph"));
+			gtk_label_set_text(GTK_LABEL(self->info_speed),"0 mph");
 		}
 	}
 
@@ -1758,7 +1652,8 @@ static void map_view_set_elapsed_time(MapView *self, struct timeval *tv)
 	minutes = minutes % 60;
 
 	lbl_text = g_strdup_printf("%02d:%02d:%02d", hours, minutes, seconds);
-	ec_button_set_label_text(EC_BUTTON(self->info_time), lbl_text);
+	//ec_button_set_label_text(EC_BUTTON(self->info_distance), lbl_text);
+	gtk_label_set_text(GTK_LABEL(self->info_time),lbl_text);
 	g_free(lbl_text);
 }
 
@@ -1816,7 +1711,7 @@ static gboolean map_view_simulate_gps_timeout(gpointer user_data)
 	fix.longitude = coordinates[1];
 	fix.altitude = coordinates[2];
 	map_view_location_changed(&device, self);
-
+      
 	counter++;
 	if(counter > 100)
 	{
@@ -1885,11 +1780,26 @@ static void key_press_cb(GtkWidget * widget, GdkEventKey * event, MapView *self)
 	gboolean is_auto_center;
 	switch (event->keyval) {
 		
-		is_auto_center = map_widget_get_auto_center_status(self->map_widget);
+	//	is_auto_center = map_widget_get_auto_center_status(self->map_widget);
 		g_return_if_fail(self != NULL);
 		DEBUG_BEGIN();
+		gint zoom;
+		case HILDON_HARDKEY_INCREASE: /* Zoom in */
 		
-		case GDK_F6:
+		  DEBUG("ZOOM IN");
+		  
+		  g_object_get(self->map, "zoom", &zoom, NULL);
+		  osm_gps_map_set_zoom(self->map, zoom+1);
+		  break;
+		  
+		case HILDON_HARDKEY_DECREASE: /* Zoom in */
+		
+		  DEBUG("ZOOM OUT");
+		  
+		  g_object_get(self->map, "zoom", &zoom, NULL);
+		  osm_gps_map_set_zoom(self->map, zoom-1);
+		  break;
+	//	case GDK_F6:
 			/*if(is_auto_center)
 			{
 				map_widget_set_auto_center(self->map_widget, FALSE);
@@ -1903,11 +1813,11 @@ static void key_press_cb(GtkWidget * widget, GdkEventKey * event, MapView *self)
 				map_view_update_autocenter(self);
 			}
 			*/
-			map_view_btn_autocenter_clicked(NULL,self);
+	//		map_view_btn_autocenter_clicked(NULL,self);
 			
 			
-		break;
-		case GDK_F7:
+	//	break;
+	/*	case GDK_F7:
 			map_view_zoom_in(NULL,self);
 			
 		break;
@@ -1933,11 +1843,301 @@ static void key_press_cb(GtkWidget * widget, GdkEventKey * event, MapView *self)
 			
 			map_view_scroll_right(NULL,self);
 			break;
-		DEBUG_END();
+	*/	DEBUG_END();
 		
 
 		
 	}
 
 		
-		    }
+    }
+
+gboolean map_button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
+      MapView *self = (MapView *)user_data;
+      g_return_if_fail(user_data != NULL);
+      DEBUG_BEGIN();
+     coord_t coord;
+     
+    gtk_window_unfullscreen (self->win);
+    gtk_widget_set_size_request(self->map, 800, 420);
+    OsmGpsMap *map = OSM_GPS_MAP(widget);
+
+    if ( (event->button == 1) && (event->type == GDK_BUTTON_PRESS) )
+    {
+	   int zoom = 0;
+	coord = osm_gps_map_get_co_ordinates(map, (int)event->x, (int)event->y);
+	
+	
+	
+	
+	if((event->x > 213 && event->x <380) && (event->y > 346 && event->y < 480)){
+	  
+	 
+	  DEBUG("DATA BUTTON");
+	//  gtk_widget_hide(self->map);
+	  map_view_show_data(self);
+	  
+	}
+	
+	if(event->x < 80 && (event->y > 150 && event->y < 240)){
+	 
+	  DEBUG("ZOOM OUT");
+	    g_object_get(self->map, "zoom", &zoom, NULL);
+	    osm_gps_map_set_zoom(self->map, zoom-1);
+	}
+	
+	 if(event->x > 720 && (event->y > 150 && event->y < 240)){
+	DEBUG("ZOOM IN");
+	g_object_get(self->map, "zoom", &zoom, NULL);
+	osm_gps_map_set_zoom(self->map, zoom+1);
+	}
+	
+	 if((event->x < 557 && event->x > 394) && (event->y > 346 && event->y < 480)){
+	   
+		DEBUG("REC BUTTON PRESS"); 
+		
+	    if((self->activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED) ||
+		(self->activity_state == MAP_VIEW_ACTIVITY_STATE_NOT_STARTED))
+	    {
+		//  osm_gps_map_remove_button(self->map,394, 346);
+		  //osm_gps_map_add_button(self->map,394, 346, self->rec_btn_selected);
+		map_view_btn_start_pause_clicked(widget,user_data);
+	     }
+	     else
+	     {
+	       
+	      map_view_btn_stop_clicked(widget,user_data);
+	       
+	     }	
+	 }
+	 if((event->x < 800 && event->x > 558) && (event->y > 346 && event->y < 480)){
+	
+	  
+	  DEBUG("PAUSE BUTTON"); 
+	   if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STARTED || self->activity_state == MAP_VIEW_ACTIVITY_STATE_PAUSED){
+	    map_view_btn_start_pause_clicked(widget,user_data);
+	   }
+	 }
+    
+    }
+    add_hide_buttons_timeout(self);
+	
+    DEBUG_END(); 
+  
+ return FALSE;
+  
+  
+}
+
+gboolean
+map_button_release_cb (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
+  
+      MapView *self = (MapView *)user_data;
+      g_return_if_fail(user_data != NULL);
+      DEBUG_BEGIN();
+    float lat,lon;
+   // GtkEntry *entry = GTK_ENTRY(user_data);
+    OsmGpsMap *map = OSM_GPS_MAP(widget);
+
+    g_object_get(map, "latitude", &lat, "longitude", &lon, NULL);
+   // gchar *msg = g_strdup_printf("%f,%f",lat,lon);
+    //gtk_entry_set_text(entry, msg);
+    //g_free(msg);
+DEBUG_END(); 
+    return FALSE;
+
+  
+    }
+		
+/** Hildon menu example **/
+static HildonAppMenu *create_menu (MapView *self)
+{
+
+   const gchar* maps [] = {
+  "Open Street Map",
+  "Open Street Map Renderer",
+  "Open Aerial Map",
+  "Maps For Free",
+  "Google Street",
+  "Google Satellite",
+  "Google Hybrid",
+  "Virtual Earth Street",
+  "Virtual Earth Satellite",
+  "Virtual Earth Hybrid",
+  NULL
+};
+
+  int i;
+  gchar *command_id;
+  GtkWidget *button;
+  GtkWidget *filter;
+  GtkWidget *center_button;
+  GtkWidget *about_button;
+  GtkWidget *help_button;
+  GtkWidget *personal_button;
+  GtkWidget *note_button;
+  HildonAppMenu *menu = HILDON_APP_MENU (hildon_app_menu_new ());
+
+    /* Create menu entries */
+   // button = hildon_gtk_button_new (HILDON_SIZE_AUTO);
+   // command_id = g_strdup_printf ("Select Map Source");
+   // gtk_button_set_label (GTK_BUTTON (button), command_id);
+
+  button = hildon_button_new_with_text     (HILDON_SIZE_AUTO_WIDTH | HILDON_SIZE_FINGER_HEIGHT,
+                                HILDON_BUTTON_ARRANGEMENT_VERTICAL,
+                                            "Map Source",
+                                             maps[self->map_provider-1]);
+  
+   g_signal_connect_after (button, "clicked", G_CALLBACK (select_map_source_cb), self);
+  
+     /* Add entry to the view menu */
+   hildon_app_menu_append (menu, HILDON_BUTTON(button));
+  
+   center_button = hildon_check_button_new (HILDON_SIZE_AUTO_WIDTH | HILDON_SIZE_FINGER_HEIGHT);
+
+   gtk_button_set_label (GTK_BUTTON (center_button), "Auto Centering");
+   hildon_check_button_set_active(HILDON_CHECK_BUTTON(center_button),TRUE);
+   hildon_app_menu_append (menu, GTK_BUTTON(center_button));
+   g_signal_connect_after(center_button, "toggled", G_CALLBACK (toggle_map_centering), self);
+   
+   personal_button = gtk_button_new_with_label ("Personal Data");
+    //g_signal_connect_after (button, "clicked", G_CALLBACK (button_one_clicked), userdata);
+   hildon_app_menu_append (menu, GTK_BUTTON (personal_button));
+
+    note_button = gtk_button_new_with_label ("Add Note");
+    //g_signal_connect_after (button, "clicked", G_CALLBACK (button_one_clicked), userdata);
+   hildon_app_menu_append (menu, GTK_BUTTON (note_button));
+
+   
+   about_button = gtk_button_new_with_label ("About");
+    //g_signal_connect_after (button, "clicked", G_CALLBACK (button_one_clicked), userdata);
+   hildon_app_menu_append (menu, GTK_BUTTON (about_button));
+
+    help_button = gtk_button_new_with_label ("Help");
+    //g_signal_connect_after (button, "clicked", G_CALLBACK (button_one_clicked), userdata);
+    hildon_app_menu_append (menu, GTK_BUTTON (help_button));
+   
+   
+  // Create a filter and add it to the menu
+//filter = gtk_radio_button_new_with_label (NULL, "Filter one");
+//gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (filter), FALSE);
+//g_signal_connect_after (filter, "clicked", G_CALLBACK (filter_one_clicked), userdata);
+//hildon_app_menu_add_filter (menu, GTK_BUTTON (filter));
+
+// Add a new filter
+//filter = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (filter), "Filter two");
+//gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (filter), FALSE);
+//g_signal_connect_after (filter, "clicked", G_CALLBACK (filter_two_clicked), userdata);
+//hildon_app_menu_add_filter (menu, GTK_BUTTON (filter));
+
+gtk_widget_show_all (GTK_WIDGET (menu));
+
+  return menu;
+}
+
+void
+select_map_source_cb (HildonButton *button, gpointer user_data)
+{
+    MapView *self = (MapView *)user_data;
+       const gchar* maps [] = {
+	"Open Street Map",
+	"Open Street Map Renderer",
+	"Open Aerial Map",
+	"Maps For Free",
+	"Google Street",
+	"Google Satellite",
+	"Google Hybrid",
+	"Virtual Earth Street",
+	"Virtual Earth Satellite",
+	"Virtual Earth Hybrid",
+	NULL
+	};
+    DEBUG_BEGIN(); 
+    
+    
+    GtkWidget *selector;
+    GtkWidget *dialog = gtk_dialog_new();	
+    
+    
+    gtk_window_set_title(GTK_WINDOW(dialog),"Select map source");
+    gtk_widget_set_size_request(dialog, 800, 390);
+    selector = hildon_touch_selector_new_text();
+    hildon_touch_selector_set_column_selection_mode (HILDON_TOUCH_SELECTOR (selector),
+    HILDON_TOUCH_SELECTOR_SELECTION_MODE_SINGLE);
+  
+    int j = 0;
+    for(;j<  maps[j] != NULL ;j++){
+    hildon_touch_selector_append_text (HILDON_TOUCH_SELECTOR (selector),maps[j]);
+    }
+    hildon_touch_selector_set_active(HILDON_TOUCH_SELECTOR(selector),0,self->map_provider-1);
+    hildon_touch_selector_center_on_selected(HILDON_TOUCH_SELECTOR(selector));
+    gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),selector);	
+    g_signal_connect (G_OBJECT (selector), "changed", G_CALLBACK(map_source_selected),user_data);
+    gtk_widget_show_all(dialog);   
+    DEBUG_END(); 
+}
+
+void map_source_selected(HildonTouchSelector * selector, gint column, gpointer user_data){
+  
+    MapView *self = (MapView *)user_data;
+    g_return_if_fail(self != NULL);
+    DEBUG_BEGIN();
+    gint active = hildon_touch_selector_get_active(selector,column);
+    active++;
+    DEBUG("SELECTED MAP INDEX %d",active);
+    gconf_helper_set_value_int_simple(self->gconf_helper,MAP_SOURCE,active);
+    hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Selected map source will be used next time you load map view");
+    DEBUG_END();
+}
+
+static gboolean _hide_buttons_timeout(gpointer user_data)
+{
+	MapView *self = (MapView *)user_data;
+	self->hide_buttons_timeout_id = 0;
+       DEBUG_BEGIN();
+	/* Piilota napit */
+      DEBUG("HIDE BUTTONS TIMEOUT");
+      osm_gps_map_hide_buttons(OSM_GPS_MAP(self->map));
+      gtk_window_fullscreen (self->win);
+      gtk_widget_set_size_request(self->map,800,480);
+	/* Palauta aina FALSE -> kutsutaan vain kerran */
+	
+       DEBUG_END();
+      return FALSE;
+}
+static void add_hide_buttons_timeout(gpointer user_data)
+{
+   
+    MapView *self = (MapView *)user_data;
+    g_return_if_fail(self != NULL);
+     DEBUG_BEGIN();
+     
+      osm_gps_map_show_buttons(OSM_GPS_MAP(self->map));
+      gtk_window_unfullscreen (self->win);
+      gtk_widget_set_size_request(self->map,800,420);
+    /* Poista edellinen timeout, jos se on jo asetettu */
+	if(self->hide_buttons_timeout_id)
+	{
+		g_source_remove(self->hide_buttons_timeout_id);
+	}
+	self->hide_buttons_timeout_id = g_timeout_add(self->buttons_hide_timeout, _hide_buttons_timeout, self);
+   DEBUG_END();
+}
+
+static void
+toggle_map_centering(HildonCheckButton *button, gpointer user_data)
+{
+   MapView *self = (MapView *)user_data;
+   DEBUG_BEGIN();
+    gboolean active;
+
+    active = hildon_check_button_get_active (button);
+    if (active)
+       self->is_auto_center = TRUE;
+    else
+       self->is_auto_center = FALSE;
+    
+    DEBUG_END();
+}
