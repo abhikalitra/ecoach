@@ -9,7 +9,7 @@ Standards-Version: 3.7.2
 
 Package: ecoach
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ecoach-maptile-loader (>=0.31)
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: eCoach application
  eCoach is an application for managing sport and exercise activities.
  Supports FRWD B600 heart rate monitor.
