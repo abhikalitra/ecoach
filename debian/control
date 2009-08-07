@@ -1,5 +1,5 @@
 Source: ecoach
-Section: user/other
+Section: user/navigation
 Priority: extra
 Maintainer: Sampo Savola <samposav@paju.oulu.fi>
 Build-Depends: debhelper (>= 5), autotools-dev, libglib2.0-dev, libgtk2.0-dev,
@@ -10,7 +10,7 @@ Standards-Version: 3.7.2
 Package: ecoach
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: eCoach application
+Description: eCoach is an application for managing sport and exercise activities.
  eCoach is an application for managing sport and exercise activities.
  Supports FRWD B600 heart rate monitor.
 XB-Maemo-Display-Name: eCoach
