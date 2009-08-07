@@ -1,3 +1,9 @@
+ecoach (1.15alpha) unstable; urgency=low
+
+  * First alpha with new Map Engine and UI
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Fri,  7 Aug 2009 12:26:27 +0300
+
 ecoach (1.14f) unstable; urgency=low
 
   * First version with new UI
