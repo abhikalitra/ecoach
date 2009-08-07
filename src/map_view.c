@@ -966,11 +966,12 @@ static void map_view_location_changed(
 					device->fix);
 			osm_gps_map_draw_gps(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude,0);
 		}
-		else{
-		 // osm_gps_map_clear_gps(OSM_GPS_MAP(self->map));
+		if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED || self->activity_state == MAP_VIEW_ACTIVITY_STATE_NOT_STARTED )
+		{
+		  osm_gps_map_clear_gps(OSM_GPS_MAP(self->map));
 		  osm_gps_map_draw_gps(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude,0);
-		  
 		}
+		
 /*
 		if(map_widget_ready)
 		{
