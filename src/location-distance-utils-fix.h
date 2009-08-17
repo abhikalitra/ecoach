@@ -9,10 +9,15 @@
  *
  * The correct prototype is defined here
  */
+#ifdef __cplusplus
+ extern "C" {
+ #endif 
 double location_distance_between(
 		double latitude_s,
 		double longitude_s,
 		double latitude_f,
 		double longitude_f);
-
+ #ifdef __cplusplus
+ }
+ #endif 
 #endif /* _LOCATION_DISTANCE_UTILS_FIX_H */
