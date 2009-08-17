@@ -34,7 +34,9 @@
 
 /* Other modules */
 #include "settings.h"
-
+ #ifdef __cplusplus
+ extern "C" {
+ #endif 
 /**
  * @brief Initialize the utility functions
  *
@@ -121,4 +123,7 @@ gboolean util_timeval_from_xml_date_time_string(
  */
 gint util_compare_timevals(struct timeval *time_1, struct timeval *time_2);
 
+#ifdef __cplusplus
+ }
+ #endif
 #endif /* _UTIL_H */
