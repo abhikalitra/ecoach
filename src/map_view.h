@@ -23,6 +23,9 @@
 #ifndef _MAP_VIEW_H
 #define _MAP_VIEW_H
 
+ #ifdef __cplusplus
+ extern "C" {
+ #endif 
 /* Configuration */
 #include "config.h"
 
@@ -40,7 +43,8 @@
 
 /* Hildon */
 #include <hildon/hildon.h>
-
+#include <gtk/gtkenums.h>
+#include <hildon/hildon-button.h>
 
 /*osm-gps-map*/
 
@@ -49,9 +53,12 @@
 #include <libosso.h>
 
 /* Other modules */
+
 #include "beat_detect.h"
 #include "gconf_helper.h"
 #include "track.h"
+
+
 
 typedef struct _MapView MapView;
 typedef struct _MapViewGpsPoint MapViewGpsPoint;
@@ -118,12 +125,12 @@ struct _MapView {
 	GdkPixbuf *zoom_in;		/** Zoom in			*/
 	GdkPixbuf *zoom_out;		/** Zoom out			*/
 	GtkWidget *map;				
-	GtkWidget *map_btn;	
-	GtkWidget *data_btn;
-	GtkWidget *rec_btn_selected;	
-	GtkWidget *rec_btn_unselected;	
-	GtkWidget *pause_btn_unselected;
-	GtkWidget *pause_btn_selected;
+	GdkPixbuf *map_btn;	
+	GdkPixbuf *data_btn;
+	GdkPixbuf *rec_btn_selected;	
+	GdkPixbuf *rec_btn_unselected;	
+	GdkPixbuf *pause_btn_unselected;
+	GdkPixbuf *pause_btn_selected;
 	/* Info buttons		*/
 	GtkWidget *info_distance;	/**< Travelled distance		*/
 	GtkWidget *info_time;		/**< Elapsed time		*/
@@ -195,6 +202,9 @@ struct _MapView {
 	
 	gboolean metric;
 	
+	time_t start;
+	time_t end;
+	gdouble max_speed;
 	
 	OsmGpsMapSource_t map_provider ;
 	
@@ -209,7 +219,7 @@ struct _MapView {
 	
 	/* for data view */
 	GtkWidget *data_win;
-
+	
 
 };
 
@@ -298,4 +308,7 @@ void map_view_stop(MapView *self);
  */
 void map_view_clear_all(MapView *self);
 
+#ifdef __cplusplus
+ }
+ #endif
 #endif /* _MAP_VIEW_H */
