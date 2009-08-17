@@ -109,7 +109,7 @@ void osm_gps_map_geographic_to_screen (OsmGpsMap *map,
                                        gint *pixel_x, gint *pixel_y);
 void osm_gps_map_scroll (OsmGpsMap *map, gint dx, gint dy);
 void osm_gps_map_hide_buttons(OsmGpsMap *map);
-void osm_gps_map_show_buttons();
+void osm_gps_map_show_buttons(OsmGpsMap *map);
 float osm_gps_map_get_scale(OsmGpsMap *map);
 void osm_gps_map_remove_button (OsmGpsMap *map,int x, int y);
 G_END_DECLS
