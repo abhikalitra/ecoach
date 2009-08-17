@@ -32,7 +32,9 @@
 
 /* Other modules */
 #include "gconf_helper.h"
-
+ #ifdef __cplusplus
+ extern "C" {
+ #endif 
 /*****************************************************************************
  * Definitions                                                               *
  *****************************************************************************/
@@ -105,5 +107,7 @@ void ec_error_show_message_error_ask_dont_show_again(
 		gboolean default_value,
 		...)
 	__attribute__((format(printf, 1, 4)));
-
+ #ifdef __cplusplus
+ }
+ #endif 
 #endif /* _EC_ERROR_H */
