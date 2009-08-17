@@ -101,6 +101,8 @@ typedef struct _TrackHelper {
 	 */
 	GSList *track_points;
 
+	time_t start;
+	time_t end;
 	/**
 	 * @brief Whether or not in started state
 	 */
