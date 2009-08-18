@@ -2092,8 +2092,7 @@ select_map_source_cb (HildonButton *button, gpointer user_data)
 	"Google Hybrid",
 	"Virtual Earth Street",
 	"Virtual Earth Satellite",
-	"Virtual Earth Hybrid",
-	NULL
+	"Virtual Earth Hybrid"
 	};
     DEBUG_BEGIN(); 
     
@@ -2107,10 +2106,9 @@ select_map_source_cb (HildonButton *button, gpointer user_data)
     selector = hildon_touch_selector_new_text();
     hildon_touch_selector_set_column_selection_mode (HILDON_TOUCH_SELECTOR (selector),
     HILDON_TOUCH_SELECTOR_SELECTION_MODE_SINGLE);
-  
-    int j = 0;
+ 
     
-    for(;j<  j< 10 ;j++){
+    for( int j = 0;j<10;j++){
     hildon_touch_selector_append_text (HILDON_TOUCH_SELECTOR (selector),maps[j]);
     }
     hildon_touch_selector_set_active(HILDON_TOUCH_SELECTOR(selector),0,self->map_provider-1);
