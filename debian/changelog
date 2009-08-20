@@ -1,3 +1,9 @@
+ecoach (1.51alpha) unstable; urgency=low
+
+  * Added calendar integration
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Thu, 20 Aug 2009 11:13:17 +0300
+
 ecoach (1.50alpha) unstable; urgency=low
 
   * First alpha with new Map Engine and UI
