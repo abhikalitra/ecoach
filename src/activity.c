@@ -223,8 +223,11 @@ ActivityDescription *activity_chooser_choose_activity(ActivityChooser *self)
 
 	activity_description->file_name = file_name;
 
-	activity_description->heart_rate_range_id = gtk_combo_box_get_active(
-			GTK_COMBO_BOX(chooser_dialog->cmb_pulse_ranges));
+	
+//	  activity_description->heart_rate_range_id = gtk_combo_box_get_active(
+//			GTK_COMBO_BOX(chooser_dialog->cmb_pulse_ranges));
+
+      activity_description->heart_rate_range_id = hildon_picker_button_get_active (chooser_dialog->selector);
 
 	exercise_description = &self->heart_rate_settings->
 		exercise_descriptions[activity_description->
@@ -234,8 +237,19 @@ ActivityDescription *activity_chooser_choose_activity(ActivityChooser *self)
 		exercise_description->low;
 	activity_description->heart_rate_limit_high =
 		exercise_description->high;
-
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(
+	
+	if(hildon_check_button_get_active(HILDON_CHECK_BUTTON(
+					chooser_dialog->chk_add_calendar)))
+	{
+	  
+	activity_description->add_calendar = TRUE;
+	  
+	}
+	else{
+	  
+	 activity_description->add_calendar = FALSE; 
+	}
+	if(hildon_check_button_get_active(HILDON_CHECK_BUTTON(
 					chooser_dialog->chk_save_dfl)))
 	{
 		/* Save the default values */
@@ -276,7 +290,8 @@ gboolean activity_chooser_choose_and_setup_activity(ActivityChooser *self)
 				activity_description->activity_comment,
 				activity_description->file_name,
 				activity_description->heart_rate_limit_low,
-				activity_description->heart_rate_limit_high))
+				activity_description->heart_rate_limit_high,
+				   activity_description->add_calendar))
 	{
 		activity_description_free(activity_description);
 		DEBUG_END();
@@ -350,7 +365,9 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 	ActivityChooserDialog *chooser_dialog = NULL;
 	GtkWidget *vbox = NULL;
 	GtkWidget *caption = NULL;
+	
 	GtkSizeGroup *size_group = NULL;
+	
 	gint i;
 
 	g_return_val_if_fail(self != NULL, NULL);
@@ -369,7 +386,9 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 
 	size_group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
-	chooser_dialog->entry_activity_name = gtk_entry_new();
+	
+	
+	chooser_dialog->entry_activity_name = hildon_entry_new (HILDON_SIZE_AUTO);
 	if(self->default_activity_name)
 	{
 		gtk_entry_set_text(GTK_ENTRY(chooser_dialog->
@@ -389,7 +408,7 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 
 	gtk_box_pack_start(GTK_BOX(vbox), caption, FALSE, FALSE, 0);
 
-	chooser_dialog->entry_activity_comment = gtk_entry_new();
+	chooser_dialog->entry_activity_comment = hildon_entry_new (HILDON_SIZE_AUTO);
 
 	caption = hildon_caption_new(
 			size_group,
@@ -400,40 +419,63 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 
 	gtk_box_pack_start(GTK_BOX(vbox), caption, FALSE, FALSE, 0);
 
+	/*
 	chooser_dialog->cmb_pulse_ranges = gtk_combo_box_new_text();
 
-	for(i = 0; i < EC_EXERCISE_TYPE_COUNT; i++)
-	{
-		gtk_combo_box_append_text(
-				GTK_COMBO_BOX(chooser_dialog->cmb_pulse_ranges),
-				self->heart_rate_settings->
-				exercise_descriptions[i].name);
-	}
+	
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(chooser_dialog->
 				cmb_pulse_ranges),
 			self->default_heart_rate_range_id);
 
+	*/
+	
+	chooser_dialog->button = hildon_picker_button_new (HILDON_SIZE_FINGER_HEIGHT, HILDON_BUTTON_ARRANGEMENT_VERTICAL);
+        hildon_button_set_title (HILDON_BUTTON (chooser_dialog->button), "Target heart rate type");
+	 chooser_dialog->selector = hildon_touch_selector_new_text ();
+	 
+	for(i = 0; i < EC_EXERCISE_TYPE_COUNT; i++)
+	{
+
+	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->selector), self->heart_rate_settings->exercise_descriptions[i].name);
+	hildon_touch_selector_set_active (HILDON_TOUCH_SELECTOR (chooser_dialog->selector), 0, 0);
+
+	}
+       hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (chooser_dialog->button),HILDON_TOUCH_SELECTOR (chooser_dialog->selector));
+
+	 
+/*
 	caption = hildon_caption_new(
 			size_group,
 			_("Target heart rate type"),
 			chooser_dialog->cmb_pulse_ranges,
 			NULL,
 			HILDON_CAPTION_OPTIONAL);
+*/
+	gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->button, FALSE, FALSE, 0);
 
-	gtk_box_pack_start(GTK_BOX(vbox), caption, FALSE, FALSE, 0);
 
-	chooser_dialog->chk_save_dfl = gtk_check_button_new();
 
+	//chooser_dialog->chk_save_dfl = gtk_check_button_new();
+	
+/*
 	caption = hildon_caption_new(
 			size_group,
 			_("Save as default"),
 			chooser_dialog->chk_save_dfl,
 			NULL,
 			HILDON_CAPTION_OPTIONAL);
+*/
 
-	gtk_box_pack_start(GTK_BOX(vbox), caption, FALSE, FALSE, 0);
+	chooser_dialog->chk_save_dfl = hildon_check_button_new(HILDON_SIZE_FINGER_HEIGHT);
+	gtk_button_set_label (GTK_BUTTON ( chooser_dialog->chk_save_dfl), "Save as default");
 
+	gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->chk_save_dfl, FALSE, FALSE, 0);
+
+	 chooser_dialog->chk_add_calendar = hildon_check_button_new(HILDON_SIZE_FINGER_HEIGHT);
+	gtk_button_set_label (GTK_BUTTON (chooser_dialog->chk_add_calendar), "Add to calendar");
+	 hildon_check_button_set_active(GTK_BUTTON ( chooser_dialog->chk_add_calendar),TRUE);
+	gtk_box_pack_start(GTK_BOX(vbox),chooser_dialog->chk_add_calendar, FALSE, FALSE, 0);
 	DEBUG_END();
 	return chooser_dialog;
 }
