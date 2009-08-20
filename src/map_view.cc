@@ -340,6 +340,7 @@ void map_view_show(MapView *self)
 	       g_object_set(G_OBJECT(self->gpsd_control), "preferred-interval", LOCATION_INTERVAL_20S, NULL);
 	  break;
 	}
+	g_object_set(G_OBJECT(self->gpsd_control), "preferred-method", LOCATION_METHOD_AGNSS, NULL);
 	
 	g_signal_connect(G_OBJECT(self->gps_device), "changed",
 			G_CALLBACK(map_view_location_changed), self);
@@ -2192,7 +2193,7 @@ static void about_dlg(HildonButton *button, gpointer user_data){
     gtk_show_about_dialog((GtkWindow*)self->win
                 , "name",      "eCoach"
 		, "logo-icon-name",	"ecoach"
-                , "version",   "1.5alpha"
+                , "version",   "1.51alpha"
                 , "copyright", "Sampo Savola <samposav@paju.oulu.fi>\n"
 		"Jukka Alasalmi\n Veli-Pekka Haajanen\n Kai Skiftesvik"
                 , "website",   "http://ecoach.garage.maemo.org"
