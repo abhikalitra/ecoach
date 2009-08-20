@@ -49,15 +49,19 @@ typedef struct _ActivityDescription {
 	gint heart_rate_range_id;
 	gint heart_rate_limit_low;
 	gint heart_rate_limit_high;
+	gboolean add_calendar;
 } ActivityDescription;
 
 typedef struct _ActivityChooserDialog {
 	GtkWidget *dialog;
 
-	GtkWidget *cmb_pulse_ranges;
+	GtkWidget *button;
+	GtkWidget *selector;
+//	GtkWidget *cmb_pulse_ranges;
 	GtkWidget *entry_activity_name;
 	GtkWidget *entry_activity_comment;
 	GtkWidget *chk_save_dfl;
+	GtkWidget *chk_add_calendar;
 	GtkSizeGroup *size_group;
 } ActivityChooserDialog;
 
