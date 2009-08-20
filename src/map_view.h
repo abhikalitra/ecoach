@@ -216,7 +216,7 @@ struct _MapView {
 	char *cachedir;
 	gboolean fullpath;
 	gint buttons_hide_timeout;
-	
+	gboolean add_calendar;
 	/* for data view */
 	GtkWidget *data_win;
 	
@@ -285,7 +285,8 @@ gboolean map_view_setup_activity(
 		const gchar *activity_comment,
 		const gchar *file_name,
 		gint heart_rate_limit_low,
-		gint heart_rate_limit_high);
+		gint heart_rate_limit_high,
+		gboolean add_calendar);
 
 /**
  * @brief Call this when map view is shown.
