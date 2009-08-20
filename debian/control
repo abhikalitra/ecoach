@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Sampo Savola <samposav@paju.oulu.fi>
 Build-Depends: debhelper (>= 5), autotools-dev, libglib2.0-dev, libgtk2.0-dev,
                libhildon1-dev, libhildonfm2-dev, libbluetooth3-dev, libdbus-glib-1-dev, libgconf2-dev,
-               libosso-dev, liblocation-dev, libxml2-dev, conbtdialogs-dev, libsoup2.4-dev
+               libosso-dev, liblocation-dev, libxml2-dev, conbtdialogs-dev, libsoup2.4-dev, calendar-backend-dev
 Standards-Version: 3.7.2
 
 Package: ecoach
