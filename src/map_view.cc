@@ -72,7 +72,7 @@
 
 #define MAPTILE_LOADER_EXEC_NAME "ecoach-maptile-loader"
 #define GFXDIR DATADIR "/pixmaps/ecoach/"
-#define MAP_VIEW_SIMULATE_GPS 1
+#define MAP_VIEW_SIMULATE_GPS 0
 
 
 
@@ -226,6 +226,7 @@ MapView *map_view_new(
 
 	g_free(self->cachedir);
 	
+	osm_gps_map_set_zoom((OsmGpsMap*)self->map,15);
 	
 	self->is_auto_center = TRUE;
 	/* Main layout 		*/
@@ -417,7 +418,7 @@ gboolean map_view_setup_activity(
 		const gchar *activity_comment,
 		const gchar *file_name,
 		gint heart_rate_limit_low,
-		gint heart_rate_limit_high)
+		gint heart_rate_limit_high,gboolean add_calendar)
 {
 	g_return_val_if_fail(self != NULL, FALSE);
 	DEBUG_BEGIN();
@@ -451,6 +452,7 @@ gboolean map_view_setup_activity(
 
 	self->heart_rate_limit_low = heart_rate_limit_low;
 	self->heart_rate_limit_high = heart_rate_limit_high;
+	self->add_calendar = add_calendar;
 
 	DEBUG_END();
 	return TRUE;
@@ -561,8 +563,10 @@ void map_view_stop(MapView *self)
 	gchar *max_speed = g_strdup_printf(_("%.1f km/h"), self->max_speed);
 	
 	CCalendarUtil *util;
-	util->addEvent(self->activity_name,self->activity_comment,g_strdup_printf("Duration: %s\nDistance: %s\nAvg.speed %s\nMax.Speed: %s",time,dist,avgspeed,max_speed),self->start,self->end);
-	
+	if(self->add_calendar){
+	util->addEvent(self->activity_name,"",g_strdup_printf("Duration: %s\nDistance: %s\nAvg.speed %s\nMax.Speed: %s \n\
+	Comment: %s \nGPX File: %s",time,dist,avgspeed,max_speed,self->activity_comment,self->file_name),self->start,self->end);
+	}
 	
 	track_helper_stop(self->track_helper);
 	
