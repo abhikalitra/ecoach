@@ -139,6 +139,7 @@ struct _MapView {
 	GtkWidget *info_heart_rate;	/**< Heart rate			*/
 	GtkWidget *info_units;		/**< Distance units		*/
 	gboolean is_auto_center;
+	GtkWidget *info_speed_per_unit;
 	/* Progress indicators	*/
 	GtkWidget *indicator_1;		/**< "Progress indicator"	*/
 
