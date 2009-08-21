@@ -996,7 +996,14 @@ static void map_view_location_changed(
 				map_view_update_autocenter(self);
 			}
 		}
-*/
+*/			
+		gchar *lbl_text = NULL;
+		DEBUG("SPEED ACCURACY %.5f",device->fix->eps);
+		if(device->fix->eps < 180){ 
+		lbl_text = g_strdup_printf(_("%.1f km/h"), device->fix->speed);
+		gtk_label_set_text(GTK_LABEL(self->info_speed),lbl_text);
+		g_free(lbl_text);
+		}
 		if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STARTED)
 		{
 			map_view_check_and_add_route_point(self, &point,
@@ -1643,7 +1650,7 @@ static gboolean map_view_update_stats(gpointer user_data)
 		}
 //		ec_button_set_label_text(EC_BUTTON(self->info_speed),
 //				lbl_text);
-		gtk_label_set_text(GTK_LABEL(self->info_speed),lbl_text);
+		//gtk_label_set_text(GTK_LABEL(self->info_speed),lbl_text);
 		g_free(lbl_text);
 		}
 		else
@@ -1661,13 +1668,13 @@ static gboolean map_view_update_stats(gpointer user_data)
 		{
 			//ec_button_set_label_text(EC_BUTTON(self->info_speed),
 			//			 _("0 km/h"));
-			gtk_label_set_text(GTK_LABEL(self->info_speed),"0 km/h");
+		//	gtk_label_set_text(GTK_LABEL(self->info_speed),"0 km/h");
 		}
 		else
 		{
 			//ec_button_set_label_text(EC_BUTTON(self->info_speed),
 			//		_("0 mph"));
-			gtk_label_set_text(GTK_LABEL(self->info_speed),"0 mph");
+		//	gtk_label_set_text(GTK_LABEL(self->info_speed),"0 mph");
 		}
 	}
 
