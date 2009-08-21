@@ -68,9 +68,12 @@ gfx_DATA =							\
 	ec_map_zoom_in.png					\
 	ec_map_zoom_out.png					\
 	ec_button_map_selected.png				\
+	ec_button_map_unselected.png				\
+	ec_button_data_selected.png				\
 	ec_button_data_unselected.png				\
 	ec_button_pause_unselected.png				\
 	ec_button_pause_selected.png				\
 	ec_button_rec_selected.png				\
-	ec_button_rec_unselected.png
+	ec_button_rec_unselected.png				\
+	ec_info_button_generic.png
 EXTRA_DIST = $(gfx_DATA)
