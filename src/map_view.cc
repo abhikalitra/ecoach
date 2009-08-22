@@ -72,7 +72,7 @@
 
 #define MAPTILE_LOADER_EXEC_NAME "ecoach-maptile-loader"
 #define GFXDIR DATADIR "/pixmaps/ecoach/"
-#define MAP_VIEW_SIMULATE_GPS 0
+#define MAP_VIEW_SIMULATE_GPS 1
 
 
 
@@ -159,6 +159,7 @@ static void map_view_show_data(MapView *self);
 static void map_view_create_data(MapView *self);
 static void map_view_hide(MapView *self);
 static void about_dlg(HildonButton *button, gpointer user_data);
+static void hide_data(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 /*****************************************************************************
  * Function declarations                                                     *
  *****************************************************************************/
@@ -248,11 +249,14 @@ MapView *map_view_new(
 	self->pause_btn_unselected = gdk_pixbuf_new_from_file(GFXDIR "ec_button_pause_unselected.png",NULL);
 	self->pause_btn_selected = gdk_pixbuf_new_from_file(GFXDIR "ec_button_pause_selected.png",NULL);
 	
-	self->info_speed = gtk_label_new("Speed");
-	self->info_distance = gtk_label_new("Distance");;	
-	self->info_time = gtk_label_new("Time");		
-	self->info_avg_speed = gtk_label_new("Average Speed");
-	self->info_heart_rate = gtk_label_new("HR");
+	//self->info_speed = gtk_label_new("Speed");
+	
+
+
+//	self->info_distance = gtk_label_new("Distance");;	
+//	self->info_time = gtk_label_new("Time");		
+//	self->info_avg_speed = gtk_label_new("Average Speed");
+//	self->info_heart_rate = gtk_label_new("HR");
 
 	
 	gtk_fixed_put(GTK_FIXED(self->main_widget),self->map, 0, 0);
@@ -516,21 +520,93 @@ MapViewActivityState map_view_get_activity_state(MapView *self)
 
 	DEBUG_END();
 }
-static void map_view_create_data(MapView *self){
+
+static void hide_data(GtkWidget *widget, GdkEventButton *event, gpointer user_data){
   
+  MapView *self = (MapView *)user_data;
+  DEBUG_BEGIN();
+  gtk_widget_hide_all( self->data_win);
+  
+ DEBUG_END();
+  
+  
+}
+static void map_view_create_data(MapView *self){
+  DEBUG_BEGIN();
  self->data_win = hildon_stackable_window_new();
  self->data_widget = gtk_fixed_new(); 
- g_signal_connect(self->data_win, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete), NULL);
  
- gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_distance,353, 100);
- gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_speed,353, 120);
- gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_time,353, 140);
- gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_avg_speed,353, 160);
- gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_heart_rate,353, 180);
+    GtkWidget *map_btn = gtk_image_new_from_file(GFXDIR "ec_button_map_unselected.png");
+    GtkWidget *data_btn = gtk_image_new_from_file(GFXDIR "ec_button_data_selected.png");
+    GtkWidget *map_event = gtk_event_box_new();
+    gtk_container_add (GTK_CONTAINER (map_event),map_btn);
+    
+    GtkWidget *rec_btn_unselected = gtk_image_new_from_file(GFXDIR "ec_button_rec_unselected.png");
+    GtkWidget *rec_btn_selected = gtk_image_new_from_file(GFXDIR "ec_button_rec_selected.png");
+      
+    
+    GtkWidget *pause_btn_unselected =gtk_image_new_from_file(GFXDIR "ec_button_pause_unselected.png");
+    GtkWidget *pause_btn_selected = gtk_image_new_from_file(GFXDIR "ec_button_pause_selected.png");
+	
+ g_signal_connect(self->data_win, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete), NULL);
+
+ 
+ self->info_time = map_view_create_info_button(
+			self,
+			_("0 m"),
+			_("00:00:00"),
+			0, 0);
+
+  self->info_speed = map_view_create_info_button(
+			self,
+			_("0.0 km/h"),
+			_("0.0 km/h"),
+			0, 1);
+			
+ self->info_distance = map_view_create_info_button(
+			self,
+			_("Distance"),
+			_("0 m"),
+			1, 0);
+			
+ self->info_avg_speed = map_view_create_info_button(
+			self,
+			_("Avg. speed"),
+			_("0.0 km/h"),
+			1, 1);
+			
+self->info_heart_rate = map_view_create_info_button(
+			self,
+			_("Heart rate"),
+			_("Wait..."),
+			0, 2);
+			
+self->info_speed_per_unit = map_view_create_info_button(
+self,
+_("Time/km"),
+_("Wait..."),
+0, 2);
+
+  g_signal_connect(G_OBJECT(map_event), "button-press-event",
+                      G_CALLBACK (hide_data),self);
+		      
+ gtk_fixed_put(GTK_FIXED(self->data_widget),map_event,50,346);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),data_btn,213, 346);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),rec_btn_selected,394, 346);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),pause_btn_selected,557, 346);
+ 
+ 
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_distance,100, 75);
+ //gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_speed_per_unit,100, 200);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_speed,315, 75);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_time,525, 75);
+// gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_avg_speed,315, 200);
+// gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_heart_rate,525, 200);
+ 
  
  gtk_container_add (GTK_CONTAINER (self->data_win),self->data_widget);	
- 	
-  
+ DEBUG_END();	
+ 
 }
 static void map_view_show_data(MapView *self){
 
@@ -1001,7 +1077,7 @@ static void map_view_location_changed(
 		DEBUG("SPEED ACCURACY %.5f",device->fix->eps);
 		if(device->fix->eps < 180){ 
 		lbl_text = g_strdup_printf(_("%.1f km/h"), device->fix->speed);
-		gtk_label_set_text(GTK_LABEL(self->info_speed),lbl_text);
+		//gtk_label_set_text(GTK_LABEL(self->info_speed),lbl_text);
 		g_free(lbl_text);
 		}
 		if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STARTED)
@@ -1326,7 +1402,7 @@ static void map_view_btn_start_pause_clicked(GtkWidget *button,
 		case MAP_VIEW_ACTIVITY_STATE_STARTED:
 			map_view_pause_activity(self);
 			osm_gps_map_remove_button((OsmGpsMap*)self->map,557, 346);
-			osm_gps_map_add_button((OsmGpsMap*)self->map,557, 345, self->pause_btn_selected);
+			osm_gps_map_add_button((OsmGpsMap*)self->map,557, 346, self->pause_btn_selected);
 			break;
 		case MAP_VIEW_ACTIVITY_STATE_PAUSED:
 			map_view_continue_activity(self);
@@ -1612,14 +1688,14 @@ static gboolean map_view_update_stats(gpointer user_data)
 	//	ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
 	//			lbl_text);
 	
-		gtk_label_set_text(GTK_LABEL(self->info_avg_speed),lbl_text);
+		//gtk_label_set_text(GTK_LABEL(self->info_avg_speed),lbl_text);
 		g_free(lbl_text);
 		}
 		else
 		{
 		avg_speed = avg_speed *	0.621;
 		lbl_text = g_strdup_printf(_("%.1f mph"), avg_speed);
-		gtk_label_set_text(GTK_LABEL(self->info_avg_speed),lbl_text);
+		//gtk_label_set_text(GTK_LABEL(self->info_avg_speed),lbl_text);
 		g_free(lbl_text);
 		}
 	} else {
@@ -1627,11 +1703,11 @@ static gboolean map_view_update_stats(gpointer user_data)
 		{
 	//	ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
 	//			_("0 km/h"));
-		gtk_label_set_text(GTK_LABEL(self->info_avg_speed),"O km/h");
+		//gtk_label_set_text(GTK_LABEL(self->info_avg_speed),"O km/h");
 		}
 		else
 		{
-		gtk_label_set_text(GTK_LABEL(self->info_avg_speed),"O mph");
+	//	gtk_label_set_text(GTK_LABEL(self->info_avg_speed),"O mph");
 	//	ec_button_set_label_text(EC_BUTTON(self->info_avg_speed),
 	//				_("0 mph"));		
 		}
@@ -1660,7 +1736,7 @@ static gboolean map_view_update_stats(gpointer user_data)
 			//ec_button_set_label_text(EC_BUTTON(self->info_speed),
 			//		lbl_text);
 					
-			gtk_label_set_text(GTK_LABEL(self->info_speed),lbl_text);
+		//	gtk_label_set_text(GTK_LABEL(self->info_speed),lbl_text);
 			g_free(lbl_text);
 		}
 	} else {
@@ -1791,20 +1867,20 @@ static GtkWidget *map_view_create_info_button(
 	ec_button_set_title_text(EC_BUTTON(button), title);
 	ec_button_set_label_text(EC_BUTTON(button), label);
 	ec_button_set_bg_image(EC_BUTTON(button), EC_BUTTON_STATE_RELEASED,
-			GFXDIR "ec_widget_generic_small_background.png");
+			GFXDIR "ec_info_button_generic.png");
 
-	gtk_widget_set_size_request(button, 174, 82);
-	gtk_fixed_put(GTK_FIXED(self->main_widget),
-			button, 425 + 180 * x, 18 + 80 * y);
+	gtk_widget_set_size_request(button, 195, 268);
+	//gtk_fixed_put(GTK_FIXED(self->main_widget),
+	//		button, 425 + 180 * x, 18 + 80 * y);
 
 	ec_button_set_btn_down_offset(EC_BUTTON(button), 2);
 
 	desc = pango_font_description_new();
 	pango_font_description_set_family(desc, "Nokia Sans");
-	pango_font_description_set_absolute_size(desc, 22 * PANGO_SCALE);
+	pango_font_description_set_absolute_size(desc, 29 * PANGO_SCALE);
 	ec_button_set_font_description_label(EC_BUTTON(button), desc);
 
-	pango_font_description_set_absolute_size(desc, 20 * PANGO_SCALE);
+	pango_font_description_set_absolute_size(desc, 29 * PANGO_SCALE);
 	ec_button_set_font_description_title(EC_BUTTON(button), desc);
 
 	return button;
