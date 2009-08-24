@@ -565,8 +565,8 @@ AnalyzerView *analyzer_view_new(
 
 
 	self->main_widget = gtk_fixed_new();
-	
-	
+
+
 	self->btn_back = ec_button_new();
 	ec_button_set_label_text(EC_BUTTON(self->btn_back), _("Back"));
 
@@ -641,17 +641,17 @@ void analyzer_view_show(AnalyzerView *self)
 
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
-	
+
 	self->win = hildon_stackable_window_new ();
 	gtk_window_set_title ( GTK_WINDOW (self->win), "eCoach >Activity log");
 	gtk_widget_set_name(GTK_WIDGET(self->win), "mainwindow");
-	
+
 	g_signal_connect (self->win, "destroy", G_CALLBACK (analyzer_view_hide), self);
-	 	
-	
+
+
 	self->main_table = gtk_table_new(5,2,TRUE);
-	
-	
+
+
 	/* Open button */
 	self->btn_open = ec_button_new();
 	ec_button_set_bg_image(EC_BUTTON(self->btn_open),
@@ -665,8 +665,8 @@ void analyzer_view_show(AnalyzerView *self)
 	gtk_fixed_put(GTK_FIXED(self->main_widget), self->btn_open,
 			18, 18);
 	//gtk_table_attach_defaults (GTK_TABLE (self->main_table), self->btn_open, 0, 1, 0, 1);
-	
-     
+
+
 	g_signal_connect(G_OBJECT(self->btn_open), "clicked",
 			G_CALLBACK(analyzer_view_btn_open_clicked), self);
 
@@ -726,7 +726,7 @@ void analyzer_view_show(AnalyzerView *self)
 	gtk_widget_modify_font(self->lbl_track_details, desc);
 	pango_font_description_free(desc);
 
-	
+
 
 	self->data = gtk_table_new(1,2,TRUE);
       /* Create the views */
@@ -750,26 +750,26 @@ void analyzer_view_show(AnalyzerView *self)
 	self->pannable = hildon_pannable_area_new ();
 	gtk_widget_set_name(GTK_WIDGET(self->pannable), "mainwindow");
 	g_object_set (G_OBJECT(self->pannable),"mov-mode", HILDON_MOVEMENT_MODE_HORIZ );
-	
+
 	//g_object_set (G_OBJECT (self->pannable),"low-friction-mode", TRUE);
 
 //	g_object_set (G_OBJECT (self->pannable),
-//               "deceleration", 0.01);	
+//               "deceleration", 0.01);
 
 	hildon_pannable_area_add_with_viewport (HILDON_PANNABLE_AREA (self->pannable), self->data);
 
 	self->pan = gtk_table_new(1,1,TRUE);
 	GtkWidget *weight_event;;
 	weight_event = gtk_event_box_new ();
-	
-	
+
+
 	GdkColor black;
 	black.red = 0;
 	black.green = 0;
 	black.blue = 0;
-	
+
 	gtk_widget_modify_bg(weight_event,0,&black);
-	
+
 	gtk_widget_set_size_request(self->pannable,
 			762,
 			340);
@@ -779,15 +779,15 @@ void analyzer_view_show(AnalyzerView *self)
 	gtk_fixed_put(GTK_FIXED(self->main_widget), weight_event,
 			18, 85);
 
-	
+
 	//gtk_table_attach_defaults (GTK_TABLE (self->main_table),self->pannable, 0,5, 1, 3);
-	
+
 	gtk_container_add (GTK_CONTAINER (self->win),self->main_widget);
-	
-	
+
+
 	//gtk_widget_show_all(self->main_widget);
-	
-	
+
+
 	gtk_widget_show_all(self->win);
 	self->current_view = 0;
 
@@ -830,10 +830,10 @@ void analyzer_view_hide(AnalyzerView *self)
 static GtkWidget *analyzer_view_create_view_info(AnalyzerView *self)
 {
 	gint i;
-	
-	  
 
-	
+
+
+
 	g_return_val_if_fail(self != NULL, NULL);
 	DEBUG_BEGIN();
 
@@ -903,7 +903,7 @@ static GtkWidget *analyzer_view_create_view_graphs(AnalyzerView *self)
 	DEBUG_BEGIN();
 
 	self->graphs_table = gtk_table_new(2, 3, FALSE);
-	
+
 
 	/* Speed button */
 	self->show_speed = TRUE;
@@ -1379,15 +1379,14 @@ static gchar *analyzer_view_choose_file_name(AnalyzerView *self)
 		return NULL;
 	}
 
+	self->default_folder_name = gconf_helper_get_value_string_with_default(self->gconf_helper,ECGC_DEFAULT_FOLDER,"/home/user/MyDocs");
 	file_dialog = hildon_file_chooser_dialog_new_with_properties(
 			GTK_WINDOW(self->parent_window),
 			"file_system_model", fs_model,
 			"action", GTK_FILE_CHOOSER_ACTION_OPEN,
 			NULL);
 
-	/*gtk_file_chooser_set_current_folder(
-			GTK_FILE_CHOOSER(file_dialog),
-			self->default_folder_name);*/
+
 
 	file_filter = gtk_file_filter_new();
 	gtk_file_filter_set_name(file_filter, _("GPX files"));
@@ -1400,6 +1399,9 @@ static gchar *analyzer_view_choose_file_name(AnalyzerView *self)
 	gtk_file_chooser_set_filter(
 			GTK_FILE_CHOOSER(file_dialog),
 			file_filter);
+	gtk_file_chooser_set_current_folder(
+			GTK_FILE_CHOOSER(file_dialog),
+			self->default_folder_name);
 
 	gtk_widget_show_all(file_dialog);
 	result = gtk_dialog_run(GTK_DIALOG(file_dialog));
