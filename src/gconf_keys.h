@@ -68,5 +68,6 @@
 #define USER_AGE		ECGC_BASE_DIR "/user_age"
 #define GPS_INTERVAL		ECGC_BASE_DIR "/gps_interval"
 #define MAP_SOURCE		ECGC_BASE_DIR "/map_source"
+#define FIRST_BOOT		ECGC_BASE_DIR "/first_boot"
 
 #endif /* _GCONF_KEYS_H */
