@@ -749,6 +749,9 @@ static void map_view_setup_progress_indicator(EcProgress *prg)
 static gboolean map_view_connect_beat_detector_idle(gpointer user_data)
 {
 	GError *error = NULL;
+	GtkWidget *note;
+	gint retcode;
+	gboolean first_boot;
 	MapView *self = (MapView *)user_data;
 
 	g_return_val_if_fail(self != NULL, FALSE);
@@ -767,14 +770,17 @@ static gboolean map_view_connect_beat_detector_idle(gpointer user_data)
 		if(g_error_matches(error, ec_error_quark(),
 					EC_ERROR_HRM_NOT_CONFIGURED))
 		{
-			ec_error_show_message_error_ask_dont_show_again(
-				_("Heart rate monitor is not configured.\n"
-					"To get heart rate data, please\n"
-					"configure heart rate monitor in\n"
-					"the settings menu."),
-				ECGC_HRM_DIALOG_SHOWN,
-				FALSE
-				);
+			first_boot = gconf_helper_get_value_bool_with_default(self->gconf_helper,FIRST_BOOT,TRUE);
+
+			if(first_boot){
+			 note = hildon_note_new_information(GTK_WINDOW(self->win), "Heart rate monitor is not configured.\n"
+						"To get heart rate data, please\n"
+						"configure heart rate monitor in\n"
+						"the settings menu.");
+			 retcode = gtk_dialog_run (GTK_DIALOG (note));
+			 gtk_widget_destroy (note);
+			 gconf_helper_set_value_bool_simple(self->gconf_helper,FIRST_BOOT,FALSE);
+			}
 		} else {
 			ec_error_show_message_error(error->message);
 		}
