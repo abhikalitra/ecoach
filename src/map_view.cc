@@ -770,16 +770,16 @@ static gboolean map_view_connect_beat_detector_idle(gpointer user_data)
 		if(g_error_matches(error, ec_error_quark(),
 					EC_ERROR_HRM_NOT_CONFIGURED))
 		{
-			first_boot = gconf_helper_get_value_bool_with_default(self->gconf_helper,FIRST_BOOT,TRUE);
+			first_boot = gconf_helper_get_value_bool_with_default(self->gconf_helper,FIRST_BOOT,FALSE);
 
-			if(first_boot){
+			if(!first_boot){
 			 note = hildon_note_new_information(GTK_WINDOW(self->win), "Heart rate monitor is not configured.\n"
 						"To get heart rate data, please\n"
 						"configure heart rate monitor in\n"
 						"the settings menu.");
 			 retcode = gtk_dialog_run (GTK_DIALOG (note));
 			 gtk_widget_destroy (note);
-			 gconf_helper_set_value_bool_simple(self->gconf_helper,FIRST_BOOT,FALSE);
+			 gconf_helper_set_value_bool_simple(self->gconf_helper,FIRST_BOOT,TRUE);
 			}
 		} else {
 			ec_error_show_message_error(error->message);
