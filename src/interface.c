@@ -100,7 +100,7 @@ static void interface_show_analyzer_view(
 		NavigationMenu *menu,
 		GtkTreePath *path,
 		gpointer user_data);
-		
+
 static void interface_show_general_settings(
 		NavigationMenu *menu,
 		GtkTreePath *path,
@@ -148,8 +148,8 @@ AppData *interface_create()
 
 	//app_data->window = HILDON_WINDOW(hildon_window_new());
 	app_data->window = hildon_stackable_window_new ();
-	
-	
+
+
 	//hildon_program_add_window(app_data->program, app_data->window);
 	gtk_widget_set_name(GTK_WIDGET(app_data->window), "mainwindow");
 
@@ -160,7 +160,7 @@ AppData *interface_create()
 
 	/* Initialize GConf helper */
 	interface_initialize_gconf(app_data);
-	
+
 	/* Initialize generic settings */
 	app_data->settings = settings_initialize(app_data->gconf_helper);
 
@@ -176,7 +176,7 @@ AppData *interface_create()
 			(GtkWindow *)app_data->window,
 			app_data->gconf_helper);
 
-	
+
 
 	interface_create_menu(app_data);
 
@@ -243,14 +243,16 @@ AppData *interface_create()
 			app_data);
 */
 	/* Get the default folder for file operations */
+	g_mkdir("/home/user/MyDocs/eCoach/",755);
+
 	gconf_helper_add_key_string(
 			app_data->gconf_helper,
 			ECGC_DEFAULT_FOLDER,
-			"/home/user",
+			"/home/user/MyDocs/eCoach/",
 			interface_default_folder_changed,
 			app_data,
 			NULL);
-	
+
 	/* Set default measuring units */
 	gconf_helper_add_key_bool(app_data->gconf_helper,USE_METRIC,TRUE,
 				  interface_measuring_units_changed,app_data,
@@ -260,14 +262,14 @@ AppData *interface_create()
 	gconf_helper_add_key_bool(app_data->gconf_helper,DISPLAY_ON,TRUE,
 				  interface_display_state_changed,app_data,
 				  NULL);
-	
+
 	/* Finalize the main window */
 	gtk_container_add(GTK_CONTAINER(app_data->window),
 			app_data->navigation_menu->main_widget);
 
 	//g_signal_connect (app_data->window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
-			
+
 	g_signal_connect(G_OBJECT(app_data->window), "delete_event",
 			G_CALLBACK(interface_confirm_close), app_data);
 
@@ -349,7 +351,7 @@ static void interface_create_menu(AppData *app_data)
 			NULL,
 			NULL,
 			TRUE);
-			
+
 	  */
 	/*
 	navigation_menu_item_new_for_path(
@@ -411,7 +413,7 @@ static void interface_create_menu(AppData *app_data)
 	*/
 	//gtk_tree_path_free(path_level_1);
 
-	
+
 	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			NULL,
@@ -421,7 +423,7 @@ static void interface_create_menu(AppData *app_data)
 			app_data,
 			FALSE);
 
-	/*		
+	/*
 	navigation_menu_item_new_for_path(
 			app_data->navigation_menu,
 			path_level_1,
@@ -495,7 +497,7 @@ static void interface_measuring_units_changed(
 	value = gconf_entry_get_value(entry);
 	use_metric = gconf_value_get_bool(value);
 	DEBUG_END();
-	
+
 }
 
 static void interface_display_state_changed(
@@ -531,7 +533,7 @@ static void interface_default_folder_changed(
 
 	value = gconf_entry_get_value(entry);
 	default_folder_name = gconf_value_get_string(value);
-	
+
 	activity_chooser_set_default_folder(
 			app_data->activity_chooser,
 			default_folder_name);
@@ -548,7 +550,7 @@ static void interface_confirm_close(GtkWidget *btn, gpointer user_data)
 {
 	GtkWidget *dialog;
 	LocationGPSDControl *control;
-	
+
 	AppData *app_data = (AppData *)user_data;
 	gint result;
 
@@ -560,7 +562,7 @@ static void interface_confirm_close(GtkWidget *btn, gpointer user_data)
 			_("Do you really want to close the application?"));
 
 	result = gtk_dialog_run(GTK_DIALOG(dialog));
-	
+
 	gtk_widget_destroy(dialog);
 
 	if(result == GTK_RESPONSE_OK)
@@ -570,7 +572,7 @@ static void interface_confirm_close(GtkWidget *btn, gpointer user_data)
 		map_view_stop(app_data->map_view);
 		//osso_deinitialize(app_data->osso);
 		gtk_main_quit();
-		
+
 	}
 
 	DEBUG_END();
@@ -601,19 +603,19 @@ static void interface_show_analyzer_view(
 		gpointer user_data)
 {
 	AppData *app_data = (AppData *)user_data;
-  
+
 	g_return_if_fail(app_data != NULL);
 	DEBUG_BEGIN();
-	
+
 	app_data->analyzer_view = analyzer_view_new(
 			GTK_WINDOW(app_data->window),
 			app_data->gconf_helper);
 	//navigation_menu_set_current_page(
 	//		app_data->navigation_menu,
 	//		app_data->analyzer_view_tab_id);
-	
 
-	
+
+
 	analyzer_view_show(app_data->analyzer_view);
 
 	//gtk_container_add (GTK_CONTAINER (app_data->analyzer_view->win),
@@ -628,15 +630,15 @@ static void interface_show_general_settings(
 		gpointer user_data)
 {
 	AppData *app_data = (AppData *)user_data;
-  
+
 	g_return_if_fail(app_data != NULL);
 	DEBUG_BEGIN();
-	
+
 	app_data->general_settings = general_settings_new(
 			GTK_WINDOW(app_data->window),
 			app_data->gconf_helper,app_data->dbus_system);
 	general_settings_show(app_data->general_settings);
-	
+
 	DEBUG_END();
 }
 
@@ -708,7 +710,7 @@ static void interface_show_about_dialog(
 				PACKAGE_VERSION);
 	lbl_about = gtk_label_new(text_about);
 	g_free(text_about);
-      
+
 	pannable =  hildon_pannable_area_new();
 
 	gtk_box_pack_start(GTK_BOX(vbox), lbl_about, FALSE, FALSE, 0);
@@ -717,7 +719,7 @@ static void interface_show_about_dialog(
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 	//view = gtk_text_view_new();
-	
+
 	view = hildon_text_view_new();
 	hildon_pannable_area_add_with_viewport (HILDON_PANNABLE_AREA (pannable), view);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
@@ -1114,7 +1116,7 @@ static void interface_show_about_dialog(
 			240);
 	gtk_container_add (GTK_CONTAINER (cont),pannable);
 	gtk_box_pack_start(GTK_BOX(hbox), cont, FALSE, FALSE, 0);
-	
+
 	//scrollbar = gtk_vscrollbar_new(NULL);
 	//gtk_widget_set_scroll_adjustments(view, NULL,
 	//		GTK_RANGE(scrollbar)->adjustment);
