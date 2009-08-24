@@ -1,3 +1,9 @@
+ecoach (1.52alpha) unstable; urgency=low
+
+  * Implemented data view, added some filtering for gps values
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Mon, 24 Aug 2009 10:04:57 +0300
+
 ecoach (1.51alpha) unstable; urgency=low
 
   * Added calendar integration
