@@ -25,7 +25,7 @@
 
  #ifdef __cplusplus
  extern "C" {
- #endif 
+ #endif
 /* Configuration */
 #include "config.h"
 
@@ -102,8 +102,8 @@ struct _MapView {
 	GtkWindow *parent_window;	/**< Parent window		*/
 	GtkWidget *win;			/**Stackable window		*/
 	GtkWidget *main_widget;		/**< Main layout item		*/
-	
-	GtkWidget *data_widget;	
+
+	GtkWidget *data_widget;
 	HildonAppMenu *menu;	 	/** Menu			*/
 
 	/* Buttons		*/
@@ -124,11 +124,11 @@ struct _MapView {
 	GtkWidget *btn_map_scrl_right;	/**< Scroll the map right	*/
 	GdkPixbuf *zoom_in;		/** Zoom in			*/
 	GdkPixbuf *zoom_out;		/** Zoom out			*/
-	GtkWidget *map;				
-	GdkPixbuf *map_btn;	
+	GtkWidget *map;
+	GdkPixbuf *map_btn;
 	GdkPixbuf *data_btn;
-	GdkPixbuf *rec_btn_selected;	
-	GdkPixbuf *rec_btn_unselected;	
+	GdkPixbuf *rec_btn_selected;
+	GdkPixbuf *rec_btn_unselected;
 	GdkPixbuf *pause_btn_unselected;
 	GdkPixbuf *pause_btn_selected;
 	/* Info buttons		*/
@@ -197,18 +197,18 @@ struct _MapView {
 
 	GdkPixbuf *pxb_hrm_status[MAP_VIEW_HRM_STATUS_COUNT];
 					/**< Heart rate status		*/
-	
-					
+
+
 	/*distance unit*/
-	
+
 	gboolean metric;
-	
+
 	time_t start;
 	time_t end;
 	gdouble max_speed;
-	
+	gdouble curr_speed;
 	OsmGpsMapSource_t map_provider ;
-	
+
 	/* Temporary stuff	*/
 	gboolean point_added;
 	MapViewGpsPoint previous_added_point;
@@ -220,12 +220,22 @@ struct _MapView {
 	gboolean add_calendar;
 	/* for data view */
 	GtkWidget *data_win;
-	
+	GtkWidget *data_map_btn;
+	GtkWidget *data_data_btn;
+	GtkWidget *data_map_event;
+	GtkWidget *data_rec_selected_event;
+	GtkWidget *data_pause_selected_event;
+	GtkWidget *data_rec_unselected_event;
+	GtkWidget *data_pause_unselected_event;
+	 GtkWidget *data_rec_btn_unselected;
+	 GtkWidget *data_rec_btn_selected;
+	 GtkWidget *data_pause_btn_unselected;
+	 GtkWidget *data_pause_btn_selected;
 
 };
 
 typedef struct _MapPoint MapPoint;
-struct _MapPoint 
+struct _MapPoint
 {
   gfloat latitude;
   gfloat longitude;
@@ -234,7 +244,7 @@ struct _MapPoint
 
 
 typedef struct _Point Point;
-struct _Point 
+struct _Point
 {
     guint unitx;
     guint unity;
@@ -248,7 +258,7 @@ struct _Point
  * and connect the "clicked" signal of following buttons:
  * 	btn_back
  * 	btn_close
- * 
+ *
  * @param gconf_helper Pointer to #GConfHelperData
  * @param beat_detector Pointer to #BeatDetector
  */
