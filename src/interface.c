@@ -556,7 +556,7 @@ static void interface_confirm_close(GtkWidget *btn, gpointer user_data)
 
 	g_return_if_fail(app_data != NULL);
 	DEBUG_BEGIN();
-
+/*
 	dialog = hildon_note_new_confirmation(
 			GTK_WINDOW(app_data->window),
 			_("Do you really want to close the application?"));
@@ -567,14 +567,14 @@ static void interface_confirm_close(GtkWidget *btn, gpointer user_data)
 
 	if(result == GTK_RESPONSE_OK)
 	{
-		control = location_gpsd_control_get_default ();
+*/		control = location_gpsd_control_get_default ();
 		location_gpsd_control_stop(control);
 		map_view_stop(app_data->map_view);
 		//osso_deinitialize(app_data->osso);
 		gtk_main_quit();
-
+/*
 	}
-
+*/
 	DEBUG_END();
 }
 
