@@ -159,6 +159,7 @@ static void map_view_show_data(MapView *self);
 static void map_view_create_data(MapView *self);
 static void map_view_hide(MapView *self);
 static void about_dlg(HildonButton *button, gpointer user_data);
+static void personal_data_dlg(HildonButton *button, gpointer user_data);
 static void hide_data(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static void data_rec_btn_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static void data_pause_btn_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
@@ -2042,7 +2043,7 @@ gtk_button_set_label (GTK_BUTTON (center_button), "Auto Centering");
    g_signal_connect_after(center_button, "toggled", G_CALLBACK (toggle_map_centering), self);
 
    personal_button = gtk_button_new_with_label ("Personal Data");
-    //g_signal_connect_after (button, "clicked", G_CALLBACK (button_one_clicked), userdata);
+    g_signal_connect_after (personal_button, "clicked", G_CALLBACK (personal_data_dlg),self);
    hildon_app_menu_append (menu, GTK_BUTTON (personal_button));
 
     note_button = gtk_button_new_with_label ("Add Note");
@@ -2178,6 +2179,167 @@ toggle_map_centering(HildonCheckButton *button, gpointer user_data)
        self->is_auto_center = FALSE;
 
     DEBUG_END();
+}
+static void personal_data_dlg(HildonButton *button, gpointer user_data){
+
+	GtkWidget *win;
+	GtkWidget *fixed;
+	GtkWidget *scale;
+	GtkWidget *anaerobic;
+	GtkWidget *aerobic;
+	GtkWidget *weight_control;
+	GtkWidget *moder_ex;
+	GtkWidget *lbl_anaero;
+	GtkWidget *lbl_aero;
+	GtkWidget *lbl_wc;
+	GtkWidget *lbl_me;
+	GtkWidget *lbl_age;
+	GtkWidget *lbl_maxhr;
+	GtkWidget *lbl_bmi;
+	gint age;
+	gint weight;
+	gint height;
+	gdouble bmi;
+	gchar *str;
+	PangoFontDescription *desc = NULL;
+	MapView *self = (MapView *)user_data;
+	g_return_if_fail(self != NULL);
+
+
+DEBUG_BEGIN();
+
+scale = gtk_image_new_from_file(GFXDIR "personal_data_bmp_scale.png");
+anaerobic = gtk_image_new_from_file(GFXDIR "personal_data_button.png");
+aerobic = gtk_image_new_from_file(GFXDIR "personal_data_button.png");
+weight_control = gtk_image_new_from_file(GFXDIR "personal_data_button.png");
+moder_ex = gtk_image_new_from_file(GFXDIR "personal_data_button.png");
+
+win = hildon_stackable_window_new();
+gtk_window_set_title ( GTK_WINDOW (win), "eCoach >Personal Data");
+fixed = gtk_fixed_new();
+
+desc = pango_font_description_new();
+pango_font_description_set_family(desc, "Nokia Sans");
+pango_font_description_set_absolute_size(desc, 29 * PANGO_SCALE);
+
+age = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_AGE,0);
+height = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_HEIGHT,0);
+weight = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_WEIGHT,0);
+
+str = g_strdup_printf(_("Age: %d"), age);
+lbl_age =gtk_label_new(str);
+g_free(str);
+
+gint maxhr;
+if(age >0){
+maxhr = 206.3-(0.711*age);
+}
+else
+{maxhr = 0;}
+
+str = g_strdup_printf(_("Max HR: %d"), maxhr);
+
+lbl_maxhr =gtk_label_new(str);
+g_free(str);
+DEBUG("PAINO: %d",weight);
+DEBUG("PITUUS: %d",height);
+
+if(weight >0)
+{
+
+	bmi = ((gdouble)weight/((gdouble)height*(gdouble)height) *10000);
+	DEBUG("BMI: %f",bmi);
+
+}
+else{
+
+	bmi = 0;
+}
+
+str = g_strdup_printf(_("BMI: %.1f"), bmi);
+lbl_bmi =gtk_label_new(str);
+g_free(str);
+
+
+gtk_fixed_put(GTK_FIXED(fixed),lbl_age,280, 35);
+gtk_fixed_put(GTK_FIXED(fixed),lbl_maxhr,380, 35);
+gtk_fixed_put(GTK_FIXED(fixed),lbl_bmi,530, 35);
+gtk_fixed_put(GTK_FIXED(fixed),scale,18, 125);
+
+gtk_fixed_put(GTK_FIXED(fixed),anaerobic,116, 85);
+lbl_anaero = gtk_label_new("Anaerobic");
+gtk_widget_modify_font(lbl_anaero,desc);
+gtk_fixed_put(GTK_FIXED(fixed),lbl_anaero,132, 209);
+
+gtk_fixed_put(GTK_FIXED(fixed),aerobic,290, 85);
+lbl_aero =gtk_label_new("Aerobic");
+gtk_widget_modify_font(lbl_aero,desc);
+gtk_fixed_put(GTK_FIXED(fixed),lbl_aero,317, 209);
+
+
+gtk_fixed_put(GTK_FIXED(fixed),weight_control,464, 85);
+lbl_wc =gtk_label_new("Weight\ncontrol");
+gtk_widget_modify_font(lbl_wc,desc);
+gtk_misc_set_alignment(GTK_MISC(lbl_wc), 0.5f, 0.5f);
+gtk_fixed_put(GTK_FIXED(fixed),lbl_wc,494, 196);
+
+
+gtk_fixed_put(GTK_FIXED(fixed),moder_ex,638, 85);
+lbl_me =gtk_label_new("Moderate\n exercise");
+
+gtk_widget_modify_font(lbl_me,desc);
+gtk_misc_set_alignment(GTK_MISC(lbl_me), 0.5f, 0.5f);
+gtk_fixed_put(GTK_FIXED(fixed),lbl_me,658, 196);
+
+
+pango_font_description_set_family(desc, "Nokia Sans");
+pango_font_description_set_absolute_size(desc, 50 * PANGO_SCALE);
+
+
+gint value = 100;
+gint position = 175;
+gint position_v = 155;
+gchar *text;
+gchar *hr_value;
+for(int i=0; i<4;i++){
+	GtkWidget *percent;
+	GtkWidget *lbl_hr;
+	gint hr;
+	value = value-10;
+	text = g_strdup_printf(_("%d%%"), value);
+	hr_value = g_strdup_printf(_("%d"), ((value*maxhr)/100));
+	percent =gtk_label_new(text);
+	lbl_hr =gtk_label_new(hr_value);
+	g_free(text);
+	g_free(hr_value);
+	gtk_widget_modify_font(lbl_hr,desc);
+	gtk_fixed_put(GTK_FIXED(fixed),percent,position, 155);
+	gtk_fixed_put(GTK_FIXED(fixed),lbl_hr,position_v, 100);
+
+	text = g_strdup_printf(_("%d%%"), (value-10));
+	hr_value = g_strdup_printf(_("%d"), (((value-10)*maxhr)/100));
+	lbl_hr =gtk_label_new(hr_value);
+	percent =gtk_label_new(text);
+	gtk_widget_modify_font(lbl_hr,desc);
+	gtk_fixed_put(GTK_FIXED(fixed),lbl_hr,position_v, 275);
+	gtk_fixed_put(GTK_FIXED(fixed),percent,position, 330);
+	g_free(hr_value);
+	g_free(text);
+	position = position +170;
+	position_v = position_v +170;
+	if(i>1)
+	{
+		position = position +10;
+		position_v = position_v +10;
+	}
+
+}
+
+
+gtk_container_add (GTK_CONTAINER (win),fixed);
+gtk_widget_show_all(win);
+	DEBUG_END();
+
 }
 static void about_dlg(HildonButton *button, gpointer user_data){
 
