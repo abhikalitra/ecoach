@@ -73,6 +73,7 @@ gfx_DATA =							\
 	ec_button_data_unselected.png				\
 	ec_button_pause_unselected.png				\
 	ec_button_pause_selected.png				\
+	personal_data_bmp_scale.png				\
 	ec_button_rec_selected.png				\
 	ec_button_rec_unselected.png				\
 	ec_info_button_generic.png
