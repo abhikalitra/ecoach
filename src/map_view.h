@@ -209,7 +209,7 @@ struct _MapView {
 	gdouble curr_speed;
 	OsmGpsMapSource_t map_provider ;
 
-	/* Temporary stuff	*/
+	
 	gboolean point_added;
 	MapViewGpsPoint previous_added_point;
 	gdouble travelled_distance;
@@ -218,6 +218,8 @@ struct _MapView {
 	gboolean fullpath;
 	gint buttons_hide_timeout;
 	gboolean add_calendar;
+	gboolean gps_initialized;
+	
 	/* for data view */
 	GtkWidget *data_win;
 	GtkWidget *data_map_btn;
