@@ -602,13 +602,13 @@ self->info_heart_rate = map_view_create_info_button(
 			_("Heart rate"),
 			_("Wait..."),
 			0, 2);
-
+/*
 self->info_speed_per_unit = map_view_create_info_button(
 self,
 _("Time/km"),
 _("Wait..."),
 0, 2);
-
+*/
   g_signal_connect(G_OBJECT(self->data_map_event), "button-press-event",
                       G_CALLBACK (hide_data),self);
 
@@ -655,6 +655,13 @@ if((self->activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED) ||
 	{
 	gtk_widget_show_all(self->data_rec_unselected_event);
 	gtk_widget_show_all(self->data_pause_unselected_event);
+	
+	  ec_button_set_title_text(EC_BUTTON(self->info_speed),
+		  "Speed");
+		  
+	  ec_button_set_label_text(EC_BUTTON(self->info_speed),
+		  "Avg. Speed");
+
 	}
 
 if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STARTED)
@@ -1458,7 +1465,25 @@ static void map_view_start_activity(MapView *self)
 			self);
 
 	self->activity_state = MAP_VIEW_ACTIVITY_STATE_STARTED;
-
+      
+	
+	if(self->metric)
+	{
+	ec_button_set_title_text(EC_BUTTON(self->info_speed),
+		"0 km/h");
+		
+	ec_button_set_label_text(EC_BUTTON(self->info_speed),
+		"0 km/h");
+	}
+	else
+	{
+	  ec_button_set_title_text(EC_BUTTON(self->info_speed),
+		"0 mph");
+		
+	ec_button_set_label_text(EC_BUTTON(self->info_speed),
+		"0 mph");
+	  
+	}
 
 //	ec_button_set_bg_image(EC_BUTTON(self->btn_start_pause),
 //			EC_BUTTON_STATE_RELEASED,
