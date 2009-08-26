@@ -122,14 +122,23 @@ void track_helper_setup_track(TrackHelper *self,
 	DEBUG_BEGIN();
 
 	g_free(self->track_name);
-	g_free(self->track_comment);
+	//g_free(self->track_comment);
 
 	self->track_name = g_strdup(name);
-	self->track_comment = g_strdup(comment);
+	//self->track_comment = g_strdup(comment);
 
 	DEBUG_END();
 }
+void track_helper_set_comment(
+		TrackHelper *self,
+		const gchar *comment){
+	g_return_if_fail(self != NULL);
+		DEBUG_BEGIN();
+		g_free(self->track_comment);
+		self->track_comment = g_strdup(comment);
 
+		DEBUG_END();
+}
 void track_helper_set_file_name(
 		TrackHelper *self,
 		const gchar *file_name)
