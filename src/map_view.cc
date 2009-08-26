@@ -1471,7 +1471,7 @@ static void map_view_start_activity(MapView *self)
 			self);
 
 	self->activity_state = MAP_VIEW_ACTIVITY_STATE_STARTED;
-      
+	
 	
 	if(self->metric)
 	{
