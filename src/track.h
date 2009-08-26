@@ -171,6 +171,12 @@ void track_helper_set_file_name(
 		TrackHelper *self,
 		const gchar *file_name);
 
+
+void track_helper_set_comment(
+		TrackHelper *self,
+		const gchar *comment);
+
+
 /**
  * @brief Add a point to track
  *
