@@ -286,16 +286,16 @@ void map_view_show(MapView *self)
 	if((self->activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED) ||
 	   (self->activity_state == MAP_VIEW_ACTIVITY_STATE_NOT_STARTED))
 	{
-	osm_gps_map_add_button((OsmGpsMap*)self->map,394, 346, self->rec_btn_unselected);
-	osm_gps_map_add_button((OsmGpsMap*)self->map,557, 346, self->pause_btn_unselected);
+	osm_gps_map_add_button((OsmGpsMap*)self->map,421, 346, self->rec_btn_unselected);
+	osm_gps_map_add_button((OsmGpsMap*)self->map,584, 346, self->pause_btn_unselected);
 	}
 	else{
-	osm_gps_map_add_button((OsmGpsMap*)self->map,394, 346, self->rec_btn_selected);
+	osm_gps_map_add_button((OsmGpsMap*)self->map,421, 346, self->rec_btn_selected);
 
 	}
 	if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_PAUSED)
 	{
-	osm_gps_map_add_button((OsmGpsMap*)self->map,557, 346, self->pause_btn_selected);
+	osm_gps_map_add_button((OsmGpsMap*)self->map,584, 346, self->pause_btn_selected);
 	}
 
        #if (MAP_VIEW_SIMULATE_GPS)
@@ -626,13 +626,13 @@ _("Wait..."),
 
  gtk_fixed_put(GTK_FIXED(self->data_widget),self->data_map_event,50,346);
  gtk_fixed_put(GTK_FIXED(self->data_widget),self->data_data_btn,213, 346);
- gtk_fixed_put(GTK_FIXED(self->data_widget),self->data_rec_unselected_event,394, 346);
- gtk_fixed_put(GTK_FIXED(self->data_widget),self->data_rec_selected_event,394, 346);
- gtk_fixed_put(GTK_FIXED(self->data_widget),self->data_pause_unselected_event,557, 346);
- gtk_fixed_put(GTK_FIXED(self->data_widget),self->data_pause_selected_event,557, 346);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->data_rec_unselected_event,421, 346);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->data_rec_selected_event,421, 346);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->data_pause_unselected_event,584, 346);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->data_pause_selected_event,584, 346);
 
- gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_heart_rate,100, 75);
- gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_speed,315, 75);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_heart_rate,80, 75);
+ gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_speed,303, 75);
  gtk_fixed_put(GTK_FIXED(self->data_widget),self->info_time,525, 75);
 
  gtk_container_add (GTK_CONTAINER (self->data_win),self->data_widget);
@@ -1305,23 +1305,23 @@ static void map_view_btn_start_pause_clicked(GtkWidget *button,
 	{
 		case MAP_VIEW_ACTIVITY_STATE_NOT_STARTED:
 			map_view_start_activity(self);
-			osm_gps_map_remove_button((OsmGpsMap*)self->map,394, 346);
-			osm_gps_map_add_button((OsmGpsMap*)self->map,394, 346, self->rec_btn_selected);
+			osm_gps_map_remove_button((OsmGpsMap*)self->map,421, 346);
+			osm_gps_map_add_button((OsmGpsMap*)self->map,421, 346, self->rec_btn_selected);
 			break;
 		case MAP_VIEW_ACTIVITY_STATE_STARTED:
 			map_view_pause_activity(self);
-			osm_gps_map_remove_button((OsmGpsMap*)self->map,557, 346);
-			osm_gps_map_add_button((OsmGpsMap*)self->map,557, 346, self->pause_btn_selected);
+			osm_gps_map_remove_button((OsmGpsMap*)self->map,584, 346);
+			osm_gps_map_add_button((OsmGpsMap*)self->map,584, 346, self->pause_btn_selected);
 			break;
 		case MAP_VIEW_ACTIVITY_STATE_PAUSED:
 			map_view_continue_activity(self);
-			osm_gps_map_remove_button((OsmGpsMap*)self->map,557, 345);
-			osm_gps_map_add_button((OsmGpsMap*)self->map,557, 346, self->pause_btn_unselected);
+			osm_gps_map_remove_button((OsmGpsMap*)self->map,584, 345);
+			osm_gps_map_add_button((OsmGpsMap*)self->map,584, 346, self->pause_btn_unselected);
 			break;
 		case MAP_VIEW_ACTIVITY_STATE_STOPPED:
 			map_view_start_activity(self);
-			osm_gps_map_remove_button((OsmGpsMap*)self->map,394, 346);
-			osm_gps_map_add_button((OsmGpsMap*)self->map,394, 346, self->rec_btn_selected);
+			osm_gps_map_remove_button((OsmGpsMap*)self->map,421, 346);
+			osm_gps_map_add_button((OsmGpsMap*)self->map,421, 346, self->rec_btn_selected);
 			break;
 	}
 
@@ -1366,10 +1366,10 @@ static void map_view_btn_stop_clicked(GtkWidget *button, gpointer user_data)
 		return;
 	}
 
-	osm_gps_map_remove_button((OsmGpsMap*)self->map,394, 346);
-	osm_gps_map_add_button((OsmGpsMap*)self->map,394, 346, self->rec_btn_unselected);
-	osm_gps_map_remove_button((OsmGpsMap*)self->map,557, 345);
-	osm_gps_map_add_button((OsmGpsMap*)self->map,557, 346, self->pause_btn_unselected);
+	osm_gps_map_remove_button((OsmGpsMap*)self->map,421, 346);
+	osm_gps_map_add_button((OsmGpsMap*)self->map,421, 346, self->rec_btn_unselected);
+	osm_gps_map_remove_button((OsmGpsMap*)self->map,584, 345);
+	osm_gps_map_add_button((OsmGpsMap*)self->map,584, 346, self->pause_btn_unselected);
 	map_view_stop(self);
 	DEBUG_END();
 }
@@ -1446,8 +1446,8 @@ static void map_view_start_activity(MapView *self)
 		track_helper_clear(self->track_helper, FALSE);
 		map_view_update_stats(self);
 
-	osm_gps_map_remove_button((OsmGpsMap*)self->map,394, 346);
-	osm_gps_map_add_button((OsmGpsMap*)self->map,394, 346, self->rec_btn_selected);
+	osm_gps_map_remove_button((OsmGpsMap*)self->map,421, 346);
+	osm_gps_map_add_button((OsmGpsMap*)self->map,421, 346, self->rec_btn_selected);
 	}
 
 	gettimeofday(&self->start_time, NULL);
@@ -1933,7 +1933,7 @@ gboolean map_button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer 
 	osm_gps_map_set_zoom((OsmGpsMap*)self->map, zoom+1);
 	}
 
-	 if((event->x < 557 && event->x > 394) && (event->y > 346 && event->y < 480)){
+	 if((event->x < 584 && event->x > 421) && (event->y > 346 && event->y < 480)){
 
 		DEBUG("REC BUTTON PRESS");
 
@@ -1951,7 +1951,7 @@ gboolean map_button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer 
 
 	     }
 	 }
-	 if((event->x < 800 && event->x > 558) && (event->y > 346 && event->y < 480)){
+	 if((event->x < 800 && event->x > 584) && (event->y > 346 && event->y < 480)){
 
 
 	  DEBUG("PAUSE BUTTON");
