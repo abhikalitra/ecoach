@@ -401,13 +401,13 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 
 	caption = hildon_caption_new(
 			size_group,
-			_("Activity type"),
+			_("Activity name"),
 			chooser_dialog->entry_activity_name,
 			NULL,
 			HILDON_CAPTION_OPTIONAL);
 
 	gtk_box_pack_start(GTK_BOX(vbox), caption, FALSE, FALSE, 0);
-
+/*
 	chooser_dialog->entry_activity_comment = hildon_entry_new (HILDON_SIZE_AUTO);
 
 	caption = hildon_caption_new(
@@ -418,7 +418,7 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 			HILDON_CAPTION_OPTIONAL);
 
 	gtk_box_pack_start(GTK_BOX(vbox), caption, FALSE, FALSE, 0);
-
+*/
 	/*
 	chooser_dialog->cmb_pulse_ranges = gtk_combo_box_new_text();
 
