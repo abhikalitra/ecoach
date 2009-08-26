@@ -575,14 +575,14 @@ static void map_view_create_data(MapView *self){
 
  self->info_time = map_view_create_info_button(
 			self,
-			_("0 m"),
-			_("00:00:00"),
+			_("Distance"),
+			_("Duration"),
 			0, 0);
 
   self->info_speed = map_view_create_info_button(
 			self,
-			_("0.0 km/h"),
-			_("0.0 km/h"),
+			_("Speed"),
+			_("Avg. Speed"),
 			0, 1);
 
   self->info_heart_rate = map_view_create_info_button(
@@ -590,13 +590,13 @@ static void map_view_create_data(MapView *self){
   			_("Heart rate"),
   			_("Wait..."),
   			0, 2);
-
+/*
  self->info_avg_speed = map_view_create_info_button(
 			self,
 			_("Avg. speed"),
 			_("0.0 km/h"),
 			1, 1);
-
+*/
 self->info_heart_rate = map_view_create_info_button(
 			self,
 			_("Heart rate"),
