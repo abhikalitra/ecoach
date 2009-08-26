@@ -1,3 +1,9 @@
+ecoach (1.53beta2) unstable; urgency=low
+
+  * bugfixes
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Thu, 27 Aug 2009 02:21:19 +0300
+
 ecoach (1.53beta) unstable; urgency=low
 
   * First beta release, all features should be in place
