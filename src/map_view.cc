@@ -163,6 +163,7 @@ static void personal_data_dlg(HildonButton *button, gpointer user_data);
 static void hide_data(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static void data_rec_btn_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static void data_pause_btn_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+static void add_note_cb(HildonButton *button, gpointer user_data);
 /*****************************************************************************
  * Function declarations                                                     *
  *****************************************************************************/
@@ -2047,7 +2048,7 @@ gtk_button_set_label (GTK_BUTTON (center_button), "Auto Centering");
    hildon_app_menu_append (menu, GTK_BUTTON (personal_button));
 
     note_button = gtk_button_new_with_label ("Add Note");
-    //g_signal_connect_after (button, "clicked", G_CALLBACK (button_one_clicked), userdata);
+    g_signal_connect_after (note_button, "clicked", G_CALLBACK (add_note_cb),self);
    hildon_app_menu_append (menu, GTK_BUTTON (note_button));
 
 
@@ -2076,6 +2077,51 @@ gtk_widget_show_all (GTK_WIDGET (menu));
 
   return menu;
 }
+
+static void add_note_cb(HildonButton *button, gpointer user_data)
+{
+	MapView *self = (MapView *)user_data;
+	 GtkWidget *dialog;
+	 GtkWidget *text_view;
+	 GtkWidget *content;
+	 GtkTextBuffer* buffer;
+	 GtkTextIter start, end;
+	 gint response;
+	DEBUG_BEGIN();
+
+	 dialog = gtk_dialog_new_with_buttons ("Add Note",
+	                                         self->parent_window,
+	                                         GTK_DIALOG_DESTROY_WITH_PARENT,
+	                                         GTK_STOCK_OK,
+	                                         GTK_RESPONSE_ACCEPT,
+	                                         NULL);
+
+	 content = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+	 text_view = hildon_text_view_new();
+
+	 buffer = hildon_text_view_get_buffer (HILDON_TEXT_VIEW(text_view));
+	 gtk_text_buffer_set_text(buffer,self->activity_comment,g_utf8_strlen(self->activity_comment,1000));
+
+	 gtk_container_add (GTK_CONTAINER (content), text_view);
+	 gtk_widget_set_size_request(dialog,800,250);
+	 gtk_widget_show_all (dialog);
+
+	 response = gtk_dialog_run(GTK_DIALOG(dialog));
+
+	 		if(response == GTK_RESPONSE_ACCEPT)
+	 		{
+	 			g_free(self->activity_comment);
+	 			gtk_text_buffer_get_start_iter (buffer, &start);
+	 			gtk_text_buffer_get_end_iter (buffer, &end);
+	 			self->activity_comment = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
+	 			track_helper_set_comment(self->track_helper, self->activity_comment);
+	 			gtk_widget_destroy(dialog);
+
+	 		}
+	 		gtk_widget_destroy(dialog);
+	DEBUG_END();
+}
+
 
 void
 select_map_source_cb (HildonButton *button, gpointer user_data)
