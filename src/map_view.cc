@@ -102,11 +102,11 @@ static void map_view_heart_rate_changed(
 		gpointer user_data);
 
 static void map_view_hide_map_widget(MapView *self);
-
+/*
 static void map_view_show_map_widget(
 		LocationGPSDevice *device,
 		gpointer user_data);
-
+*/
 static void map_view_location_changed(
 		LocationGPSDevice *device,
 		gpointer user_data);
@@ -235,6 +235,7 @@ MapView *map_view_new(
 	osm_gps_map_set_zoom((OsmGpsMap*)self->map,15);
 
 	self->is_auto_center = TRUE;
+	self->gps_initialized = FALSE;
 	/* Main layout 		*/
 	self->main_widget = gtk_fixed_new();
 	gdk_color_parse("#000", &color);
@@ -298,6 +299,9 @@ void map_view_show(MapView *self)
 	osm_gps_map_add_button((OsmGpsMap*)self->map,584, 346, self->pause_btn_selected);
 	}
 
+if(!self->gps_initialized)
+{
+      DEBUG("ALUSTETAAN GPS ASETUKSET!!");
        #if (MAP_VIEW_SIMULATE_GPS)
 	self->show_map_widget_handler_id = 1;
 #else
@@ -330,9 +334,9 @@ void map_view_show(MapView *self)
 
 	g_signal_connect(G_OBJECT(self->gps_device), "changed",
 			G_CALLBACK(map_view_location_changed), self);
-	self->show_map_widget_handler_id = g_signal_connect(
+/*	self->show_map_widget_handler_id = g_signal_connect(
 			G_OBJECT(self->gps_device), "changed",
-			G_CALLBACK(map_view_show_map_widget), self);
+			G_CALLBACK(map_view_show_map_widget), self);*/
 #endif
 
 	if(gconf_helper_get_value_bool_with_default(self->gconf_helper,
@@ -360,9 +364,9 @@ void map_view_show(MapView *self)
 #if (MAP_VIEW_SIMULATE_GPS)
 		self->show_map_widget_handler_id = 1;
 #else
-		self->show_map_widget_handler_id = g_signal_connect(
+	/*	self->show_map_widget_handler_id = g_signal_connect(
 			G_OBJECT(self->gps_device), "changed",
-			G_CALLBACK(map_view_show_map_widget), self);
+			G_CALLBACK(map_view_show_map_widget), self);*/
 #endif
 	}
 
@@ -376,6 +380,8 @@ void map_view_show(MapView *self)
 	location_gpsd_control_start(self->gpsd_control);
 #endif
 
+	self->gps_initialized = TRUE;
+}
 
 	gtk_widget_show_all(self->win);
 	add_hide_buttons_timeout(self);
@@ -961,7 +967,7 @@ static void map_view_hide_map_widget(MapView *self)
 
 	DEBUG_END();
 }
-
+/*
 static void map_view_show_map_widget(
 		LocationGPSDevice *device,
 		gpointer user_data)
@@ -980,7 +986,7 @@ static void map_view_show_map_widget(
 
 	DEBUG_END();
 }
-
+*/
 static void map_view_location_changed(
 		LocationGPSDevice *device,
 		gpointer user_data)
@@ -1748,7 +1754,7 @@ static gboolean map_view_simulate_gps_timeout(gpointer user_data)
 
 	if(self->show_map_widget_handler_id)
 	{
-		map_view_show_map_widget(NULL, self);
+	//	map_view_show_map_widget(NULL, self);
 	}
 
 	device.fix = &fix;
