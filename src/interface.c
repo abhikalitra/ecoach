@@ -80,7 +80,7 @@ static void interface_display_state_changed(
 		gpointer user_data_2);
 
 static void interface_minimize(GtkWidget *btn, gpointer user_data);
-static void interface_confirm_close(GtkWidget *btn, gpointer user_data);
+static void interface_confirm_close(GtkWidget *btn,GdkEvent  *event, gpointer user_data);
 
 #ifdef ENABLE_ECG_VIEW
 static void interface_show_ecg(
@@ -270,7 +270,7 @@ AppData *interface_create()
 	//g_signal_connect (app_data->window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
 
-	g_signal_connect(G_OBJECT(app_data->window), "delete_event",
+	g_signal_connect(G_OBJECT(app_data->window), "delete-event",
 			G_CALLBACK(interface_confirm_close), app_data);
 
 	gtk_widget_show_all(GTK_WIDGET(app_data->window));
@@ -546,16 +546,41 @@ static void interface_default_folder_changed(
 }
 
 
-static void interface_confirm_close(GtkWidget *btn, gpointer user_data)
+static void interface_confirm_close(GtkWidget *btn,GdkEvent  *event, gpointer user_data)
 {
 	GtkWidget *dialog;
 	LocationGPSDControl *control;
-
+	MapViewActivityState activity_state;
 	AppData *app_data = (AppData *)user_data;
 	gint result;
 
 	g_return_if_fail(app_data != NULL);
 	DEBUG_BEGIN();
+	
+	
+	activity_state = map_view_get_activity_state(app_data->map_view);	
+	if (activity_state == MAP_VIEW_ACTIVITY_STATE_STARTED ||
+	  activity_state == MAP_VIEW_ACTIVITY_STATE_PAUSED)
+	{
+		dialog = hildon_note_new_confirmation(
+				GTK_WINDOW(app_data->window),
+		_("You are about to close eCoach but "
+		"there is currently an activity going on.\n"
+		  "Are you sure you want to close?"));
+		gtk_widget_show_all(dialog);
+		result = gtk_dialog_run(GTK_DIALOG(dialog));
+		gtk_widget_destroy(dialog);
+		if(result == GTK_RESPONSE_OK)
+		{
+		control = location_gpsd_control_get_default ();
+		location_gpsd_control_stop(control);
+		map_view_stop(app_data->map_view);
+		osso_deinitialize(app_data->osso);
+		gtk_main_quit();
+		}
+	  
+	}
+		
 /*
 	dialog = hildon_note_new_confirmation(
 			GTK_WINDOW(app_data->window),
@@ -567,11 +592,7 @@ static void interface_confirm_close(GtkWidget *btn, gpointer user_data)
 
 	if(result == GTK_RESPONSE_OK)
 	{
-*/		control = location_gpsd_control_get_default ();
-		location_gpsd_control_stop(control);
-		map_view_stop(app_data->map_view);
-		//osso_deinitialize(app_data->osso);
-		gtk_main_quit();
+*/		
 /*
 	}
 */
@@ -1184,7 +1205,6 @@ static void interface_start_activity(
 	DEBUG_BEGIN();
 
 	activity_state = map_view_get_activity_state(app_data->map_view);
-
 	if (activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED)
 	{
 		dialog = hildon_note_new_confirmation_add_buttons(
