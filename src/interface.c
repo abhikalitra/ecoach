@@ -580,11 +580,14 @@ static void interface_confirm_close(GtkWidget *btn,GdkEvent  *event, gpointer us
 		}
 	  
 	}
+	else
+	{
 		control = location_gpsd_control_get_default ();
 		location_gpsd_control_stop(control);
 		map_view_stop(app_data->map_view);
 		osso_deinitialize(app_data->osso);
 		gtk_main_quit();
+	}
 	  
 	
 		
