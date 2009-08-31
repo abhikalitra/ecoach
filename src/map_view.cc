@@ -694,12 +694,11 @@ void map_view_stop(MapView *self)
 	}
 
 	//for calendar
-
 	time(&self->end);
-	//DEBUG("TRAVELED %d, %d seconds %d speed",distance,time,average);
-	const gchar *time = gtk_label_get_text((GtkLabel*)self->info_time);
-	const gchar *dist = gtk_label_get_text((GtkLabel*)self->info_distance);
-	const gchar *avgspeed = gtk_label_get_text((GtkLabel*)self->info_avg_speed);
+	const gchar *time  =  ec_button_get_label_text((EcButton*)self->info_time);
+	const gchar *dist = ec_button_get_title_text((EcButton*)self->info_time);
+	
+	const gchar *avgspeed = ec_button_get_label_text((EcButton*)self->info_speed);
 	gchar *max_speed = g_strdup_printf(_("%.1f km/h"), self->max_speed);
 	CCalendarUtil *util;
 	if(self->add_calendar){
