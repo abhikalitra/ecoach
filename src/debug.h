@@ -30,7 +30,7 @@
  * debugging.
  */
 #ifndef DO_DEBUG /* Allow modulespecific debugging on/off */
-#define DO_DEBUG	0
+#define DO_DEBUG	1
 #endif
 
 /**
