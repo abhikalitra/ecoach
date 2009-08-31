@@ -202,6 +202,7 @@ struct _MapView {
 	/*distance unit*/
 
 	gboolean metric;
+	gboolean display_on;
 
 	time_t start;
 	time_t end;
