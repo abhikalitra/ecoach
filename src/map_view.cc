@@ -82,10 +82,7 @@
  *****************************************************************************/
 static void key_press_cb(GtkWidget * widget, GdkEventKey * event,MapView *self);
 static gboolean map_view_connect_beat_detector_idle(gpointer user_data);
-static gboolean map_view_load_map_idle(gpointer user_data);
 static void map_view_setup_progress_indicator(EcProgress *prg);
-static void map_view_zoom_in(GtkWidget *widget, gpointer user_data);
-static void map_view_zoom_out(GtkWidget *widget, gpointer user_data);
 
 static gboolean fixed_expose_event(
 		GtkWidget *widget,
@@ -102,11 +99,7 @@ static void map_view_heart_rate_changed(
 		gpointer user_data);
 
 static void map_view_hide_map_widget(MapView *self);
-/*
-static void map_view_show_map_widget(
-		LocationGPSDevice *device,
-		gpointer user_data);
-*/
+
 static void map_view_location_changed(
 		LocationGPSDevice *device,
 		gpointer user_data);
@@ -114,27 +107,15 @@ static void map_view_location_changed(
 static void map_view_check_and_add_route_point(
 		MapView *self,
 		MapPoint *point,
-		LocationGPSDeviceFix *fix);
-
-static void map_view_scroll(MapView *self, MapViewDirection direction);
-static void map_view_scroll_up(GtkWidget *btn, gpointer user_data);
-static void map_view_scroll_down(GtkWidget *btn, gpointer user_data);
-static void map_view_scroll_left(GtkWidget *btn, gpointer user_data);
-static void map_view_scroll_right(GtkWidget *btn, gpointer user_data);
-static void map_view_btn_back_clicked(GtkWidget *button, gpointer user_data);
+		LocationGPSDeviceFix *fix);	
 static void map_view_btn_start_pause_clicked(GtkWidget *button,
 		gpointer user_data);
 static void map_view_btn_stop_clicked(GtkWidget *button, gpointer user_data);
-static void map_view_btn_autocenter_clicked(GtkWidget *button,
-		gpointer user_data);
 static void map_view_start_activity(MapView *self);
 static gboolean map_view_update_stats(gpointer user_data);
 static void map_view_set_elapsed_time(MapView *self, struct timeval *tv);
 static void map_view_pause_activity(MapView *self);
 static void map_view_continue_activity(MapView *self);
-static void map_view_set_travelled_distance(MapView *self, gdouble distance);
-static void map_view_update_autocenter(MapView *self);
-static void map_view_units_clicked(GtkWidget *button, gpointer user_data);
 gboolean map_button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 gboolean map_button_release_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 void select_map_source_cb (HildonButton *button, gpointer user_data);
@@ -283,7 +264,8 @@ void map_view_show(MapView *self)
 
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
-
+	
+	self->display_on = gconf_helper_get_value_bool_with_default(self->gconf_helper, DISPLAY_ON,TRUE);
 	if((self->activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED) ||
 	   (self->activity_state == MAP_VIEW_ACTIVITY_STATE_NOT_STARTED))
 	{
@@ -330,13 +312,10 @@ if(!self->gps_initialized)
 	       g_object_set(G_OBJECT(self->gpsd_control), "preferred-interval", LOCATION_INTERVAL_20S, NULL);
 	  break;
 	}
-	g_object_set(G_OBJECT(self->gpsd_control), "preferred-method", LOCATION_METHOD_AGNSS, NULL);
+//	g_object_set(G_OBJECT(self->gpsd_control), "preferred-method", LOCATION_METHOD_AGNSS, NULL);
 
 	g_signal_connect(G_OBJECT(self->gps_device), "changed",
 			G_CALLBACK(map_view_location_changed), self);
-/*	self->show_map_widget_handler_id = g_signal_connect(
-			G_OBJECT(self->gps_device), "changed",
-			G_CALLBACK(map_view_show_map_widget), self);*/
 #endif
 
 	if(gconf_helper_get_value_bool_with_default(self->gconf_helper,
@@ -359,14 +338,11 @@ if(!self->gps_initialized)
 	{
 		self->has_gps_fix = FALSE;
 		self->map_widget_state = MAP_VIEW_MAP_WIDGET_STATE_CONFIGURING;
-	//	g_idle_add(map_view_load_map_idle, self);
 	} else {
 #if (MAP_VIEW_SIMULATE_GPS)
 		self->show_map_widget_handler_id = 1;
 #else
-	/*	self->show_map_widget_handler_id = g_signal_connect(
-			G_OBJECT(self->gps_device), "changed",
-			G_CALLBACK(map_view_show_map_widget), self);*/
+
 #endif
 	}
 
@@ -596,25 +572,12 @@ static void map_view_create_data(MapView *self){
   			_("Heart rate"),
   			_("Wait..."),
   			0, 2);
-/*
- self->info_avg_speed = map_view_create_info_button(
-			self,
-			_("Avg. speed"),
-			_("0.0 km/h"),
-			1, 1);
-*/
 self->info_heart_rate = map_view_create_info_button(
 			self,
 			_("Heart rate"),
 			_("Wait..."),
 			0, 2);
-/*
-self->info_speed_per_unit = map_view_create_info_button(
-self,
-_("Time/km"),
-_("Wait..."),
-0, 2);
-*/
+			
   g_signal_connect(G_OBJECT(self->data_map_event), "button-press-event",
                       G_CALLBACK (hide_data),self);
 
@@ -823,7 +786,7 @@ static gboolean fixed_expose_event(
 	GdkRectangle *rectangle;
 
 	g_return_val_if_fail(self != NULL, FALSE);
-
+	DEBUG_BEGIN();
 	gdk_region_get_rectangles(event->region, &rectangle, &count);
 
 	for(i = 0; i < count; i++)
@@ -836,6 +799,7 @@ static gboolean fixed_expose_event(
 				rectangle[i].width, rectangle[i].height);
 	}
 
+	DEBUG_END();
 	return FALSE;
 }
 
@@ -913,79 +877,6 @@ static void map_view_heart_rate_changed(
 
 	DEBUG_END();
 }
-
-static void map_view_zoom_in(GtkWidget *widget, gpointer user_data)
-{
-	guint zoom;
-	MapView *self = (MapView *)user_data;
-
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
-/*
-	zoom = map_widget_get_current_zoom_level(self->map_widget);
-	if(zoom >= 17)
-	{
-		DEBUG_END();
-		return;
-	}
-*/	hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Zoom in");
-	zoom = zoom + 1;
-//	map_widget_set_zoom(self->map_widget, zoom);
-
-	DEBUG_END();
-}
-
-static void map_view_zoom_out(GtkWidget *widget, gpointer user_data)
-{
-	guint zoom;
-	MapView *self = (MapView *)user_data;
-
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
-
-//	zoom = map_widget_get_current_zoom_level(self->map_widget);
-	if(zoom <= 1)
-	{
-		DEBUG_END();
-		return;
-	}
-	zoom = zoom - 1;
-	hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Zoom out");
-//	map_widget_set_zoom(self->map_widget, zoom);
-
-	DEBUG_END();
-}
-
-static void map_view_hide_map_widget(MapView *self)
-{
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
-
-//	gtk_notebook_set_current_page(GTK_NOTEBOOK(self->notebook_map),
-//			self->page_id_gps_status);
-
-	DEBUG_END();
-}
-/*
-static void map_view_show_map_widget(
-		LocationGPSDevice *device,
-		gpointer user_data)
-{
-	MapView *self = (MapView *)user_data;
-
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
-
-#if (MAP_VIEW_SIMULATE_GPS == 0)
-	g_signal_handler_disconnect(self->gps_device,
-			self->show_map_widget_handler_id);
-#endif
-
-	self->show_map_widget_handler_id = 0;
-
-	DEBUG_END();
-}
-*/
 static void map_view_location_changed(
 		LocationGPSDevice *device,
 		gpointer user_data)
@@ -996,8 +887,8 @@ static void map_view_location_changed(
 	DEBUG_BEGIN();
 
 	/* Keep display on */
-	if(gconf_helper_get_value_bool_with_default(self->gconf_helper,
-						    DISPLAY_ON,TRUE)) {
+	
+	if(self->display_on) {
 		osso_display_state_on(self->osso);
 		osso_display_blanking_pause(self->osso);
 	}
@@ -1026,23 +917,31 @@ static void map_view_location_changed(
 			if(device->fix->eph < 2500){
 			map_view_check_and_add_route_point(self, &point,
 					device->fix);
+			
 			osm_gps_map_draw_gps(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude,0);
+			
+			  if(self->is_auto_center)
+			  {
+			     if(gtk_window_is_active(GTK_WINDOW(self->win))){
+			  osm_gps_map_set_center(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude);
+			     }
+			  }
+			 
 			}
 		}
 		if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED || self->activity_state == MAP_VIEW_ACTIVITY_STATE_NOT_STARTED )
 		{
+		  
+		  if(gtk_window_is_active(GTK_WINDOW(self->win))){
 		  osm_gps_map_clear_gps(OSM_GPS_MAP(self->map));
 		  osm_gps_map_draw_gps(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude,0);
+		  }
 		  DEBUG("HORIZONTAL ACCURACY %.5f",device->fix->eph);
 		}
 	} else {
 		DEBUG("Latitude and longitude are not valid");
 	}
 
-	if(self->is_auto_center)
-	{
-	osm_gps_map_set_center(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude);
-	}
 
 
 	DEBUG_END();
@@ -1131,178 +1030,10 @@ static void map_view_check_and_add_route_point(
 		point_copy = g_new0(MapPoint, 1);
 		point_copy->latitude = point->latitude;
 		point_copy->longitude = point->longitude;
-
-	//	map_view_set_travelled_distance(
-	//			self,
-	//			self->travelled_distance + distance);
-	/*
-		if(map_widget_ready)
-		{
-			map_widget_add_point_to_track(self->map_widget,
-					point_copy);
-			map_widget_show_track(self->map_widget,
-					TRUE);
-		}
-
-		*/
+		
 	}
 
 	DEBUG_END();
-}
-
-static void map_view_set_travelled_distance(MapView *self, gdouble distance)
-{
-#if 0
-	gchar *lbl_text = NULL;
-
-	g_return_if_fail(self != NULL);
-	g_return_if_fail(distance >= 0.0);
-	DEBUG_BEGIN();
-
-	self->travelled_distance = distance;
-	/** @todo Usage of different units? (Feet/yards, miles) */
-	if(distance < 1000)
-	{
-		lbl_text = g_strdup_printf(_("%.0f m"), distance);
-	} else {
-		lbl_text = g_strdup_printf(_("%.1f km"), distance / 1000.0);
-	}
-
-	gtk_label_set_text(GTK_LABEL(self->info_distance), lbl_text);
-
-	DEBUG_END();
-#endif
-}
-
-static void map_view_scroll_up(GtkWidget *btn, gpointer user_data)
-{
-	MapView *self = (MapView *)user_data;
-
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
-
-	map_view_scroll(self, MAP_VIEW_DIRECTION_NORTH);
-
-	DEBUG_END();
-}
-
-static void map_view_scroll_down(GtkWidget *btn, gpointer user_data)
-{
-	MapView *self = (MapView *)user_data;
-
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
-
-	map_view_scroll(self, MAP_VIEW_DIRECTION_SOUTH);
-
-	DEBUG_END();
-}
-
-static void map_view_scroll_left(GtkWidget *btn, gpointer user_data)
-{
-	MapView *self = (MapView *)user_data;
-
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
-
-	map_view_scroll(self, MAP_VIEW_DIRECTION_WEST);
-
-	DEBUG_END();
-}
-
-static void map_view_scroll_right(GtkWidget *btn, gpointer user_data)
-{
-	MapView *self = (MapView *)user_data;
-
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
-
-	map_view_scroll(self, MAP_VIEW_DIRECTION_EAST);
-
-	DEBUG_END();
-}
-
-static void map_view_scroll(MapView *self, MapViewDirection direction)
-{
-	/* This code is somewhat hackish, because it uses the internals
-	 * of the MapWidget, but seems like that is the only reasonable
-	 * way to do so, because there is no public coordinate translation
-	 * API for it
-	 */
-	gint x;
-	gint y;
-
-	g_return_if_fail(self != NULL);
-
-	switch(direction)
-	{
-		case MAP_VIEW_DIRECTION_NORTH:
-			x = self->map_widget->allocation.width / 2;
-			y = 0;
-			break;
-		case MAP_VIEW_DIRECTION_SOUTH:
-			x = self->map_widget->allocation.width / 2;
-			y = self->map_widget->allocation.height;
-			break;
-		case MAP_VIEW_DIRECTION_WEST:
-			x = 0;
-			y = self->map_widget->allocation.height / 2;
-			break;
-		case MAP_VIEW_DIRECTION_EAST:
-			x = self->map_widget->allocation.width;
-			y = self->map_widget->allocation.height / 2;
-			break;
-		default:
-			g_warning("Unknown map direction: %d", direction);
-			DEBUG_END();
-			return;
-	}
-
-	//map_widget_center_onscreen_coords(self->map_widget, x, y);
-}
-
-static void map_view_btn_back_clicked(GtkWidget *button, gpointer user_data)
-{
-	MapView *self = (MapView *)user_data;
-
-	g_return_if_fail(user_data != NULL);
-	DEBUG_BEGIN();
-
-	if((self->activity_state == MAP_VIEW_ACTIVITY_STATE_STARTED) ||
-	   (self->activity_state == MAP_VIEW_ACTIVITY_STATE_PAUSED))
-	{
-		ec_error_show_message_error_ask_dont_show_again(
-				_("When activity is in started or paused "
-					"state, it is not stopped when going "
-					"back. You can return to activity by "
-					"clicking on the New activity button."
-					"\n\nTo start a new activity, please "
-					"press on the stop button first, "
-					"then return to menu and click on the "
-					"New activity button."),
-				ECGC_MAP_VIEW_STOP_DIALOG_SHOWN,
-				FALSE);
-	}
-
-	map_view_hide(self);
-	DEBUG_END();
-}
-
-
-static void map_view_units_clicked(GtkWidget *button, gpointer user_data)
-{
-	MapView *self = (MapView *)user_data;
-	if(self->metric)
-	{
-	ec_button_set_label_text(EC_BUTTON(self->info_units), _("English"));
-	self->metric = FALSE;
-	}
-	else
-	{
-	ec_button_set_label_text(EC_BUTTON(self->info_units), _("Metric"));
-	self->metric = TRUE;
-	}
-
 }
 
 static void map_view_btn_start_pause_clicked(GtkWidget *button,
@@ -1386,62 +1117,6 @@ static void map_view_btn_stop_clicked(GtkWidget *button, gpointer user_data)
 	DEBUG_END();
 }
 
-
-static void map_view_btn_autocenter_clicked(GtkWidget *button,
-		gpointer user_data)
-{
-	gboolean is_auto_center;
-	MapView *self = (MapView *)user_data;
-
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
-
-	if(self->map_widget_state != MAP_VIEW_MAP_WIDGET_STATE_CONFIGURED)
-	{
-		DEBUG_END();
-		return;
-	}
-
-//	is_auto_center = map_widget_get_auto_center_status((OsmGpsMap*)self->map_widget);
-
-	if(is_auto_center)
-	{
-//		map_widget_set_auto_center(self->map_widget, FALSE);
-		ec_button_set_icon_pixbuf(EC_BUTTON(self->btn_autocenter),
-				self->pxb_autocenter_off);
-		hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Map Centering off");
-	} else {
-//		map_widget_set_auto_center(self->map_widget, TRUE);
-		ec_button_set_icon_pixbuf(EC_BUTTON(self->btn_autocenter),
-				self->pxb_autocenter_on);
-		hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Map Centering on");
-	}
-
-	DEBUG_END();
-}
-
-static void map_view_update_autocenter(MapView *self)
-{
-	gboolean is_auto_center;
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
-
-//	is_auto_center = map_widget_get_auto_center_status(self->map_widget);
-
-	if(is_auto_center)
-	{
-		ec_button_set_icon_pixbuf(EC_BUTTON(self->btn_autocenter),
-				self->pxb_autocenter_on);
-
-	} else {
-		ec_button_set_icon_pixbuf(EC_BUTTON(self->btn_autocenter),
-				self->pxb_autocenter_off);
-
-	}
-
-	DEBUG_END();
-}
-
 static void map_view_start_activity(MapView *self)
 {
 	g_return_if_fail(self != NULL);
@@ -1465,7 +1140,7 @@ static void map_view_start_activity(MapView *self)
 	gettimeofday(&self->start_time, NULL);
 
 	self->activity_timer_id = g_timeout_add(
-			1000,
+			3000,
 			map_view_update_stats,
 			self);
 
@@ -1489,11 +1164,6 @@ static void map_view_start_activity(MapView *self)
 		"0 mph");
 	  
 	}
-
-//	ec_button_set_bg_image(EC_BUTTON(self->btn_start_pause),
-//			EC_BUTTON_STATE_RELEASED,
-//			GFXDIR "ec_button_pause.png");
-
 	DEBUG_END();
 }
 
@@ -1505,7 +1175,7 @@ static void map_view_continue_activity(MapView *self)
 	gettimeofday(&self->start_time, NULL);
 
 	self->activity_timer_id = g_timeout_add(
-			1000,
+			3000,
 			map_view_update_stats,
 			self);
 
@@ -1565,6 +1235,8 @@ static gboolean map_view_update_stats(gpointer user_data)
 	g_return_val_if_fail(self != NULL, FALSE);
 	DEBUG_BEGIN();
 
+	
+	if(gtk_window_is_active(GTK_WINDOW(self->data_win))){
 	/** @todo Usage of different units? (Feet/yards, miles) */
 
 	/* Travelled distance */
@@ -1581,7 +1253,6 @@ static gboolean map_view_update_stats(gpointer user_data)
 		}
 
 		ec_button_set_title_text(EC_BUTTON(self->info_time), lbl_text);
-	//	gtk_label_set_text(GTK_LABEL(self->info_distance),lbl_text);
 		g_free(lbl_text);
 	}
 	else
@@ -1596,7 +1267,6 @@ static gboolean map_view_update_stats(gpointer user_data)
 			lbl_text = g_strdup_printf(_("%.1f mi"),
 					travelled_distance / 1000.0);
 		}
-		//gtk_label_set_text(GTK_LABEL(self->info_distance),lbl_text);
 
 		ec_button_set_title_text(EC_BUTTON(self->info_time), lbl_text);
 		g_free(lbl_text);
@@ -1628,7 +1298,6 @@ static gboolean map_view_update_stats(gpointer user_data)
 		ec_button_set_label_text(EC_BUTTON(self->info_speed),
 			lbl_text);
 
-		//gtk_label_set_text(GTK_LABEL(self->info_avg_speed),lbl_text);
 		g_free(lbl_text);
 		}
 		else
@@ -1637,7 +1306,6 @@ static gboolean map_view_update_stats(gpointer user_data)
 		lbl_text = g_strdup_printf(_("%.1f mph"), avg_speed);
 		ec_button_set_label_text(EC_BUTTON(self->info_speed),
 					lbl_text);
-		//gtk_label_set_text(GTK_LABEL(self->info_avg_speed),lbl_text);
 		g_free(lbl_text);
 		}
 	} else {
@@ -1657,7 +1325,7 @@ static gboolean map_view_update_stats(gpointer user_data)
 
 	/* Current speed */
 
-	curr_speed = track_helper_get_current_speed(self->track_helper);
+//	curr_speed = track_helper_get_current_speed(self->track_helper);
 	if(curr_speed > 0.0)
 	{
 		if(self->metric)
@@ -1668,7 +1336,6 @@ static gboolean map_view_update_stats(gpointer user_data)
 		}
 		ec_button_set_title_text(EC_BUTTON(self->info_speed),
 		lbl_text);
-		//gtk_label_set_text(GTK_LABEL(self->info_speed),lbl_text);
 		g_free(lbl_text);
 		}
 		else
@@ -1695,7 +1362,7 @@ static gboolean map_view_update_stats(gpointer user_data)
 		//	gtk_label_set_text(GTK_LABEL(self->info_speed),"0 mph");
 		}
 	}
-
+	}
 	DEBUG_END();
 	return TRUE;
 }
@@ -1722,7 +1389,6 @@ static void map_view_set_elapsed_time(MapView *self, struct timeval *tv)
 
 	lbl_text = g_strdup_printf("%02d:%02d:%02d", hours, minutes, seconds);
 	ec_button_set_label_text(EC_BUTTON(self->info_time), lbl_text);
-	//gtk_label_set_text(GTK_LABEL(self->info_time),lbl_text);
 	g_free(lbl_text);
 }
 
@@ -1750,11 +1416,6 @@ static gboolean map_view_simulate_gps_timeout(gpointer user_data)
 
 	g_return_val_if_fail(self != NULL, FALSE);
 	DEBUG_BEGIN();
-
-	if(self->show_map_widget_handler_id)
-	{
-	//	map_view_show_map_widget(NULL, self);
-	}
 
 	device.fix = &fix;
 
@@ -1812,9 +1473,6 @@ static GtkWidget *map_view_create_info_button(
 			GFXDIR "ec_info_button_generic.png");
 
 	gtk_widget_set_size_request(button, 195, 268);
-	//gtk_fixed_put(GTK_FIXED(self->main_widget),
-	//		button, 425 + 180 * x, 18 + 80 * y);
-
 	ec_button_set_btn_down_offset(EC_BUTTON(button), 2);
 
 	desc = pango_font_description_new();
@@ -1846,79 +1504,23 @@ static GdkPixbuf *map_view_load_image(const gchar *path)
 }
 static void key_press_cb(GtkWidget * widget, GdkEventKey * event, MapView *self){
 
-	gboolean is_auto_center;
 	switch (event->keyval) {
-
-	//	is_auto_center = map_widget_get_auto_center_status(self->map_widget);
 		g_return_if_fail(self != NULL);
 		DEBUG_BEGIN();
 		gint zoom;
 		case HILDON_HARDKEY_INCREASE: /* Zoom in */
-
 		  DEBUG("ZOOM IN");
-
 		  g_object_get(self->map, "zoom", &zoom, NULL);
 		  osm_gps_map_set_zoom((OsmGpsMap*)self->map, zoom+1);
 		  break;
 
 		case HILDON_HARDKEY_DECREASE: /* Zoom in */
-
 		  DEBUG("ZOOM OUT");
-
 		  g_object_get(self->map, "zoom", &zoom, NULL);
 		  osm_gps_map_set_zoom((OsmGpsMap*)self->map, zoom-1);
 		  break;
-	//	case GDK_F6:
-			/*if(is_auto_center)
-			{
-				map_widget_set_auto_center(self->map_widget, FALSE);
-				//hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Map Centering off");
-				map_view_update_autocenter(self);
-
-			} else {
-				map_widget_set_auto_center(self->map_widget,
-						TRUE);
-				//hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Map Centering on");
-				map_view_update_autocenter(self);
-			}
-			*/
-	//		map_view_btn_autocenter_clicked(NULL,self);
-
-
-	//	break;
-	/*	case GDK_F7:
-			map_view_zoom_in(NULL,self);
-
-		break;
-
-		case GDK_F8:
-			map_view_zoom_out(NULL,self);
-
-		break;
-		case GDK_Up:
-
-			map_view_scroll_up(NULL,self);
-			break;
-
-		case GDK_Down:
-
-			map_view_scroll_down(NULL,self);
-			break;
-		case GDK_Left:
-
-			map_view_scroll_left(NULL,self);
-			break;
-		case GDK_Right:
-
-			map_view_scroll_right(NULL,self);
-			break;
-	*/	DEBUG_END();
-
-
-
+	DEBUG_END();
 	}
-
-
     }
 
 gboolean map_button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data)
@@ -2050,60 +1652,40 @@ static HildonAppMenu *create_menu (MapView *self)
   GtkWidget *note_button;
   HildonAppMenu *menu = HILDON_APP_MENU (hildon_app_menu_new ());
 
-    /* Create menu entries */
-   // button = hildon_gtk_button_new (HILDON_SIZE_AUTO);
-   // command_id = g_strdup_printf ("Select Map Source");
-   // gtk_button_set_label (GTK_BUTTON (button), command_id);
-
   button = hildon_button_new_with_text((HildonSizeType)(HILDON_SIZE_AUTO_WIDTH | HILDON_SIZE_FINGER_HEIGHT),
-                                HILDON_BUTTON_ARRANGEMENT_VERTICAL,
-                                            "Map Source",
-                                             maps[self->map_provider-1]);
+			HILDON_BUTTON_ARRANGEMENT_VERTICAL,
+				    "Map Source",
+				      maps[self->map_provider-1]);
 
-   g_signal_connect_after (button, "clicked", G_CALLBACK (select_map_source_cb), self);
+  g_signal_connect_after (button, "clicked", G_CALLBACK (select_map_source_cb), self);
 
-     /* Add entry to the view menu */
-   hildon_app_menu_append (menu, (GtkButton*)(button));
+  /* Add entry to the view menu */
+  hildon_app_menu_append (menu, (GtkButton*)(button));
 
- //  center_button = hildon_check_button_new(HILDON_SIZE_AUTO_WIDTH | HILDON_SIZE_FINGER_HEIGHT);
+
   center_button = hildon_check_button_new((HildonSizeType)(HILDON_SIZE_AUTO_WIDTH | HILDON_SIZE_FINGER_HEIGHT));
 
-gtk_button_set_label (GTK_BUTTON (center_button), "Auto Centering");
-   hildon_check_button_set_active(HILDON_CHECK_BUTTON(center_button),TRUE);
-   hildon_app_menu_append (menu, GTK_BUTTON(center_button));
-   g_signal_connect_after(center_button, "toggled", G_CALLBACK (toggle_map_centering), self);
+  gtk_button_set_label (GTK_BUTTON (center_button), "Auto Centering");
+  hildon_check_button_set_active(HILDON_CHECK_BUTTON(center_button),TRUE);
+  hildon_app_menu_append (menu, GTK_BUTTON(center_button));
+  g_signal_connect_after(center_button, "toggled", G_CALLBACK (toggle_map_centering), self);
 
-   personal_button = gtk_button_new_with_label ("Personal Data");
-    g_signal_connect_after (personal_button, "clicked", G_CALLBACK (personal_data_dlg),self);
-   hildon_app_menu_append (menu, GTK_BUTTON (personal_button));
+  personal_button = gtk_button_new_with_label ("Personal Data");
+  g_signal_connect_after (personal_button, "clicked", G_CALLBACK (personal_data_dlg),self);
+  hildon_app_menu_append (menu, GTK_BUTTON (personal_button));
 
-    note_button = gtk_button_new_with_label ("Add Note");
-    g_signal_connect_after (note_button, "clicked", G_CALLBACK (add_note_cb),self);
-   hildon_app_menu_append (menu, GTK_BUTTON (note_button));
+  note_button = gtk_button_new_with_label ("Add Note");
+  g_signal_connect_after (note_button, "clicked", G_CALLBACK (add_note_cb),self);
+  hildon_app_menu_append (menu, GTK_BUTTON (note_button));
 
 
-   about_button = gtk_button_new_with_label ("About");
+  about_button = gtk_button_new_with_label ("About");
 
-   hildon_app_menu_append (menu, GTK_BUTTON (about_button));
+  hildon_app_menu_append (menu, GTK_BUTTON (about_button));
   g_signal_connect_after (about_button, "clicked", G_CALLBACK (about_dlg), self);
-    help_button = gtk_button_new_with_label ("Help");
-    //g_signal_connect_after (button, "clicked", G_CALLBACK (button_one_clicked), userdata);
-    hildon_app_menu_append (menu, GTK_BUTTON (help_button));
-
-
-  // Create a filter and add it to the menu
-//filter = gtk_radio_button_new_with_label (NULL, "Filter one");
-//gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (filter), FALSE);
-//g_signal_connect_after (filter, "clicked", G_CALLBACK (filter_one_clicked), userdata);
-//hildon_app_menu_add_filter (menu, GTK_BUTTON (filter));
-
-// Add a new filter
-//filter = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (filter), "Filter two");
-//gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (filter), FALSE);
-//g_signal_connect_after (filter, "clicked", G_CALLBACK (filter_two_clicked), userdata);
-//hildon_app_menu_add_filter (menu, GTK_BUTTON (filter));
-
-gtk_widget_show_all (GTK_WIDGET (menu));
+  help_button = gtk_button_new_with_label ("Help");
+  hildon_app_menu_append (menu, GTK_BUTTON (help_button));
+  gtk_widget_show_all (GTK_WIDGET (menu));
 
   return menu;
 }
@@ -2117,7 +1699,7 @@ static void add_note_cb(HildonButton *button, gpointer user_data)
 	 GtkTextBuffer* buffer;
 	 GtkTextIter start, end;
 	 gint response;
-	DEBUG_BEGIN();
+	 DEBUG_BEGIN();
 
 	 dialog = gtk_dialog_new_with_buttons ("Add Note",
 	                                         self->parent_window,
