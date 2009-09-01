@@ -663,6 +663,11 @@ void map_view_stop(MapView *self)
 	
 	const gchar *avgspeed = ec_button_get_label_text((EcButton*)self->info_speed);
 	gchar *max_speed = g_strdup_printf(_("%.1f km/h"), self->max_speed);
+	if(self->activity_comment ==NULL)
+	{
+	  self->activity_comment = "";  
+	}
+	
 	CCalendarUtil *util;
 	if(self->add_calendar){
 	util->addEvent(self->activity_name,"",g_strdup_printf("Duration: %s\nDistance: %s\nAvg.speed %s\nMax.Speed: %s \n\
