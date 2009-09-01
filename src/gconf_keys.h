@@ -69,5 +69,6 @@
 #define GPS_INTERVAL		ECGC_BASE_DIR "/gps_interval"
 #define MAP_SOURCE		ECGC_BASE_DIR "/map_source"
 #define FIRST_BOOT		ECGC_BASE_DIR "/first_boot"
+#define NOTIFY_USER		ECGC_BASE_DIR "/notify_user"
 
 #endif /* _GCONF_KEYS_H */
