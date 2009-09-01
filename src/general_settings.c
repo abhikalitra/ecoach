@@ -64,13 +64,7 @@ void general_settings_show(GeneralSettings *self){
   
   g_return_if_fail(self != NULL);
   DEBUG_BEGIN();
-  
-  
-  GdkColor bg_up;
-  bg_up.red = 7680;
-  bg_up.green = 7680;
-  bg_up.blue = 7680;
-  
+ 
   gchar *hrm_key;
   gchar *hrm_device;
   PangoFontDescription *desc = NULL;
@@ -150,16 +144,33 @@ void general_settings_show(GeneralSettings *self){
   g_free(hrm_device);
    
   self->weight_event = gtk_event_box_new();
+  gtk_event_box_set_visible_window(GTK_EVENT_BOX(self->weight_event),FALSE);
+  gtk_widget_set_size_request(self->weight_event,170,115);
+  
   self->age_event = gtk_event_box_new ();
+  gtk_event_box_set_visible_window(GTK_EVENT_BOX(self->age_event),FALSE);
+  gtk_widget_set_size_request(self->age_event,170,115);
+  
   self->height_event = gtk_event_box_new ();
+  gtk_event_box_set_visible_window(GTK_EVENT_BOX(self->height_event),FALSE);
+  gtk_widget_set_size_request(self->height_event,170,115);
   
   self->display_event = gtk_event_box_new ();
+  gtk_event_box_set_visible_window(GTK_EVENT_BOX(self->display_event),FALSE);
+  gtk_widget_set_size_request(self->display_event,170,140);
+  
   self->units_event = gtk_event_box_new ();
+  gtk_event_box_set_visible_window(GTK_EVENT_BOX(self->units_event),FALSE);
+  gtk_widget_set_size_request(self->units_event,170,140);
   
   self->device_event = gtk_event_box_new ();
-  self->update_event = gtk_event_box_new ();
+  gtk_event_box_set_visible_window(GTK_EVENT_BOX(self->device_event),FALSE);
+  gtk_widget_set_size_request(self->device_event,170,140);
   
-  gtk_widget_modify_bg(self->weight_event,0,&bg_up);
+  self->update_event = gtk_event_box_new ();
+  gtk_event_box_set_visible_window(GTK_EVENT_BOX(self->update_event),FALSE);
+  gtk_widget_set_size_request(self->update_event,170,140);
+  
   gtk_container_add (GTK_CONTAINER (self->weight_event),self->weight_label);
   gtk_container_add (GTK_CONTAINER (self->age_event),self->age_label);
   gtk_container_add (GTK_CONTAINER (self->height_event),self->height_label);
@@ -171,16 +182,16 @@ void general_settings_show(GeneralSettings *self){
   gtk_container_add (GTK_CONTAINER (self->device_event),self->device_label);
   gtk_container_add (GTK_CONTAINER (self->update_event),self->update_label);
   
-  gtk_fixed_put (GTK_FIXED (self->fixed),self->weight_event, 150, 126);
-  gtk_fixed_put (GTK_FIXED (self->fixed),self->age_event, 150, 205);
-  gtk_fixed_put (GTK_FIXED (self->fixed),self->height_event, 145, 285);
+  gtk_fixed_put (GTK_FIXED (self->fixed),self->weight_event, 95, 90);
+  gtk_fixed_put (GTK_FIXED (self->fixed),self->age_event, 85, 172);
+  gtk_fixed_put (GTK_FIXED (self->fixed),self->height_event, 83, 251);
 
-  gtk_fixed_put (GTK_FIXED (self->fixed),self->display_event, 379, 145);
-  gtk_fixed_put (GTK_FIXED (self->fixed),self->units_event, 364, 256);
+  gtk_fixed_put (GTK_FIXED (self->fixed),self->display_event, 320, 105);
+  gtk_fixed_put (GTK_FIXED (self->fixed),self->units_event, 320, 220);
   
   
-  gtk_fixed_put (GTK_FIXED (self->fixed),self->device_event, 594, 145);
-  gtk_fixed_put (GTK_FIXED (self->fixed),self->update_event, 594, 256);
+  gtk_fixed_put (GTK_FIXED (self->fixed),self->device_event, 541, 105);
+  gtk_fixed_put (GTK_FIXED (self->fixed),self->update_event, 541, 220);
 
   
   gtk_widget_set_events (self->weight_event, GDK_BUTTON_PRESS_MASK);
