@@ -73,6 +73,7 @@ void general_settings_show(GeneralSettings *self){
   
   gchar *hrm_key;
   gchar *hrm_device;
+  PangoFontDescription *desc = NULL;
 
   self->win = hildon_stackable_window_new();
   gtk_window_set_title ( GTK_WINDOW (self->win), "eCoach >Settings");
@@ -83,23 +84,26 @@ void general_settings_show(GeneralSettings *self){
   self->img_connection = gtk_image_new_from_file(GFXDIR "ec_button_connection.png");
   
  
+  desc = pango_font_description_new();
+  pango_font_description_set_family(desc, "Nokia Sans");
+  pango_font_description_set_absolute_size(desc, 29 * PANGO_SCALE);
   
   gtk_fixed_put (GTK_FIXED (self->fixed), self->img_personal, 80, 80);
   gtk_fixed_put (GTK_FIXED (self->fixed), self->img_device, 310, 80);
   gtk_fixed_put (GTK_FIXED (self->fixed), self->img_connection, 532, 80);
   
   
-  gint weight = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_WEIGHT,0);
+  self->weight = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_WEIGHT,0);
   gchar weight_str[8];
-  g_sprintf(weight_str,"%d kg", weight);
+  g_sprintf(weight_str,"%d kg", self->weight);
 
-  gint age = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_AGE,0);
+  self->age = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_AGE,0);
   gchar age_str[3];
-  g_sprintf(age_str,"%d",age);
+  g_sprintf(age_str,"%d",self->age);
   
-  gint height = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_HEIGHT,0);
+  self->height = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_HEIGHT,0);
   gchar height_str[8];
-  g_sprintf(height_str,"%d",height);
+  g_sprintf(height_str,"%d",self->height);
   
   gint update = gconf_helper_get_value_int_with_default(self->gconf_helper,GPS_INTERVAL,5);
   if(update==0){
@@ -111,6 +115,12 @@ void general_settings_show(GeneralSettings *self){
   self->age_label = gtk_label_new(age_str);
   self->height_label = gtk_label_new(height_str);
   self->update_label = gtk_label_new(update_str);
+  	
+  gtk_widget_modify_font(self->weight_label, desc);
+  gtk_widget_modify_font(self->age_label, desc);
+  gtk_widget_modify_font(self->height_label, desc);
+  gtk_widget_modify_font(self->update_label, desc);
+  //pango_layout_set_font_description(self->weight_label,desc);
   
   if(gconf_helper_get_value_bool_with_default(self->gconf_helper,DISPLAY_ON,TRUE)) {
   self->display_label = gtk_label_new("On");
@@ -124,6 +134,9 @@ void general_settings_show(GeneralSettings *self){
   else
   { self->units_label = gtk_label_new("Imperial");}
    
+   gtk_widget_modify_font(self->units_label, desc);
+   gtk_widget_modify_font(self->display_label, desc);
+   
   hrm_key = gconf_helper_get_value_string_with_default(
 		self->gconf_helper,
 		ECGC_BLUETOOTH_NAME,
@@ -132,6 +145,7 @@ void general_settings_show(GeneralSettings *self){
   hrm_device = g_strndup(hrm_key, 4);
   
   self->device_label = gtk_label_new(hrm_device);
+  gtk_widget_modify_font(self->device_label, desc);
   g_free(hrm_key);
   g_free(hrm_device);
    
@@ -198,166 +212,6 @@ void general_settings_show(GeneralSettings *self){
   DEBUG_END();
 }
 
-/*
-void show_general_settings(NavigationMenu *menu, GtkTreePath *path,
-			gpointer user_data)
-{
-*/	
-	/*
-      DEBUG_BEGIN();
-	AppData *app_data = (AppData *)user_data;
-	
-	
-	GtkWidget *radio_units_metric;
-	GtkWidget *radio_units_english;
-	GtkWidget *radio_display_on;
-	GtkWidget *radio_display_off;
-	GtkWidget *label;
-	GConfValue *value = NULL;
-	gint result;
-
-	
-	
-	
-	DEBUG_BEGIN();
-	*/
-// for debugging only
-// gconf_helper_set_value_bool(app_data->gconf_helper, DISPLAY_ON, FALSE);
-    /*
-	 GtkWidget *weight_event;;
-	 weight_event = gtk_event_box_new ();
-	 
-	
-	
-	//app_data->settings_data = g_new(SettingsData, 1);
-	
-	app_data->settings_data->weight_label = gtk_label_new("100 kg");
-	
-	
-	
-	win = hildon_stackable_window_new();
-	gtk_window_set_title ( GTK_WINDOW (win), "eCoach >Settings");
-	gtk_widget_set_name(GTK_WIDGET(win), "mainwindow");
-
-	GtkWidget* fixed = gtk_fixed_new();
-	gtk_fixed_put (GTK_FIXED (fixed), img_personal, 80, 80);
-	
-	gtk_fixed_put (GTK_FIXED (fixed), img_device, 310, 80);
-	gtk_fixed_put (GTK_FIXED (fixed), img_connection, 532, 80);
-	gtk_container_add (GTK_CONTAINER (weight_event), app_data->settings_data->weight_label);
-
-	gtk_fixed_put (GTK_FIXED (fixed),weight_event, 135, 126);
-	gtk_widget_set_events (weight_event, GDK_BUTTON_PRESS_MASK);
-	
-	
-      
-	GdkColor black;
-	black.red = 7680;
-	black.green = 7680;
-	black.blue = 7680;
-	
-	gtk_widget_modify_bg(weight_event,0,&black);
-	
-		  
-	gtk_container_add (GTK_CONTAINER (win),
-			fixed);
-			
-	gtk_widget_show_all(win);
-	*/
-	/* Create the widgets */
-	/*
-	dialog = gtk_dialog_new_with_buttons ("General Settings",
-						GTK_WINDOW(app_data->window),
-						GTK_DIALOG_MODAL,
-						GTK_STOCK_OK,
-						GTK_RESPONSE_OK,GTK_STOCK_CANCEL,
-						GTK_RESPONSE_REJECT,NULL);
-
-	gtk_widget_set_size_request(dialog, 300,240);
-
-	table = gtk_table_new (4, 2, TRUE);
-	gtk_table_set_homogeneous (GTK_TABLE (table), FALSE);
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
-			table);
-
-	label = gtk_label_new ("Units:");
-	gtk_misc_set_alignment( GTK_MISC(label), 1.0, 0.5 );
-	gtk_table_attach_defaults(GTK_TABLE (table), label, 0, 1, 0, 1);
-
-	radio_units_metric = gtk_radio_button_new_with_label (NULL, "Metric");
-	gtk_table_attach_defaults(GTK_TABLE (table), radio_units_metric, 1, 2, 0, 1);
-	
-	radio_units_english = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON 
-							(radio_units_metric), "English");
-	gtk_table_attach_defaults(GTK_TABLE (table), radio_units_english, 1, 2, 1, 2);
-*/
-	/*Check which unit-radio button should be set */
-	
-	/*
-	if(gconf_helper_get_value_bool_with_default(app_data->gconf_helper,
-						    USE_METRIC,TRUE)) {
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_units_metric), TRUE);
-	} else {
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_units_english), TRUE);
-	}
-
-	label = gtk_label_new ("Display:");
-	gtk_misc_set_alignment( GTK_MISC(label), 1.0, 0.5 );
-	gtk_table_attach_defaults(GTK_TABLE (table), label, 0, 1, 2, 3);
-	
-	radio_display_on = gtk_radio_button_new_with_label (NULL, "On");
-	gtk_table_attach_defaults(GTK_TABLE (table), radio_display_on, 1, 2, 2, 3);
-
-	radio_display_off = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON 
-							(radio_display_on), "Off");
-	gtk_table_attach_defaults(GTK_TABLE (table), radio_display_off, 1, 2, 3, 4);
-*/
-	/*Check which display dimm-radio button should be set */
-	
-	/*
-	if(gconf_helper_get_value_bool_with_default(app_data->gconf_helper,
-						    DISPLAY_ON,TRUE)) {
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_display_on), TRUE);
-	} else {
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_display_off), TRUE);
-	}
-
-	//gtk_widget_show_all (dialog);
-	//result = gtk_dialog_run(GTK_DIALOG(dialog));
-	if(result == GTK_RESPONSE_OK)
-	{
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio_units_metric)))
-		{
-			gconf_helper_set_value_bool(app_data->gconf_helper,
-						    USE_METRIC,TRUE);
-		}
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio_units_english)))
-		{
-			gconf_helper_set_value_bool(app_data->gconf_helper,
-					USE_METRIC,FALSE);
-		}
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio_display_on)))
-		{
-			gconf_helper_set_value_bool(app_data->gconf_helper,
-					DISPLAY_ON,TRUE);
-		}
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio_display_off)))
-		{
-			gconf_helper_set_value_bool(app_data->gconf_helper,
-					DISPLAY_ON,FALSE);
-		}
-		gtk_widget_destroy(dialog);
-	}
-	else
-	{
-		gtk_widget_destroy(dialog);	
-	}
-      */
-	
-	/*DEBUG_END();
-
-}*/
-
 static void pick_weight(GtkWidget *widget, GdkEvent *event,gpointer user_data)
 {
 	
@@ -370,6 +224,7 @@ static void pick_weight(GtkWidget *widget, GdkEvent *event,gpointer user_data)
     self->weight_selector = hildon_touch_selector_new_text();
     hildon_touch_selector_set_column_selection_mode (HILDON_TOUCH_SELECTOR (self->weight_selector),
     HILDON_TOUCH_SELECTOR_SELECTION_MODE_SINGLE);
+    self->weight = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_WEIGHT,0);
     int j = 0;
     for(;j< 300;j++){
     gchar *number;	
@@ -377,7 +232,7 @@ static void pick_weight(GtkWidget *widget, GdkEvent *event,gpointer user_data)
     hildon_touch_selector_append_text (HILDON_TOUCH_SELECTOR (self->weight_selector),number);
     g_free(number);
     }
-    hildon_touch_selector_set_active(HILDON_TOUCH_SELECTOR(self->weight_selector),0,75);
+    hildon_touch_selector_set_active(HILDON_TOUCH_SELECTOR(self->weight_selector),0,self->weight);
     hildon_touch_selector_center_on_selected(HILDON_TOUCH_SELECTOR(self->weight_selector));
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG(self->weight_dialog)->vbox),self->weight_selector);
     g_signal_connect (G_OBJECT (self->weight_selector), "changed",
@@ -397,6 +252,7 @@ static void pick_age(GtkWidget *widget, GdkEvent *event,gpointer user_data)
 	self->age_selector = hildon_touch_selector_new_text();
 	hildon_touch_selector_set_column_selection_mode (HILDON_TOUCH_SELECTOR (self->age_selector),
 	HILDON_TOUCH_SELECTOR_SELECTION_MODE_SINGLE);
+	self->age = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_AGE,0);
 	int j = 0;
 	for(;j< 99;j++){
 	gchar *number;	
@@ -405,7 +261,7 @@ static void pick_age(GtkWidget *widget, GdkEvent *event,gpointer user_data)
 	g_free(number);
 	 }
 	 
-	hildon_touch_selector_set_active(HILDON_TOUCH_SELECTOR(self->age_selector),0,20);
+	hildon_touch_selector_set_active(HILDON_TOUCH_SELECTOR(self->age_selector),0,self->age);
 	hildon_touch_selector_center_on_selected(HILDON_TOUCH_SELECTOR(self->age_selector));
 	
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(self->age_dialog)->vbox),self->age_selector);
@@ -429,6 +285,7 @@ static void pick_height(GtkWidget *widget, GdkEvent *event,gpointer user_data)
 	self->height_selector = hildon_touch_selector_new_text();
 	hildon_touch_selector_set_column_selection_mode (HILDON_TOUCH_SELECTOR (self->height_selector),
 	HILDON_TOUCH_SELECTOR_SELECTION_MODE_SINGLE);
+	self->height = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_HEIGHT,0);
 	int j = 0;
 	for(;j< 250;j++){
 	gchar *number;	
@@ -437,7 +294,7 @@ static void pick_height(GtkWidget *widget, GdkEvent *event,gpointer user_data)
 	g_free(number);
 	 }
 	 
-	hildon_touch_selector_set_active(HILDON_TOUCH_SELECTOR(self->height_selector),0,150);
+	hildon_touch_selector_set_active(HILDON_TOUCH_SELECTOR(self->height_selector),0,self->height);
 	hildon_touch_selector_center_on_selected(HILDON_TOUCH_SELECTOR(self->height_selector));
 	
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(self->height_dialog)->vbox),self->height_selector);
@@ -468,12 +325,7 @@ static void pick_update_interval(GtkWidget *widget, GdkEvent *event,gpointer use
 	number = g_strdup_printf("%d sec",intervals[j]);
 	hildon_touch_selector_append_text (HILDON_TOUCH_SELECTOR (self->update_selector),number);
 	g_free(number);
-	}
-
-	
-	
-	
-	 
+	}	 
 	hildon_touch_selector_set_active(HILDON_TOUCH_SELECTOR(self->update_selector),0,1);
 	hildon_touch_selector_center_on_selected(HILDON_TOUCH_SELECTOR(self->update_selector));
 	
