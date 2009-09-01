@@ -1,3 +1,10 @@
+ecoach (1.53beta3) unstable; urgency=low
+
+  * Fixed a lot of bugs
+  * Made more energy efficient when idle
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Tue,  1 Sep 2009 16:53:53 +0300
+
 ecoach (1.53beta2) unstable; urgency=low
 
   * bugfixes
