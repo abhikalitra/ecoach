@@ -131,7 +131,7 @@ static void interface_start_activity(
 AppData *interface_create()
 {
 	AppData *app_data = NULL;
-
+	gboolean notify_user_data;
 	app_data = g_new0(AppData, 1);
 
 	if(!app_data)
@@ -266,14 +266,20 @@ AppData *interface_create()
 	/* Finalize the main window */
 	gtk_container_add(GTK_CONTAINER(app_data->window),
 			app_data->navigation_menu->main_widget);
-
-	//g_signal_connect (app_data->window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
-
-
+	
+	notify_user_data = gconf_helper_get_value_bool_with_default(app_data->gconf_helper,NOTIFY_USER,TRUE);
 	g_signal_connect(G_OBJECT(app_data->window), "delete-event",
 			G_CALLBACK(interface_confirm_close), app_data);
 
 	gtk_widget_show_all(GTK_WIDGET(app_data->window));
+	
+	if(!notify_user_data){
+	 
+	  GtkWidget *note = hildon_note_new_information(GTK_WINDOW(app_data->window),"This seems to be the first time you use eCoach.\n"
+	  "Please fill in the user data in the settings view");
+	  gtk_widget_show(note);
+	  gconf_helper_set_value_bool_simple(app_data->gconf_helper,NOTIFY_USER,TRUE);	  
+	}
 
 	return app_data;
 }
