@@ -203,7 +203,7 @@ struct _MapView {
 
 	gboolean metric;
 	gboolean display_on;
-
+	gboolean fullscreen;
 	time_t start;
 	time_t end;
 	gdouble max_speed;
