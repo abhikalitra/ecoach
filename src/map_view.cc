@@ -280,7 +280,7 @@ void map_view_show(MapView *self)
 	{
 	osm_gps_map_add_button((OsmGpsMap*)self->map,584, 346, self->pause_btn_selected);
 	}
-
+	self->fullscreen = FALSE;
 if(!self->gps_initialized)
 {
       DEBUG("ALUSTETAAN GPS ASETUKSET!!");
@@ -473,7 +473,7 @@ static void hide_data(GtkWidget *widget, GdkEventButton *event, gpointer user_da
   MapView *self = (MapView *)user_data;
   DEBUG_BEGIN();
   gtk_widget_hide_all( self->data_win);
-
+  add_hide_buttons_timeout(user_data);
  DEBUG_END();
 }
 
@@ -1531,10 +1531,9 @@ gboolean map_button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer 
       DEBUG_BEGIN();
      coord_t coord;
 
-    gtk_window_unfullscreen ((GtkWindow*)self->win);
-    gtk_widget_set_size_request(self->map, 800, 420);
+    
     OsmGpsMap *map = OSM_GPS_MAP(widget);
-
+if(!self->fullscreen){
     if ( (event->button == 1) && (event->type == GDK_BUTTON_PRESS) )
     {
 	   int zoom = 0;
@@ -1593,6 +1592,15 @@ gboolean map_button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer 
 	 }
 
     }
+}
+else{
+    gtk_window_unfullscreen ((GtkWindow*)self->win);
+    gtk_widget_set_size_request(self->map, 800, 420);
+    self->fullscreen = FALSE;
+  
+}
+
+
     add_hide_buttons_timeout(self);
 
     DEBUG_END();
@@ -1800,7 +1808,7 @@ static gboolean _hide_buttons_timeout(gpointer user_data)
       gtk_window_fullscreen ((GtkWindow*)self->win);
       gtk_widget_set_size_request(self->map,800,480);
 	/* Palauta aina FALSE -> kutsutaan vain kerran */
-
+      self->fullscreen = TRUE;
        DEBUG_END();
       return FALSE;
 }
