@@ -572,11 +572,6 @@ static void map_view_create_data(MapView *self){
   			_("Heart rate"),
   			_("Wait..."),
   			0, 2);
-self->info_heart_rate = map_view_create_info_button(
-			self,
-			_("Heart rate"),
-			_("Wait..."),
-			0, 2);
 			
   g_signal_connect(G_OBJECT(self->data_map_event), "button-press-event",
                       G_CALLBACK (hide_data),self);
