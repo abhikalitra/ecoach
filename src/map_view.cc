@@ -396,17 +396,17 @@ gboolean map_view_setup_activity(
 		DEBUG("Activity already started. Not starting a new one");
 		return FALSE;
 	}
-
+	
 	/* GLib takes care of the NULL values */
 	g_free(self->activity_name);
 	self->activity_name = g_strdup(activity_name);
-
+	
 	g_free(self->activity_comment);
 	self->activity_comment = g_strdup(activity_comment);
-
+	
 	g_free(self->file_name);
 	self->file_name = g_strdup(file_name);
-
+	
 	track_helper_setup_track(self->track_helper,
 			activity_name,
 			activity_comment);
@@ -665,7 +665,7 @@ void map_view_stop(MapView *self)
 	gchar *max_speed = g_strdup_printf(_("%.1f km/h"), self->max_speed);
 	if(self->activity_comment ==NULL)
 	{
-	  self->activity_comment = "";  
+	  self->activity_comment =  g_strdup_printf("");  
 	}
 	
 	CCalendarUtil *util;
@@ -922,7 +922,7 @@ static void map_view_location_changed(
 		{
 
 			DEBUG("HORIZONTAL ACCURACY %.5f",device->fix->eph);
-			if(device->fix->eph < 2500){
+			if(device->fix->eph < 8000){
 			map_view_check_and_add_route_point(self, &point,
 					device->fix);
 			
