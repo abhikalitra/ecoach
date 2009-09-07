@@ -179,6 +179,7 @@ struct _MapView {
 	struct timeval elapsed_time;	/**< Elapsed time		*/
 	struct timeval start_time;	/**< Time since previous start
 					      or continue		*/
+	gdouble mins,secs;	      /**for min_per_km  		*/		
 	guint activity_timer_id;	/**< Source id for g_timeout	*/
 
 	TrackHelper *track_helper;	/**< Track management		*/
