@@ -642,6 +642,12 @@ if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_PAUSED)
 void map_view_stop(MapView *self)
 {
 	g_return_if_fail(self != NULL);
+	gdouble	travelled_distance = 0.0;
+	gdouble avg_speed = 0.0;
+	struct timeval time_now;
+	struct timeval result;
+	gchar *dist_text;
+	gchar *avg_text;
 	DEBUG_BEGIN();
 
 	if((self->activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED) ||
@@ -650,23 +656,81 @@ void map_view_stop(MapView *self)
 		DEBUG_END();
 		return;
 	}
-
 	//for calendar
-	time(&self->end);
-	const gchar *time  =  ec_button_get_label_text((EcButton*)self->info_time);
-	const gchar *dist = ec_button_get_title_text((EcButton*)self->info_time);
 	
-	const gchar *avgspeed = ec_button_get_label_text((EcButton*)self->info_speed);
+	if(self->add_calendar){
+	CCalendarUtil *util;
+	time(&self->end);
+	travelled_distance = track_helper_get_travelled_distance(self->track_helper);
+	if(self->metric)
+	{
+		if(travelled_distance < 1000)
+		{
+			dist_text = g_strdup_printf(_("%.0f m"), travelled_distance);
+		} else {
+			dist_text = g_strdup_printf(_("%.1f km"),
+					travelled_distance / 1000.0);
+		}
+	}
+	else
+	{
+		if(travelled_distance < 1609)
+		{
+			travelled_distance = travelled_distance * 3.28;
+			dist_text = g_strdup_printf(_("%.0f ft"), travelled_distance);
+		} else {
+			travelled_distance = travelled_distance * 0.621;
+			dist_text = g_strdup_printf(_("%.1f mi"),
+			travelled_distance / 1000.0);
+		}
+	}
+	
+	avg_speed = track_helper_get_average_speed(self->track_helper);
+	if(avg_speed > 0.0)
+	{
+		if(self->metric)
+		{
+		avg_text = g_strdup_printf(_("%.1f km/h"), avg_speed);
+		
+		}
+		else
+		{
+		avg_speed = avg_speed *	0.621;
+		avg_text = g_strdup_printf(_("%.1f mph"), avg_speed);
+		}
+	
+	}
+	else
+	{
+	  avg_text = g_strdup_printf(_("0"));
+	}
+	
+	
+	gettimeofday(&time_now, NULL);
+	util_subtract_time(&time_now, &self->start_time, &result);
+	util_add_time(&self->elapsed_time, &result, &result);
+	map_view_set_elapsed_time(self, &result);
+	const gchar *time  =  ec_button_get_label_text((EcButton*)self->info_time);
 	gchar *max_speed = g_strdup_printf(_("%.1f km/h"), self->max_speed);
 	if(self->activity_comment ==NULL)
 	{
 	  self->activity_comment =  g_strdup_printf("");  
 	}
+	 /*Calculate min/km  */
 	
-	CCalendarUtil *util;
-	if(self->add_calendar){
-	util->addEvent(self->activity_name,"",g_strdup_printf("Duration: %s\nDistance: %s\nAvg.speed %s\nMax.Speed: %s \n\
-	Comment: %s \nGPX File: %s",time,dist,avgspeed,max_speed,self->activity_comment,self->file_name),self->start,self->end);
+	DEBUG("KULUNEET SEKUNTIT %d", result.tv_sec);
+	DEBUG("KULUNUT MATKA %f", travelled_distance);
+	gdouble minkm = (result.tv_sec / (travelled_distance/1000)/60);
+	self->secs = modf(minkm,&self->mins);
+	gchar *min_per_km = g_strdup_printf(" %02.f:%02.f",self->mins,(60*self->secs));
+	
+	
+
+	util->addEvent(self->activity_name,"",g_strdup_printf("Duration: %s\nDistance: %s\nAvg.speed: %s\nMax.Speed: %s\nMin/km: %s\n Comment: %s \nGPX File: %s"
+	,time,dist_text,avg_text,max_speed,min_per_km,self->activity_comment,self->file_name),self->start,self->end);
+	
+	g_free(dist_text);
+	g_free(avg_text);
 	}
 	track_helper_stop(self->track_helper);
 	track_helper_clear(self->track_helper, FALSE);
@@ -898,7 +962,7 @@ static void map_view_location_changed(
 			device->fix->longitude,
 			device->fix->altitude);
 
-	if(device->fix->fields & LOCATION_GPS_DEVICE_LATLONG_SET)
+	if(device->fix->fields & LOCATION_GPS_DEVICE_LATLONG_SET)	
 	{
 		DEBUG("Latitude and longitude are valid");
 		point.latitude = device->fix->latitude;
@@ -917,7 +981,7 @@ static void map_view_location_changed(
 		{
 
 			DEBUG("HORIZONTAL ACCURACY %.5f",device->fix->eph);
-			if(device->fix->eph < 8000){
+			if(device->fix->eph < 9000){
 			map_view_check_and_add_route_point(self, &point,
 					device->fix);
 			
@@ -1363,6 +1427,16 @@ static gboolean map_view_update_stats(gpointer user_data)
 		//	gtk_label_set_text(GTK_LABEL(self->info_speed),"0 mph");
 		}
 	}
+	
+	/* Speed minutes per km  */
+	
+	DEBUG("KULUNEET SEKUNTIT %d", result.tv_sec);
+	DEBUG("KULUNUT MATKA %f", travelled_distance);
+	gdouble minkm = (result.tv_sec / (travelled_distance/1000)/60);
+	self->secs = modf(minkm,&self->mins);
+	
+	
+	DEBUG("MIN / KM  %02.f:%02.f ",self->mins,(60*self->secs));
 	}
 	DEBUG_END();
 	return TRUE;
