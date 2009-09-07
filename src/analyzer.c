@@ -80,6 +80,7 @@ typedef struct _AnalyzerViewTrack {
 	gchar *name;
 	gchar *comment;
 	gint number;
+	gchar *min_per_km;
 
 	/** @brief A list to pointers of type AnalyzerViewTrackSegment */
 	GSList *track_segments;
@@ -843,8 +844,8 @@ static GtkWidget *analyzer_view_create_view_info(AnalyzerView *self)
 	self->info_labels[ANALYZER_VIEW_INFO_LABEL_NAME][0] =
 		gtk_label_new(_("Activity name"));
 
-	self->info_labels[ANALYZER_VIEW_INFO_LABEL_COMMENT][0] =
-		gtk_label_new(_("Comment"));
+/*	self->info_labels[ANALYZER_VIEW_INFO_LABEL_COMMENT][0] =
+		gtk_label_new(_("Comment"));*/
 
 	self->info_labels[ANALYZER_VIEW_INFO_LABEL_TIME_START][0] =
 		gtk_label_new(_("Start time"));
@@ -863,6 +864,9 @@ static GtkWidget *analyzer_view_create_view_info(AnalyzerView *self)
 
 	self->info_labels[ANALYZER_VIEW_INFO_LABEL_SPEED_MAX][0] =
 		gtk_label_new(_("Maximum speed"));
+		
+	self->info_labels[ANALYZER_VIEW_INFO_LABEL_MIN_PER_KM][0] =
+		gtk_label_new(_("Min/km"));
 
 	self->info_labels[ANALYZER_VIEW_INFO_LABEL_HEART_RATE_AVG][0] =
 		gtk_label_new(_("Average heart rate"));
@@ -1539,7 +1543,7 @@ static void analyzer_view_add_track(
 	self->tracks = g_slist_prepend(self->tracks, track);
 
 	track->name = g_strdup(parser_track->name);
-	track->comment = g_strdup(parser_track->comment);
+//	track->comment = g_strdup(parser_track->comment);
 	track->number = parser_track->number;
 
 	/* All other data is initialized correctly with g_new0 */
@@ -1714,8 +1718,18 @@ static void analyzer_view_analyze_track(
 	{
 		DEBUG("Secs: %f; distance: %f", secs, track->distance);
 		track->speed_avg = track->distance / secs * 3.6;
+		
+//		DEBUG("KULUNEET SEKUNTIT %d", result.tv_sec);
+//		DEBUG("KULUNUT MATKA %f", travelled_distance);
+	gdouble mins,seconds;
+	gdouble minkm = (secs / (track->distance/1000)/60);
+	seconds = modf(minkm,&mins);
+	DEBUG("MIN / KM  %02.f:%02.f ",mins,(60*seconds));
+	
+	track->min_per_km = g_strdup_printf(_("%02.f:%02.f"),mins,(60*seconds));
 	}
-
+	
+	
 	track->data_is_analyzed = TRUE;
 
 	DEBUG_END();
@@ -2110,7 +2124,7 @@ static void analyzer_view_show_track_information(
 				[ANALYZER_VIEW_INFO_LABEL_NAME][1]),
 				_("N/A"));
 	}
-
+/*
 	if((track->comment != NULL) && (strcmp(track->comment, "") != 0))
 	{
 		has_comment = TRUE;
@@ -2122,6 +2136,7 @@ static void analyzer_view_show_track_information(
 				[ANALYZER_VIEW_INFO_LABEL_COMMENT][1]),
 				_("N/A"));
 	}
+*/
 
 	if(has_name && has_comment)
 	{
@@ -2294,6 +2309,21 @@ static void analyzer_view_show_track_information(
 			buffer);
 	g_free(buffer);
 
+	
+	if(track->min_per_km != NULL){
+	  
+	  gtk_label_set_text(GTK_LABEL(self->info_labels
+				[ANALYZER_VIEW_INFO_LABEL_MIN_PER_KM][1]),
+			track->min_per_km);
+	}
+	else
+	{
+	    gtk_label_set_text(GTK_LABEL(self->info_labels
+				[ANALYZER_VIEW_INFO_LABEL_MIN_PER_KM][1]),
+			"N/A");
+	}
+	
+	
 	if(track->speed_max > 0.0)
 	{
 		if(self->metric)
@@ -3496,7 +3526,8 @@ static void analyzer_view_track_destroy(AnalyzerViewTrack *track)
 	DEBUG_BEGIN();
 
 	g_free(track->name);
-	g_free(track->comment);
+	g_free(track->min_per_km);
+//	g_free(track->comment);
 
 	for(temp = track->track_segments; temp; temp = g_slist_next(temp))
 	{
