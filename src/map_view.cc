@@ -145,6 +145,7 @@ static void hide_data(GtkWidget *widget, GdkEventButton *event, gpointer user_da
 static void data_rec_btn_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static void data_pause_btn_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static void add_note_cb(HildonButton *button, gpointer user_data);
+static void info_speed_clicked(GtkWidget *button, gpointer user_data);
 /*****************************************************************************
  * Function declarations                                                     *
  *****************************************************************************/
@@ -587,6 +588,8 @@ static void map_view_create_data(MapView *self){
 
   g_signal_connect(G_OBJECT(self->data_pause_selected_event), "button-press-event",
                          G_CALLBACK (data_pause_btn_press_cb),self);
+			 
+  g_signal_connect(self->info_speed, "clicked", G_CALLBACK (info_speed_clicked), self);
 
  gtk_fixed_put(GTK_FIXED(self->data_widget),self->data_map_event,50,346);
  gtk_fixed_put(GTK_FIXED(self->data_widget),self->data_data_btn,213, 346);
@@ -711,7 +714,6 @@ void map_view_stop(MapView *self)
 	util_add_time(&self->elapsed_time, &result, &result);
 	map_view_set_elapsed_time(self, &result);
 	const gchar *time  =  ec_button_get_label_text((EcButton*)self->info_time);
-	gchar *max_speed = g_strdup_printf(_("%.1f km/h"), self->max_speed);
 	if(self->activity_comment ==NULL)
 	{
 	  self->activity_comment =  g_strdup_printf("");  
@@ -726,8 +728,8 @@ void map_view_stop(MapView *self)
 	
 	
 
-	util->addEvent(self->activity_name,"",g_strdup_printf("Duration: %s\nDistance: %s\nAvg.speed: %s\nMax.Speed: %s\nMin/km: %s\n Comment: %s \nGPX File: %s"
-	,time,dist_text,avg_text,max_speed,min_per_km,self->activity_comment,self->file_name),self->start,self->end);
+	util->addEvent(self->activity_name,"",g_strdup_printf("Duration: %s\nDistance: %s\nAvg.speed: %s\nMin/km: %s\nComment: %s \nGPX File: %s"
+	,time,dist_text,avg_text,min_per_km,self->activity_comment,self->file_name),self->start,self->end);
 	
 	g_free(dist_text);
 	g_free(avg_text);
@@ -735,7 +737,6 @@ void map_view_stop(MapView *self)
 	track_helper_stop(self->track_helper);
 	track_helper_clear(self->track_helper, FALSE);
 	self->activity_state = MAP_VIEW_ACTIVITY_STATE_STOPPED;
-	self->max_speed =0;
 	g_source_remove(self->activity_timer_id);
 	self->activity_timer_id = 0;
 	DEBUG_END();
@@ -970,20 +971,15 @@ static void map_view_location_changed(
 
 		gchar *lbl_text = NULL;
 		DEBUG("SPEED ACCURACY %.5f",device->fix->eps);
-		if(device->fix->eps < 140){
-		self->curr_speed = device->fix->speed;
-		if(self->curr_speed > self->max_speed){
-		 self->max_speed = self->curr_speed;
-		}
-
-		}
 		if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STARTED)
 		{
-
+			
 			DEBUG("HORIZONTAL ACCURACY %.5f",device->fix->eph);
 			if(device->fix->eph < 9000){
+			self->curr_speed = device->fix->speed;
 			map_view_check_and_add_route_point(self, &point,
 					device->fix);
+			DEBUG("SPEED ACCURACY %.5f",device->fix->eps);
 			
 			osm_gps_map_draw_gps(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude,0);
 			
@@ -1392,7 +1388,7 @@ static gboolean map_view_update_stats(gpointer user_data)
 
 	/* Current speed */
 
-//	curr_speed = track_helper_get_current_speed(self->track_helper);
+	if(!self->show_min_per_km){
 	if(curr_speed > 0.0)
 	{
 		if(self->metric)
@@ -1427,16 +1423,27 @@ static gboolean map_view_update_stats(gpointer user_data)
 		//	gtk_label_set_text(GTK_LABEL(self->info_speed),"0 mph");
 		}
 	}
-	
-	/* Speed minutes per km  */
+	}
+	else{
+	 
+	  /* Speed minutes per km  */
 	
 	DEBUG("KULUNEET SEKUNTIT %d", result.tv_sec);
 	DEBUG("KULUNUT MATKA %f", travelled_distance);
 	gdouble minkm = (result.tv_sec / (travelled_distance/1000)/60);
 	self->secs = modf(minkm,&self->mins);
-	
-	
 	DEBUG("MIN / KM  %02.f:%02.f ",self->mins,(60*self->secs));
+	  
+	ec_button_set_title_text(EC_BUTTON(self->info_speed),"Min/km");
+	lbl_text = g_strdup_printf(_("%02.f:%02.f"),self->mins,(60*self->secs));
+	
+	ec_button_set_label_text(EC_BUTTON(self->info_speed),
+	lbl_text);
+	g_free(lbl_text);
+	}
+	  
+	
+	
 	}
 	DEBUG_END();
 	return TRUE;
@@ -2451,4 +2458,17 @@ static void about_dlg(HildonButton *button, gpointer user_data){
 
   DEBUG_END();
 
+}
+static void info_speed_clicked(GtkWidget *button, gpointer user_data)
+{
+	MapView *self = (MapView *)user_data;
+	DEBUG_BEGIN();
+	if(self->show_min_per_km){
+	self->show_min_per_km = FALSE;
+	}else
+	{
+	  self->show_min_per_km = TRUE;
+	}
+	map_view_update_stats(self);  
+	DEBUG_END();
 }
