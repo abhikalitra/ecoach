@@ -195,6 +195,7 @@ struct _MapView {
 	/* Icons */
 	GdkPixbuf *pxb_autocenter_on;	/**< Autocenter on		*/
 	GdkPixbuf *pxb_autocenter_off;	/**< Autocenter off		*/
+	gboolean show_min_per_km;
 
 	GdkPixbuf *pxb_hrm_status[MAP_VIEW_HRM_STATUS_COUNT];
 					/**< Heart rate status		*/
@@ -207,7 +208,6 @@ struct _MapView {
 	gboolean fullscreen;
 	time_t start;
 	time_t end;
-	gdouble max_speed;
 	gdouble curr_speed;
 	OsmGpsMapSource_t map_provider ;
 
