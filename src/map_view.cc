@@ -1794,7 +1794,7 @@ static void add_note_cb(HildonButton *button, gpointer user_data)
 	 dialog = gtk_dialog_new_with_buttons ("Add Note",
 	                                         self->parent_window,
 	                                         GTK_DIALOG_DESTROY_WITH_PARENT,
-	                                         GTK_STOCK_OK,
+	                                         "OK",
 	                                         GTK_RESPONSE_ACCEPT,
 	                                         NULL);
 
