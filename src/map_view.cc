@@ -337,7 +337,7 @@ if(!self->gps_initialized)
 
 	if(self->map_widget_state == MAP_VIEW_MAP_WIDGET_STATE_NOT_CONFIGURED)
 	{
-		self->has_gps_fix = FALSE;
+		//self->has_gps_fix = FALSE;
 		self->map_widget_state = MAP_VIEW_MAP_WIDGET_STATE_CONFIGURING;
 	} else {
 #if (MAP_VIEW_SIMULATE_GPS)
@@ -950,7 +950,6 @@ static void map_view_location_changed(
 	MapView *self = (MapView *)user_data;
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
-
 	/* Keep display on */
 	
 	if(self->display_on) {
@@ -962,9 +961,16 @@ static void map_view_location_changed(
 			device->fix->latitude,
 			device->fix->longitude,
 			device->fix->altitude);
-
+			
+	
 	if(device->fix->fields & LOCATION_GPS_DEVICE_LATLONG_SET)	
 	{
+		if(!self->has_gps_fix && (device->fix->eph < 9000)){
+		
+		  GtkWidget *ban = hildon_banner_show_information(GTK_WIDGET(self->parent_window),NULL,"Got GPS Fix ");
+		  self->has_gps_fix = TRUE;
+		}
+		
 		DEBUG("Latitude and longitude are valid");
 		point.latitude = device->fix->latitude;
 		point.longitude = device->fix->longitude;
@@ -1003,6 +1009,8 @@ static void map_view_location_changed(
 		}
 	} else {
 		DEBUG("Latitude and longitude are not valid");
+		  self->has_gps_fix = FALSE;
+		  GtkWidget *banner = hildon_banner_show_information(GTK_WIDGET(self->parent_window),NULL,"Waiting for GPS...");
 	}
 
 
