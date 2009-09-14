@@ -183,7 +183,7 @@ struct _MapView {
 	guint activity_timer_id;	/**< Source id for g_timeout	*/
 
 	TrackHelper *track_helper;	/**< Track management		*/
-
+	
 	gchar *activity_name;
 	gchar *activity_comment;
 	gchar *file_name;

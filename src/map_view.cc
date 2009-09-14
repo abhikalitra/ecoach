@@ -967,7 +967,7 @@ static void map_view_location_changed(
 	{
 		if(!self->has_gps_fix && (device->fix->eph < 9000)){
 		
-		  GtkWidget *ban = hildon_banner_show_information(GTK_WIDGET(self->parent_window),NULL,"Got GPS Fix ");
+		  GtkWidget *ban = hildon_banner_show_information(GTK_WIDGET(self->win),NULL,"Got GPS Fix ");
 		  self->has_gps_fix = TRUE;
 		}
 		
@@ -998,7 +998,7 @@ static void map_view_location_changed(
 			 
 			}
 		}
-		if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED || self->activity_state == MAP_VIEW_ACTIVITY_STATE_NOT_STARTED )
+		if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_NOT_STARTED )
 		{
 		  
 		  if(gtk_window_is_active(GTK_WINDOW(self->win))){
@@ -1010,7 +1010,7 @@ static void map_view_location_changed(
 	} else {
 		DEBUG("Latitude and longitude are not valid");
 		  self->has_gps_fix = FALSE;
-		  GtkWidget *banner = hildon_banner_show_information(GTK_WIDGET(self->parent_window),NULL,"Waiting for GPS...");
+		  GtkWidget *banner = hildon_banner_show_information(GTK_WIDGET(self->win),NULL,"Waiting for GPS...");
 	}
 
 
@@ -1136,6 +1136,7 @@ static void map_view_btn_start_pause_clicked(GtkWidget *button,
 			map_view_start_activity(self);
 			osm_gps_map_remove_button((OsmGpsMap*)self->map,421, 346);
 			osm_gps_map_add_button((OsmGpsMap*)self->map,421, 346, self->rec_btn_selected);
+			osm_gps_map_clear_gps(OSM_GPS_MAP(self->map));
 			break;
 	}
 
@@ -1184,6 +1185,7 @@ static void map_view_btn_stop_clicked(GtkWidget *button, gpointer user_data)
 	osm_gps_map_add_button((OsmGpsMap*)self->map,421, 346, self->rec_btn_unselected);
 	osm_gps_map_remove_button((OsmGpsMap*)self->map,584, 345);
 	osm_gps_map_add_button((OsmGpsMap*)self->map,584, 346, self->pause_btn_unselected);
+	map_view_update_stats(self);
 	map_view_stop(self);
 	DEBUG_END();
 }
