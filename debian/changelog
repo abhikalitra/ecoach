@@ -1,3 +1,9 @@
+ecoach (1.54) unstable; urgency=low
+
+  * Maemo-optified
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Mon, 28 Sep 2009 16:12:10 +0300
+
 ecoach (1.53beta4) unstable; urgency=low
 
   * Added min/km calculation
