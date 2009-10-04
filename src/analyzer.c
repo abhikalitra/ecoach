@@ -53,7 +53,8 @@
 #include "ec-button.h"
 #include "ec_error.h"
 #include "util.h"
-
+/*osm-gps-map*/
+#include "osm_gps_map/osm-gps-map.h"
 #include "debug.h"
 
 /*****************************************************************************
@@ -314,6 +315,18 @@ static void analyzer_view_btn_track_prev_clicked(
 static void analyzer_view_btn_track_next_clicked(
 		GtkWidget *button,
 		gpointer user_data);
+		
+		
+/**
+ * @brief Callback for map button clicked signal
+ *
+ * @param button Button that was clicked
+ * @param user_data Pointer to #AnalyzerView
+ */
+static void analyzer_view_btn_map_clicked(
+		GtkWidget *button,
+		gpointer user_data);
+
 
 /**
  * @brief Get a file name using Hildon file chooser dialog
@@ -535,7 +548,7 @@ static void analyzer_view_draw_heart_rate(
 		gdouble pixels_per_unit);
 
 static void analyzer_view_set_units(AnalyzerView *self);
-
+static void create_map(gpointer user_data);
 
 /**
  * @brief Free memory used by a #AnalyzerViewTrack
@@ -543,7 +556,8 @@ static void analyzer_view_set_units(AnalyzerView *self);
  * @param track Pointer to a track to be freed
  */
 static void analyzer_view_track_destroy(AnalyzerViewTrack *track);
-
+gboolean map_button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+gboolean map_button_release_cb (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 /*****************************************************************************
  * Function declarations                                                     *
  *****************************************************************************/
@@ -651,7 +665,7 @@ void analyzer_view_show(AnalyzerView *self)
 
 
 	self->main_table = gtk_table_new(5,2,TRUE);
-
+	
 
 	/* Open button */
 	self->btn_open = ec_button_new();
@@ -728,6 +742,21 @@ void analyzer_view_show(AnalyzerView *self)
 	pango_font_description_free(desc);
 
 
+	
+	/* Map button */
+	
+	self->btn_map = ec_button_new();
+	ec_button_set_bg_image(EC_BUTTON(self->btn_map),
+			EC_BUTTON_STATE_RELEASED,
+			GFXDIR "ec_button_map.png");
+	ec_button_set_btn_down_offset(EC_BUTTON(self->btn_map), 2);
+	gtk_widget_set_size_request(self->btn_map, 74, 59);
+	gtk_fixed_put(GTK_FIXED(self->main_widget), self->btn_map,
+			708, 18);
+	g_signal_connect(G_OBJECT(self->btn_map), "clicked",
+			G_CALLBACK(analyzer_view_btn_map_clicked),
+			self);
+			
 
 	self->data = gtk_table_new(1,2,TRUE);
       /* Create the views */
@@ -736,7 +765,9 @@ void analyzer_view_show(AnalyzerView *self)
 
 	self->views[ANALYZER_VIEW_GRAPHS] =
 		analyzer_view_create_view_graphs(self);
-
+	
+	create_map(self);
+		
 	for(i = 0; i < ANALYZER_VIEW_COUNT; i++)
 	{
 		gtk_widget_show_all(self->views[i]);
@@ -788,7 +819,7 @@ void analyzer_view_show(AnalyzerView *self)
 
 	//gtk_widget_show_all(self->main_widget);
 
-
+	
 	gtk_widget_show_all(self->win);
 	self->current_view = 0;
 
@@ -1237,7 +1268,7 @@ static void analyzer_view_btn_open_clicked(
 	}
 
 	analyzer_view_clear_data(self);
-
+	osm_gps_map_clear_gps(OSM_GPS_MAP(self->map));
 	parser_status = gpx_parser_parse_file(
 			file_name,
 			analyzer_view_gpx_parser_callback,
@@ -1359,6 +1390,107 @@ static void analyzer_view_btn_track_next_clicked(
 	DEBUG_END();
 }
 
+static void create_map(gpointer user_data){
+
+ AnalyzerView *self = (AnalyzerView *)user_data;
+ self->map_win = hildon_stackable_window_new ();
+ g_signal_connect(self->map_win, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete), NULL);
+self->zoom_in =   gdk_pixbuf_new_from_file(GFXDIR "ec_map_zoom_in.png",NULL);
+self->zoom_out = gdk_pixbuf_new_from_file(GFXDIR "ec_map_zoom_out.png",NULL);
+ self->map_provider = (OsmGpsMapSource_t)gconf_helper_get_value_int_with_default(self->gconf_helper,MAP_SOURCE,1);
+ if(self->map_provider==0)
+ {
+   self->map_provider = (OsmGpsMapSource_t)1;
+  }
+  self->friendly_name = osm_gps_map_source_get_friendly_name(self->map_provider);
+  self->cachedir = g_build_filename(
+                        g_get_user_cache_dir(),
+                        "osmgpsmap",
+			self->friendly_name,
+                        NULL);
+  self->fullpath = TRUE;
+  self->map = (GtkWidget*)g_object_new (OSM_TYPE_GPS_MAP,
+                        "map-source",(OsmGpsMapSource_t)self->map_provider,
+                        "tile-cache",self->cachedir,
+                        "tile-cache-is-full-path",self->fullpath,
+                        "proxy-uri",g_getenv("http_proxy"),
+                        NULL);
+  g_free(self->cachedir);
+  osm_gps_map_add_button((OsmGpsMap*)self->map,0, 150, self->zoom_out);
+  osm_gps_map_add_button((OsmGpsMap*)self->map,720, 150, self->zoom_in);
+  	g_signal_connect (self->map, "button-press-event",
+                      G_CALLBACK (map_button_press_cb),self);
+ 	g_signal_connect (self->map, "button-release-event",
+                    G_CALLBACK (map_button_release_cb), self);
+  gtk_container_add (GTK_CONTAINER (self->map_win),self->map);
+  
+}
+gboolean
+map_button_release_cb (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
+
+     AnalyzerView *self = (AnalyzerView *)user_data;
+     if(user_data == NULL){ return FALSE;}
+      DEBUG_BEGIN();
+    float lat,lon;
+   // GtkEntry *entry = GTK_ENTRY(user_data);
+    OsmGpsMap *map = OSM_GPS_MAP(widget);
+
+    g_object_get(map, "latitude", &lat, "longitude", &lon, NULL);
+    DEBUG_END();
+    return FALSE;
+
+
+    }
+
+gboolean map_button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
+      AnalyzerView *self = (AnalyzerView *)user_data;
+      int zoom = 0;
+      coord_t coord;
+      if(user_data ==NULL){
+	return FALSE;}
+      DEBUG_BEGIN();
+      
+       OsmGpsMap *map = OSM_GPS_MAP(widget);
+       
+ if ( (event->button == 1) && (event->type == GDK_BUTTON_PRESS) )
+    {
+      coord = osm_gps_map_get_co_ordinates(map, (int)event->x, (int)event->y);
+      	if(event->x < 80 && (event->y > 150 && event->y < 240)){
+
+	  DEBUG("ZOOM OUT");
+	    g_object_get(self->map, "zoom", &zoom, NULL);
+	    osm_gps_map_set_zoom((OsmGpsMap*)self->map, zoom-1);
+	}
+
+	 if(event->x > 720 && (event->y > 150 && event->y < 240)){
+	DEBUG("ZOOM IN");
+	g_object_get(self->map, "zoom", &zoom, NULL);
+	osm_gps_map_set_zoom((OsmGpsMap*)self->map, zoom+1);
+	}
+      
+    }
+ 
+      DEBUG_END();
+       return FALSE;
+}
+
+static void analyzer_view_btn_map_clicked(
+		GtkWidget *button,
+		gpointer user_data)
+{
+  AnalyzerViewTrack *track = NULL;
+  AnalyzerView *self = (AnalyzerView *)user_data;
+
+  DEBUG_BEGIN();
+  
+
+  gtk_widget_show_all(self->map_win);
+  osm_gps_map_set_mapcenter(OSM_GPS_MAP(self->map),self->lat, self->lon,14);
+  DEBUG_END();
+  
+}
 static gchar *analyzer_view_choose_file_name(AnalyzerView *self)
 {
 	HildonFileSystemModel *fs_model = NULL;
@@ -1591,6 +1723,10 @@ static void analyzer_view_add_track_point(
 	}
 
 	track_segment = (AnalyzerViewTrackSegment *)track->track_segments->data;
+
+	osm_gps_map_draw_gps(OSM_GPS_MAP(self->map),parser_waypoint->latitude,parser_waypoint->longitude,0);
+	self->lat = parser_waypoint->latitude;
+	self->lon = parser_waypoint->longitude;
 	waypoint = g_new0(AnalyzerViewWaypoint, 1);
 
 	/* Copy the data from the parser waypoint to the analyzer view
@@ -2119,6 +2255,7 @@ static void analyzer_view_show_track_information(
 		gtk_label_set_text(GTK_LABEL(self->info_labels
 				[ANALYZER_VIEW_INFO_LABEL_NAME][1]),
 				track->name);
+	gtk_window_set_title ( GTK_WINDOW (self->map_win), track->name);	
 	} else {
 		gtk_label_set_text(GTK_LABEL(self->info_labels
 				[ANALYZER_VIEW_INFO_LABEL_NAME][1]),
