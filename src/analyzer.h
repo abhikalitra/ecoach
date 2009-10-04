@@ -73,7 +73,8 @@ typedef struct _AnalyzerView {
 	GConfHelperData *gconf_helper;
 
 	GtkWidget *btn_back;
-
+  
+	GtkWidget *map_win;
 	gchar *default_folder_name;
 
 	/* Following members are created when the view is shown and destroyed
@@ -82,6 +83,7 @@ typedef struct _AnalyzerView {
 	GtkWidget *win;
 	GtkWidget *vbox;
 	GtkWidget *main_table;
+	GtkWidget *btn_map;
 	GtkWidget *btn_open;
 	GtkWidget *btn_track_prev;
 	GtkWidget *btn_track_next;
@@ -127,6 +129,16 @@ typedef struct _AnalyzerView {
 	gboolean show_heart_rate;
 
 	gboolean metric;
+	
+	/*map */
+	const char *friendly_name;
+	char *cachedir;
+	gboolean fullpath;
+	gint map_provider;
+	GtkWidget *map;
+	gdouble lat,lon;
+	GdkPixbuf *zoom_in;
+	GdkPixbuf *zoom_out;
 	/* Data that is parsed from tracks */
 
 	/**
