@@ -60,6 +60,10 @@ typedef enum _EcgDataConnectionStatus {
 	ECG_DATA_DISCONNECTING
 } EcgDataConnectionStatus;
 
+typedef enum _HRMName{
+	FRWD,
+	ZEPHYR
+} HRMName;
 /**
  * @brief Struct to hold data for a callback
  */
@@ -179,6 +183,9 @@ struct _EcgData {
 	GMutex *connection_status_mutex;
 	
 	gint hr;
+	
+	gchar *bluetooth_name;
+	HRMName *hrm_name;
 };
 
 /**
