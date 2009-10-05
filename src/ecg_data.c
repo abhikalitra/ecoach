@@ -57,6 +57,7 @@
 #define ECG_DATA_POLLING_STOP_CHECK_INTERVAL	15
 #define ECG_DATA_READ_BUFFER_SIZE		1024
 #define FRWD_PACKET_SIZE			93
+#define ZEPHYR_PACKET_SIZE			60
 /****************************************************************************
  * Private function prototypes                                              *
  ****************************************************************************/
@@ -75,6 +76,7 @@ static void ecg_data_disconnect_bluetooth(EcgData *self);
 static void ecg_data_wait_for_disconnect(EcgData *self);
 static gboolean ecg_data_setup_serial_pipe(EcgData *self, GError **error);
 static gboolean frwd_parse_heartrate(EcgData *self,gchar* frwd);
+static gboolean zephyr_parse_heartrate(EcgData *self,gchar* zephyr);
 /**
  * @brief Remove unnecessary voltage data from the array.
  *
@@ -212,6 +214,18 @@ gboolean ecg_data_add_callback_ecg(
 	{
 		DEBUG_LONG("First callback added. Connecting to ECG monitor");
 		first = TRUE;
+		self->bluetooth_name = gconf_helper_get_value_string_with_default(self->gconf_helper,ECGC_BLUETOOTH_NAME,"");
+		if(g_strrstr(self->bluetooth_name,"HXM") != NULL)
+		{
+		 self->hrm_name = ZEPHYR; 
+		 DEBUG_LONG("ZEPHYR HRM attached");
+		}
+		
+		if(g_strrstr(self->bluetooth_name,"FRWD") != NULL)
+		{
+		 self->hrm_name = FRWD;
+		  DEBUG_LONG("FRWD HRM attached");
+		}
 	}
 
 	if(first)
@@ -410,27 +424,10 @@ static void ecg_data_process(EcgData *self)
 	g_return_if_fail(self != NULL);
 
 	DEBUG_BEGIN();
-	
-	/*gint i;
-	gint offset = 0;
-	gint syke = 0;
-	
-	gchar *pointer = g_strstr_len((const gchar *)self->buffer->data, self->buffer->len, "FRWD");
-
-	DEBUG("Pointer: %p, data: %p", pointer, 
-	      self->buffer->data);
-	
-	if(pointer != NULL){
-		
-		offset = pointer - (gchar *)self->buffer->data;	
-		ecg_data_pop(self,offset,NULL);
-		frwd_parse_heartrate(self,pointer);
-		ecg_data_invoke_callbacks(self,self->hr);
-		}
-	ecg_data_pop(self,93,NULL);
-	*/
 	gint offset = 0;
 
+	if(self->hrm_name == FRWD)
+	{
 	while(self->buffer->len > 0)
 	{
 		gchar *pointer = g_strstr_len((const gchar *)self->buffer->data,
@@ -458,6 +455,41 @@ static void ecg_data_process(EcgData *self)
 			break;
 		}
 		/* Continue until the buffer is empty */
+	}
+	}
+	if(self->hrm_name == ZEPHYR){
+	  
+	  while(self->buffer->len > 0)
+	{
+		gchar begin_char[] = {0x02, '\0'};
+		gchar *pointer = g_strstr_len((const gchar *)self->buffer->data,
+					       self->buffer->len,&begin_char);
+		if(!pointer)
+		{
+			/* No ZEPHYR data. Clear buffer and wait for more data. */
+			ecg_data_pop(self, self->buffer->len, NULL);
+			break;
+		}
+
+		/* Remove non-ZEPHYR data from the beginning of the buffer */
+		offset = pointer - (gchar *)self->buffer->data;
+		if(offset > 0)
+		ecg_data_pop(self, offset, NULL);
+
+		if(zephyr_parse_heartrate(self, pointer))
+		{
+			/* Remove parsed data */
+			ecg_data_pop(self, ZEPHYR_PACKET_SIZE,NULL);
+		}
+		else {
+			/*Wait for more data */
+			break;
+		}
+		/* Continue until the buffer is empty */
+	}
+	  
+	  
+	  
 	}
 
 	DEBUG_END();
@@ -1493,18 +1525,25 @@ static gboolean frwd_parse_heartrate(EcgData *self,gchar* frwd){
 	
 	if(value < 235 && value > 20)
 	self->hr = value;
-	/*
-	gchar *decryp = g_strndup(frwd + 51, 6);
-	for(i = 0; i < 6; i++)
-	{
-		decryp[i] /= 2;
-	}
-	value = strtol(decryp, NULL, 10);
-
-	*/
 	ecg_data_invoke_callbacks(self,self->hr);
 	g_free(decrypt);
 	DEBUG_END();
 	return TRUE;
 
+}
+static gboolean zephyr_parse_heartrate(EcgData *self,gchar* zephyr){
+  
+	int i;
+	gint value = 0;
+	DEBUG_BEGIN();
+	if(self->buffer->len < ZEPHYR_PACKET_SIZE)
+	{
+		DEBUG_END();
+		return FALSE;
+	}
+	self->hr = zephyr[12];
+	ecg_data_invoke_callbacks(self,self->hr);
+	DEBUG_END();
+	return TRUE;
+  
 }
