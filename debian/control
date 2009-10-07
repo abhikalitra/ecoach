@@ -12,9 +12,8 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: eCoach is an application for managing sport and exercise activities.
  eCoach is an application for managing sport and exercise activities.
- Supports FRWD B600 heart rate monitor.
 XB-Maemo-Display-Name: eCoach
-XB-Maemo-Upgrade-Description: * Added Min/Km calculation,fixed bugs 
+XB-Maemo-Upgrade-Description: * Maemo-optified, added support for Zephyr HXM hrm
 XB-Maemo-Icon-26:
  iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAAAXNSR0IArs4c
  6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0
