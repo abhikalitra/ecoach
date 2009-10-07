@@ -573,6 +573,22 @@ static void map_view_create_data(MapView *self){
   			_("Heart rate"),
   			_("Wait..."),
   			0, 2);
+
+  self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_LOW] =
+  map_view_load_image(GFXDIR "ec_icon_heart_yellow.png");
+
+  self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_GOOD] =
+  map_view_load_image(GFXDIR "ec_icon_heart_green.png");
+
+  self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_HIGH] =
+  map_view_load_image(GFXDIR "ec_icon_heart_red.png");
+
+  self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_NOT_CONNECTED] =
+  map_view_load_image(GFXDIR "ec_icon_heart_grey.png");
+
+  ec_button_set_icon_pixbuf(EC_BUTTON(self->info_heart_rate),
+  self->pxb_hrm_status[MAP_VIEW_HRM_STATUS_NOT_CONNECTED]);
+
 			
   g_signal_connect(G_OBJECT(self->data_map_event), "button-press-event",
                       G_CALLBACK (hide_data),self);
@@ -1783,8 +1799,8 @@ static HildonAppMenu *create_menu (MapView *self)
 
   hildon_app_menu_append (menu, GTK_BUTTON (about_button));
   g_signal_connect_after (about_button, "clicked", G_CALLBACK (about_dlg), self);
-  help_button = gtk_button_new_with_label ("Help");
-  hildon_app_menu_append (menu, GTK_BUTTON (help_button));
+  /*help_button = gtk_button_new_with_label ("Help");
+  hildon_app_menu_append (menu, GTK_BUTTON (help_button));*/
   gtk_widget_show_all (GTK_WIDGET (menu));
 
   return menu;
