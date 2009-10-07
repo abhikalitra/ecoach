@@ -653,7 +653,7 @@ class Ec:Button from Gtk:Drawing:Area
 			total_w += icon_w + 10; /* Add 10 pixel padding */
 			icon_h = gdk_pixbuf_get_height(pxb);
 
-			x = (self_w - w) / 2 + 10;
+			x = (self_w - rect.width + 10) / 2;
 
 			/* The upper coordinate of the lower half of the
 			 * background image is in the halfway of the widget */
@@ -661,7 +661,6 @@ class Ec:Button from Gtk:Drawing:Area
 
 			/* Add the y coordinate of the text within the
 			 * half-of-the-background-image block */
-			y += (h / 2 - icon_w) / 2;
 
 			if(is_down)
 			{
