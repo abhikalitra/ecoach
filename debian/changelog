@@ -1,6 +1,9 @@
 ecoach (1.54) unstable; urgency=low
 
   * Maemo-optified
+  * Support for Zephyr HXM heartrate monitor
+  * Added heart rate level indicator in dataview
+  * Added feature to show past GPX route on the map in analyze view
 
  -- Sampo Savola <samposav@paju.oulu.fi>  Mon, 28 Sep 2009 16:12:10 +0300
 
