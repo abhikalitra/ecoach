@@ -2582,19 +2582,6 @@ static void analyzer_view_graphs_toggle_button(
 		{
 			graph_count++;
 		}
-		if(graph_count == 2)
-		{
-			/* Only two graphs can be displayed at the same
-			 * time */
-			ec_error_show_message_error_ask_dont_show_again(
-					_("At most two graphs can be shown\n"
-						"at the same time"),
-					ECGC_ANALYZER_VIEW_GRAPH_DIALOG_SHOWN,
-					FALSE);
-
-			DEBUG_END();
-			return;
-		}
 		*state = TRUE;
 		ec_button_set_bg_image(EC_BUTTON(button),
 				EC_BUTTON_STATE_RELEASED,
