@@ -1147,7 +1147,7 @@ static gboolean ecg_data_connect_bluetooth(EcgData *self, GError **error)
 		g_message("Error: %s", strerror(errno));
 		/* Connecting failed for all ports. */
 		g_set_error(error, EC_ERROR, EC_ERROR_BLUETOOTH,
-				"No Bluetooth ports available");
+				"Heart rate monitor not connected");
 		goto connection_failure;
 	}
 
