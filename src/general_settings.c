@@ -135,13 +135,23 @@ void general_settings_show(GeneralSettings *self){
 		self->gconf_helper,
 		ECGC_BLUETOOTH_NAME,
 		"none");
- DEBUG("HRMKEY %s",hrm_key);
-  hrm_device = g_strndup(hrm_key, 4);
-  
-  self->device_label = gtk_label_new(hrm_device);
-  gtk_widget_modify_font(self->device_label, desc);
+
+  if(hrm_key == NULL || (strcmp(hrm_key, "") == 0))  
+  {
+  self->device_label = gtk_label_new("none");
+  }
+  else
+  {
+    hrm_device = g_strndup(hrm_key, 4);
+    self->device_label = gtk_label_new(hrm_device);
+    g_free(hrm_device);
+  }
   g_free(hrm_key);
-  g_free(hrm_device);
+  
+  
+  gtk_widget_modify_font(self->device_label, desc);
+
+ 
    
   self->weight_event = gtk_event_box_new();
   gtk_event_box_set_visible_window(GTK_EVENT_BOX(self->weight_event),FALSE);
