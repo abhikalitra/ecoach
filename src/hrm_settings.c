@@ -146,6 +146,14 @@ void hrm_settings_show(GeneralSettings *app_data)
 	}
 	if(response == GTK_RESPONSE_ACCEPT)
 	{
+	  if(priv->bluetooth_address !=NULL && priv->bluetooth_name !=NULL){
+		
+		if(strcmp(priv->bluetooth_name, "") != 0)
+		{
+	    	gchar* bt_name = g_strndup(priv->bluetooth_name, 4);
+		gtk_label_set_text(GTK_LABEL(app_data->device_label),bt_name);
+		g_free(bt_name);
+		}
 		app_data->hrm_data->bluetooth_address = priv->bluetooth_address;
 		priv->bluetooth_address = NULL;
 		app_data->hrm_data->bluetooth_name = priv->bluetooth_name;
@@ -160,7 +168,8 @@ void hrm_settings_show(GeneralSettings *app_data)
 				app_data->gconf_helper,
 				ECGC_BLUETOOTH_NAME,
 				app_data->hrm_data->bluetooth_name);
-				
+	
+	  }
 	        break;
 	}
 	}while (1);
@@ -239,6 +248,9 @@ static void hrm_settings_create_dialog(GeneralSettings *app_data)
 		gtk_label_set_text(
 				GTK_LABEL(priv->lbl_bt_addr),
 				_("<no device>"));
+	  gtk_dialog_set_response_sensitive(GTK_DIALOG(priv->dialog),
+					    RESPONSE_REMOVE_DEVICE,
+					    FALSE);
 	} else {
 		gtk_label_set_text(
 				GTK_LABEL(priv->lbl_bt_addr),
@@ -346,13 +358,20 @@ static void hrm_settings_set_dialog_sensitive(
 			
 	gtk_dialog_set_response_sensitive(
 			GTK_DIALOG(priv->dialog),
-			RESPONSE_REMOVE_DEVICE,
-			sensitive);
-
-	gtk_dialog_set_response_sensitive(
-			GTK_DIALOG(priv->dialog),
 			GTK_RESPONSE_REJECT,
 			sensitive);
+	if(priv->bluetooth_address == NULL || (strcmp(priv->bluetooth_address, "") == 0)){
+	gtk_dialog_set_response_sensitive(
+			GTK_DIALOG(priv->dialog),
+			RESPONSE_REMOVE_DEVICE,
+			FALSE);
+	}
+	else{
+	  gtk_dialog_set_response_sensitive(
+			GTK_DIALOG(priv->dialog),
+			RESPONSE_REMOVE_DEVICE,
+			TRUE);
+	}
 
 	DEBUG_END();
 }
@@ -491,17 +510,12 @@ static void hrm_settings_device_chosen(
 	gtk_label_set_text(
 			GTK_LABEL(priv->lbl_bt_addr),
 			priv->bluetooth_address);
-	gchar* bt_name = g_strndup(priv->bluetooth_name, 4);
-			  
-	gtk_label_set_text(
-			GTK_LABEL(app_data->device_label),
-			bt_name);
-	g_free(bt_name);
+
+	
 			
 
 device_selection_finished:
 	hrm_settings_disconnect_dbus_signal(app_data);
-
 	/* Disable the buttons while the discovery dialog is shown */
 	hrm_settings_set_dialog_sensitive(
 			priv,
@@ -512,11 +526,7 @@ device_selection_finished:
 static void hrm_remove(GeneralSettings *app_data){
   
     DEBUG_BEGIN();
-     
- /*   g_free(app_data->hrm_data->bluetooth_address);
-    app_data->hrm_data->bluetooth_address = NULL;
-    g_free(app_data->hrm_data->bluetooth_name);
-    app_data->hrm_data->bluetooth_name = NULL;*/
+    
     gconf_helper_set_value_string(
 				app_data->gconf_helper,
 				ECGC_BLUETOOTH_ADDRESS,
@@ -526,7 +536,13 @@ static void hrm_remove(GeneralSettings *app_data){
 		    app_data->gconf_helper,
 		    ECGC_BLUETOOTH_NAME,
 		    "");
-app_data->hrm_data->bluetooth_address = NULL;	    
- app_data->hrm_data->bluetooth_name = NULL;		    
-    DEBUG_END();
+  app_data->hrm_data->settings_priv->bluetooth_address = NULL;	    
+  app_data->hrm_data->settings_priv->bluetooth_name = NULL;
+  gtk_label_set_text(GTK_LABEL(app_data->hrm_data->settings_priv->lbl_name),_("<no name>"));
+  gtk_label_set_text(GTK_LABEL(app_data->hrm_data->settings_priv->lbl_bt_addr),_("<no device>"));
+  gtk_dialog_set_response_sensitive(GTK_DIALOG(app_data->hrm_data->settings_priv->dialog),
+				    RESPONSE_REMOVE_DEVICE,FALSE);
+  gtk_label_set_text(GTK_LABEL(app_data->device_label),"none");
+  
+  DEBUG_END();
 }
