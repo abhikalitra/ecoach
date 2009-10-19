@@ -1262,7 +1262,7 @@ static void analyzer_view_show_last_activity(gpointer user_data,gchar* file_name
 	DEBUG_BEGIN(); 
 	
 	//file_name = analyzer_view_choose_file_name(self);
-	if(!file_name)
+	if(!file_name || !g_strcmp0(file_name,""))
 	{
 		DEBUG_END();
 		return;
