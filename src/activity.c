@@ -1,7 +1,7 @@
-/*
+  /*
  *  eCoach
  *
- *  Copyright (C) 2008  Jukka Alasalmi
+ *  Copyright (C) 2009 Sampo Savola, Jukka Alasalmi
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -211,6 +211,7 @@ ActivityDescription *activity_chooser_choose_activity(ActivityChooser *self)
 		file_name = activity_chooser_dialog_choose_file_name(
 					self,
 					chooser_dialog);
+
 	} while(!file_name);
 
 	activity_description = activity_description_new(
@@ -443,29 +444,7 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 	}
        hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (chooser_dialog->button),HILDON_TOUCH_SELECTOR (chooser_dialog->selector));
 
-
-/*
-	caption = hildon_caption_new(
-			size_group,
-			_("Target heart rate type"),
-			chooser_dialog->cmb_pulse_ranges,
-			NULL,
-			HILDON_CAPTION_OPTIONAL);
-*/
 	gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->button, FALSE, FALSE, 0);
-
-
-
-	//chooser_dialog->chk_save_dfl = gtk_check_button_new();
-
-/*
-	caption = hildon_caption_new(
-			size_group,
-			_("Save as default"),
-			chooser_dialog->chk_save_dfl,
-			NULL,
-			HILDON_CAPTION_OPTIONAL);
-*/
 
 	chooser_dialog->chk_save_dfl = hildon_check_button_new(HILDON_SIZE_FINGER_HEIGHT);
 	gtk_button_set_label (GTK_BUTTON ( chooser_dialog->chk_save_dfl), "Save as default");
@@ -504,11 +483,13 @@ static gchar *activity_chooser_dialog_choose_file_name(
 	gchar *date_str = NULL;
 	gchar *dfl_fname = NULL;
 	gint result;
-
+	gint i = 1;
 	g_return_val_if_fail(self != NULL, NULL);
 	g_return_val_if_fail(chooser_dialog != NULL, NULL);
 	DEBUG_BEGIN();
-
+	gchar* extension;
+	extension = g_strdup_printf(".gpx");
+	
 	activity_name = gtk_entry_get_text(
 			GTK_ENTRY(chooser_dialog->entry_activity_name));
 
@@ -516,9 +497,9 @@ static gchar *activity_chooser_dialog_choose_file_name(
 
 	if(strcmp(activity_name, "") == 0)
 	{
-		dfl_fname = g_strdup_printf("%s.gpx", date_str);
+		dfl_fname = g_strdup_printf("%s", date_str);
 	} else {
-		dfl_fname = g_strdup_printf("%s-%s.gpx", date_str,
+		dfl_fname = g_strdup_printf("%s-%s", date_str,
 				activity_name);
 	}
 
@@ -535,13 +516,6 @@ static gchar *activity_chooser_dialog_choose_file_name(
 		DEBUG_END();
 		return NULL;
 	}
-
-	file_dialog = hildon_file_chooser_dialog_new_with_properties(
-			GTK_WINDOW(self->parent_window),
-			"file_system_model", fs_model,
-			"action", GTK_FILE_CHOOSER_ACTION_SAVE,
-			NULL);
-
 	gtk_file_chooser_set_current_folder(
 			GTK_FILE_CHOOSER(file_dialog),
 			self->default_folder_name);
@@ -550,29 +524,19 @@ static gchar *activity_chooser_dialog_choose_file_name(
 			GTK_FILE_CHOOSER(file_dialog),
 			dfl_fname);
 
-	g_free(dfl_fname);
-
-	gtk_widget_show_all(file_dialog);
-	result = gtk_dialog_run(GTK_DIALOG(file_dialog));
-
-	if(result == GTK_RESPONSE_CANCEL)
+	file_name =  g_strdup_printf("%s/%s%s",self->default_folder_name,dfl_fname,extension);
+	DEBUG("%s",file_name);
+	while(g_file_test(file_name,G_FILE_TEST_EXISTS))
 	{
-		DEBUG_LONG("User cancelled the operation");
-		gtk_widget_destroy(file_dialog);
-		DEBUG_END();
-		return NULL;
+	g_free(file_name);
+	file_name =  g_strdup_printf("%s/%s-%d%s",self->default_folder_name,dfl_fname,i,extension);
+	DEBUG("%s",file_name);
+	i++;
 	}
-
-	gconf_helper_set_value_string(
-			self->gconf_helper,
-			ECGC_DEFAULT_FOLDER,
-			gtk_file_chooser_get_current_folder(
-				GTK_FILE_CHOOSER(file_dialog)));
-
-	file_name = gtk_file_chooser_get_filename(
-			GTK_FILE_CHOOSER(file_dialog));
-
-	gtk_widget_destroy(file_dialog);
+	gconf_helper_set_value_string_simple(self->gconf_helper,LAST_ACTIVITY,file_name);
+	g_free(extension);
+	g_free(dfl_fname);
+	
 	DEBUG_END();
 	return file_name;
 }
