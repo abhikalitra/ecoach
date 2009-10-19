@@ -933,15 +933,19 @@ static void map_view_heart_rate_changed(
 
 	if(heart_rate >= 0)
 	{
+	if(gtk_window_is_active(GTK_WINDOW(self->data_win)))
+	{
 		text = g_strdup_printf(_("%d bpm"), (gint)heart_rate);
+		
+		
 		ec_button_set_label_text(
 				EC_BUTTON(self->info_heart_rate),
 	 			text);
-		gtk_label_set_text(GTK_LABEL(self->info_heart_rate),text);
+		//gtk_label_set_text(GTK_LABEL(self->info_heart_rate),text);
 		g_free(text);
 
 		map_view_update_heart_rate_icon(self, heart_rate);
-
+	}
 		if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STARTED)
 		{
 			self->heart_rate_count++;
