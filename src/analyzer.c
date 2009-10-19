@@ -239,6 +239,7 @@ typedef struct _AnalyzerViewPixbufDetails {
  * Private function prototypes                                               *
  *****************************************************************************/
 
+static void analyzer_view_show_last_activity(gpointer user_data,gchar* file_name);
 /**
  * @brief Create the info view
  *
@@ -666,6 +667,18 @@ void analyzer_view_show(AnalyzerView *self)
 
 	self->main_table = gtk_table_new(5,2,TRUE);
 	
+	
+	/* Check units to use */
+	if (gconf_helper_get_value_bool_with_default(self->gconf_helper,
+	    USE_METRIC, TRUE))
+	{
+		self->metric=TRUE;
+	}
+	else
+	{
+		self->metric=FALSE;
+	}
+	
 
 	/* Open button */
 	self->btn_open = ec_button_new();
@@ -811,18 +824,15 @@ void analyzer_view_show(AnalyzerView *self)
 	gtk_fixed_put(GTK_FIXED(self->main_widget), weight_event,
 			18, 85);
 
-
-	//gtk_table_attach_defaults (GTK_TABLE (self->main_table),self->pannable, 0,5, 1, 3);
-
-	gtk_container_add (GTK_CONTAINER (self->win),self->main_widget);
-
-
-	//gtk_widget_show_all(self->main_widget);
-
+	/*Open last activity if there is a one */
 	
+	gtk_container_add (GTK_CONTAINER (self->win),self->main_widget);	
 	gtk_widget_show_all(self->win);
 	self->current_view = 0;
-
+	gchar *file_name = gconf_helper_get_value_string_with_default(self->gconf_helper,LAST_ACTIVITY,"");
+	DEBUG("%s",file_name);
+	analyzer_view_show_last_activity(self,file_name);
+	
 	DEBUG_END();
 }
 
@@ -1236,7 +1246,83 @@ static void analyzer_view_destroy_widget(
 
 	DEBUG_END();
 }
+static void analyzer_view_show_last_activity(gpointer user_data,gchar* file_name){
+  
+  	GSList *temp = NULL;
+	GSList *temp2 = NULL;
+	AnalyzerViewTrack *track = NULL;
+	AnalyzerViewTrackSegment *track_segment = NULL;
+	GpxParserStatus parser_status;
+	//gchar *file_name = NULL;
+	GError *error = NULL;
 
+	AnalyzerView *self = (AnalyzerView *)user_data;
+
+	g_return_if_fail(self != NULL);
+	DEBUG_BEGIN(); 
+	
+	//file_name = analyzer_view_choose_file_name(self);
+	if(!file_name)
+	{
+		DEBUG_END();
+		return;
+	}
+
+	analyzer_view_clear_data(self);
+	osm_gps_map_clear_gps(OSM_GPS_MAP(self->map));
+	parser_status = gpx_parser_parse_file(
+			file_name,
+			analyzer_view_gpx_parser_callback,
+			self,
+			&error);
+
+	if(parser_status == GPX_PARSER_STATUS_PARTIALLY_OK)
+	{
+		ec_error_show_message_error_printf(
+				_("Some of the data could not be parsed:\n\n"
+					"%s"),
+				error->message);
+		g_error_free(error);
+	} else if(parser_status == GPX_PARSER_STATUS_FAILED) {
+		ec_error_show_message_error_printf(
+				"The file could not be opened:\n\n"
+					"%s",
+				error->message);
+		g_error_free(error);
+		DEBUG_END();
+		return;
+	}
+	if(self->tracks)
+	{
+
+		self->tracks = g_slist_reverse(self->tracks);
+
+		for(temp = self->tracks; temp; temp = g_slist_next(temp))
+		{
+			track = (AnalyzerViewTrack *)temp->data;
+			track->track_segments = g_slist_reverse(
+					track->track_segments);
+			for(temp2 = track->track_segments; temp2;
+					temp2 = g_slist_next(temp2))
+			{
+				track_segment = (AnalyzerViewTrackSegment *)
+					temp2->data;
+				track_segment->track_points = g_slist_reverse(
+						track_segment->track_points);
+				track_segment->heart_rates = g_slist_reverse(
+					track_segment->heart_rates);
+			}
+		}
+
+		analyzer_view_show_track_information(
+				self,
+				(AnalyzerViewTrack *)self->tracks->data);
+	}
+
+	g_free(file_name);
+	DEBUG_END();
+  
+}
 static void analyzer_view_btn_open_clicked(
 		GtkWidget *button,
 		gpointer user_data)
@@ -1563,15 +1649,7 @@ static gchar *analyzer_view_choose_file_name(AnalyzerView *self)
 
 	gtk_widget_destroy(file_dialog);
 	//analyzer_view_set_units(self);
-	if (gconf_helper_get_value_bool_with_default(self->gconf_helper,
-	    USE_METRIC, TRUE))
-	{
-		self->metric=TRUE;
-	}
-	else
-	{
-		self->metric=FALSE;
-	}
+	
 
 	DEBUG_END();
 	return file_name;
