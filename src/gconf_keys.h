@@ -70,5 +70,6 @@
 #define MAP_SOURCE		ECGC_BASE_DIR "/map_source"
 #define FIRST_BOOT		ECGC_BASE_DIR "/first_boot"
 #define NOTIFY_USER		ECGC_BASE_DIR "/notify_user"
+#define LAST_ACTIVITY		ECGC_BASE_DIR "/last_activity"
 
 #endif /* _GCONF_KEYS_H */
