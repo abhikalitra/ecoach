@@ -416,6 +416,8 @@ gboolean map_view_setup_activity(
 
 	self->heart_rate_limit_low = heart_rate_limit_low;
 	self->heart_rate_limit_high = heart_rate_limit_high;
+	DEBUG("HR LIMIT LOW %d", self->heart_rate_limit_low);
+	DEBUG("HR LIMIT HIGH %d", self->heart_rate_limit_high);
 	self->add_calendar = add_calendar;
 
 	DEBUG_END();
@@ -657,7 +659,13 @@ if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_PAUSED)
 	gtk_widget_show_all(self->data_rec_selected_event);
 	gtk_widget_show_all(self->data_pause_selected_event);
 		}
+if(self->hide_buttons_timeout_id)
+{
+	g_source_remove(self->hide_buttons_timeout_id);
 }
+
+}
+
 void map_view_stop(MapView *self)
 {
 	g_return_if_fail(self != NULL);
