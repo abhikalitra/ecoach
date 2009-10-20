@@ -1,7 +1,7 @@
 /*
  *  eCoach
  *
- *  Copyright (C) 2008  Jukka Alasalmi
+ *  Copyright (C) 2009 Sampo Savola  Jukka Alasalmi
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
