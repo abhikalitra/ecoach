@@ -235,6 +235,9 @@ struct _MapView {
 	 GtkWidget *data_rec_btn_selected;
 	 GtkWidget *data_pause_btn_unselected;
 	 GtkWidget *data_pause_btn_selected;
+	 
+	 /*For personal data view */
+	 GtkWidget *personal_win;
 
 };
 
