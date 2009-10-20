@@ -146,6 +146,7 @@ static void data_rec_btn_press_cb(GtkWidget *widget, GdkEventButton *event, gpoi
 static void data_pause_btn_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static void add_note_cb(HildonButton *button, gpointer user_data);
 static void info_speed_clicked(GtkWidget *button, gpointer user_data);
+static void destroy_personal_data_dlg (GtkWidget *widget,GdkEvent  *event,gpointer user_data);
 /*****************************************************************************
  * Function declarations                                                     *
  *****************************************************************************/
@@ -659,13 +660,7 @@ if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_PAUSED)
 	gtk_widget_show_all(self->data_rec_selected_event);
 	gtk_widget_show_all(self->data_pause_selected_event);
 		}
-if(self->hide_buttons_timeout_id)
-{
-	g_source_remove(self->hide_buttons_timeout_id);
 }
-
-}
-
 void map_view_stop(MapView *self)
 {
 	g_return_if_fail(self != NULL);
@@ -1668,7 +1663,9 @@ if(!self->fullscreen){
 	  DEBUG("DATA BUTTON");
 	//  gtk_widget_hide(self->map);
 	  map_view_show_data(self);
-
+	  DEBUG_END();
+	 return FALSE;
+	 
 	}
 
 	if(event->x < 80 && (event->y > 150 && event->y < 240)){
@@ -1966,9 +1963,22 @@ toggle_map_centering(HildonCheckButton *button, gpointer user_data)
 
     DEBUG_END();
 }
+static void destroy_personal_data_dlg (GtkWidget *widget,GdkEvent  *event,gpointer user_data)
+{
+  MapView *self = (MapView *)user_data;
+  DEBUG_BEGIN();
+  gtk_widget_destroy(self->personal_win);
+  if(self->fullscreen){
+      osm_gps_map_show_buttons(OSM_GPS_MAP(self->map));
+      gtk_window_unfullscreen ((GtkWindow*)self->win);
+      gtk_widget_set_size_request(self->map,800,420);
+    self->fullscreen = FALSE;
+  }
+  DEBUG_END();
+}
 static void personal_data_dlg(HildonButton *button, gpointer user_data){
 
-	GtkWidget *win;
+	
 	GtkWidget *fixed;
 	GtkWidget *scale;
 	GtkWidget *anaerobic;
@@ -2000,8 +2010,10 @@ aerobic = gtk_image_new_from_file(GFXDIR "personal_data_button.png");
 weight_control = gtk_image_new_from_file(GFXDIR "personal_data_button.png");
 moder_ex = gtk_image_new_from_file(GFXDIR "personal_data_button.png");
 
-win = hildon_stackable_window_new();
-gtk_window_set_title ( GTK_WINDOW (win), "eCoach >Personal Data");
+self->personal_win = hildon_stackable_window_new();
+g_signal_connect(self->personal_win, "delete-event", G_CALLBACK(destroy_personal_data_dlg), self);
+
+gtk_window_set_title ( GTK_WINDOW (self->personal_win), "eCoach >Personal Data");
 fixed = gtk_fixed_new();
 
 desc = pango_font_description_new();
@@ -2122,8 +2134,8 @@ for(int i=0; i<4;i++){
 }
 
 
-gtk_container_add (GTK_CONTAINER (win),fixed);
-gtk_widget_show_all(win);
+gtk_container_add (GTK_CONTAINER (self->personal_win),fixed);
+gtk_widget_show_all(self->personal_win);
 	DEBUG_END();
 
 }
