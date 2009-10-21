@@ -45,7 +45,7 @@ typedef struct _GeneralSettings{
   gint		weight;
   gint		age;
   gint		height;
-  
+  gint		maxhr;
   GtkWidget *img_personal;
   GtkWidget *img_device;
   GtkWidget *img_connection;
