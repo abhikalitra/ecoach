@@ -228,8 +228,8 @@ ActivityDescription *activity_chooser_choose_activity(ActivityChooser *self)
 //	  activity_description->heart_rate_range_id = gtk_combo_box_get_active(
 //			GTK_COMBO_BOX(chooser_dialog->cmb_pulse_ranges));
 
-      activity_description->heart_rate_range_id = hildon_picker_button_get_active (chooser_dialog->selector);
-
+      activity_description->heart_rate_range_id = hildon_picker_button_get_active (chooser_dialog->button);
+      DEBUG("HR RANGE ID SELECTED: %d", activity_description->heart_rate_range_id);
 	exercise_description = &self->heart_rate_settings->
 		exercise_descriptions[activity_description->
 		heart_rate_range_id];
@@ -238,7 +238,8 @@ ActivityDescription *activity_chooser_choose_activity(ActivityChooser *self)
 		exercise_description->low;
 	activity_description->heart_rate_limit_high =
 		exercise_description->high;
-
+       DEBUG("%d",activity_description->heart_rate_limit_low);
+       DEBUG("%d",activity_description->heart_rate_limit_high);
 	if(hildon_check_button_get_active(HILDON_CHECK_BUTTON(
 					chooser_dialog->chk_add_calendar)))
 	{
