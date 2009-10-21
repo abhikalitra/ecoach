@@ -26,6 +26,20 @@ Copyright (C) 2009, Sampo Savola
 #include "hrm_settings.h"
 #define GFXDIR DATADIR		"/pixmaps/" PACKAGE_NAME "/"
 
+
+typedef enum _EcExerciseTypes {
+	EC_EXERCISE_TYPE_AEROBIC = 0,
+	EC_EXERCISE_TYPE_ANAEROBIC,
+	EC_EXERCISE_TYPE_WEIGHT_CONTROL,
+	EC_EXERCISE_TYPE_MODERATE_ACTIVITY,
+	EC_EXERCISE_TYPE_COUNT
+} EcExerciseTypes;
+typedef struct _EcActivityType {
+
+    gint hrmax;
+    gint hrmin;
+} EcActivityType;
+
 static void pick_weight(GtkWidget *widget, GdkEvent *event,gpointer user_data);
 static void pick_age(GtkWidget *widget, GdkEvent *event,gpointer user_data);
 static void pick_height(GtkWidget *widget, GdkEvent *event,gpointer user_data);
@@ -37,6 +51,7 @@ static void weight_selected(HildonTouchSelector * selector, gint column, gpointe
 static void age_selected(HildonTouchSelector * selector, gint column, gpointer user_data);
 static void height_selected(HildonTouchSelector * selector, gint column, gpointer user_data);
 static void update_interval_selected(HildonTouchSelector * selector, gint column, gpointer user_data);
+static void general_settings_destroy(GtkWidget *btn,GdkEvent  *event, gpointer user_data);
 GeneralSettings* general_settings_new(
 		GtkWindow *parent_window,
 		GConfHelperData *gconf_helper,DBusGConnection *dbus_system){
@@ -59,7 +74,108 @@ GeneralSettings* general_settings_new(
 	DEBUG_END();
 	return self;
 }
+static void general_settings_destroy(GtkWidget *btn,GdkEvent  *event, gpointer user_data)
+{
+ GeneralSettings *self = (GeneralSettings *)user_data; 
+ g_return_if_fail(self != NULL);
+ gint i;
+ DEBUG_BEGIN();
+ /*Calculate HR levels based on User weight,age and height */
+ 
+ DEBUG("IKA %d", self->age);
+ self->maxhr = 206.3-(0.711*self->age);
+ gconf_helper_set_value_int_simple(self->gconf_helper,ECGC_HR_MAX,self->maxhr);
+ DEBUG("MAXHR %d",self->maxhr);
 
+ gchar *gconf_key = NULL;
+ for(i = 0; i < EC_EXERCISE_TYPE_COUNT; i++)
+	{
+		
+	   switch(i){
+	     case EC_EXERCISE_TYPE_ANAEROBIC:
+	       
+		gconf_key = g_strdup_printf("%s/%s",
+				ECGC_EXERC_ANAEROBIC_DIR,
+				ECGC_HR_LIMIT_LOW);
+		gconf_helper_set_value_int(
+				self->gconf_helper,
+				gconf_key,
+				self->maxhr*0.8);
+		g_free(gconf_key);
+		gconf_key = g_strdup_printf("%s/%s",
+				ECGC_EXERC_ANAEROBIC_DIR,
+				ECGC_HR_LIMIT_HIGH);
+
+		gconf_helper_set_value_int(
+				self->gconf_helper,
+				gconf_key,
+				self->maxhr*0.9);
+		break;
+	     case EC_EXERCISE_TYPE_AEROBIC:
+	       
+		gconf_key = g_strdup_printf("%s/%s",
+				ECGC_EXERC_AEROBIC_DIR,
+				ECGC_HR_LIMIT_LOW);
+		gconf_helper_set_value_int(
+				self->gconf_helper,
+				gconf_key,
+				self->maxhr*0.7);
+		g_free(gconf_key);
+		gconf_key = g_strdup_printf("%s/%s",
+				ECGC_EXERC_AEROBIC_DIR,
+				ECGC_HR_LIMIT_HIGH);
+
+		gconf_helper_set_value_int(
+				self->gconf_helper,
+				gconf_key,
+				self->maxhr*0.8);
+		break;
+	       case EC_EXERCISE_TYPE_WEIGHT_CONTROL:
+	       
+		gconf_key = g_strdup_printf("%s/%s",
+				ECGC_EXERC_WEIGHT_CTRL_DIR,
+				ECGC_HR_LIMIT_LOW);
+		gconf_helper_set_value_int(
+				self->gconf_helper,
+				gconf_key,
+				self->maxhr*0.6);
+		g_free(gconf_key);
+		gconf_key = g_strdup_printf("%s/%s",
+				ECGC_EXERC_WEIGHT_CTRL_DIR,
+				ECGC_HR_LIMIT_HIGH);
+
+		gconf_helper_set_value_int(
+				self->gconf_helper,
+				gconf_key,
+				self->maxhr*0.7);
+		break;
+		
+	       case EC_EXERCISE_TYPE_MODERATE_ACTIVITY:
+	       
+		gconf_key = g_strdup_printf("%s/%s",
+				ECGC_EXERC_MODERATE_DIR,
+				ECGC_HR_LIMIT_LOW);
+		gconf_helper_set_value_int(
+				self->gconf_helper,
+				gconf_key,
+				self->maxhr*0.5);
+		g_free(gconf_key);
+		gconf_key = g_strdup_printf("%s/%s",
+				ECGC_EXERC_MODERATE_DIR,
+				ECGC_HR_LIMIT_HIGH);
+
+		gconf_helper_set_value_int(
+				self->gconf_helper,
+				gconf_key,
+				self->maxhr*0.6);
+		break;
+	   }
+	}
+ 
+ 
+ gtk_widget_destroy(self->win);
+ DEBUG_END();
+}
 void general_settings_show(GeneralSettings *self){
   
   g_return_if_fail(self != NULL);
@@ -72,6 +188,9 @@ void general_settings_show(GeneralSettings *self){
   self->win = hildon_stackable_window_new();
   gtk_window_set_title ( GTK_WINDOW (self->win), "eCoach >Settings");
   gtk_widget_set_name(GTK_WIDGET(self->win), "mainwindow");
+  g_signal_connect(G_OBJECT(self->win), "delete-event",
+			G_CALLBACK(general_settings_destroy), self);
+  
   
   self->img_personal = gtk_image_new_from_file(GFXDIR "ec_button_personal.png");
   self->img_device = gtk_image_new_from_file(GFXDIR "ec_button_device.png");
@@ -410,8 +529,8 @@ void weight_selected(HildonTouchSelector * selector, gint column, gpointer user_
     DEBUG_BEGIN();
     gchar *current_selection = NULL;
     current_selection = hildon_touch_selector_get_current_text (selector);
-    gint weight = hildon_touch_selector_get_active(selector,column);
-    gconf_helper_set_value_int_simple(self->gconf_helper,USER_WEIGHT,weight);
+    self->weight = hildon_touch_selector_get_active(selector,column);
+    gconf_helper_set_value_int_simple(self->gconf_helper,USER_WEIGHT,self->weight);
     gtk_label_set_text(GTK_LABEL(self->weight_label),current_selection);
     gtk_widget_destroy(self->weight_dialog);
     DEBUG_END();
@@ -425,8 +544,8 @@ void age_selected(HildonTouchSelector * selector, gint column, gpointer user_dat
     DEBUG_BEGIN();
     gchar *current_selection = NULL;
     current_selection = hildon_touch_selector_get_current_text (selector);
-    gint age = hildon_touch_selector_get_active(selector,column);
-    gconf_helper_set_value_int_simple(self->gconf_helper,USER_AGE,age);
+    self->age = hildon_touch_selector_get_active(selector,column);
+    gconf_helper_set_value_int_simple(self->gconf_helper,USER_AGE,self->age);
     gtk_label_set_text(GTK_LABEL(self->age_label),current_selection);
     gtk_widget_destroy(self->age_dialog);
     DEBUG_END();
@@ -439,8 +558,8 @@ void height_selected(HildonTouchSelector * selector, gint column, gpointer user_
     DEBUG_BEGIN();
     gchar *current_selection = NULL;
     current_selection = hildon_touch_selector_get_current_text (selector);
-    gint height = hildon_touch_selector_get_active(selector,column);
-    gconf_helper_set_value_int_simple(self->gconf_helper,USER_HEIGHT,height);
+    self->height = hildon_touch_selector_get_active(selector,column);
+    gconf_helper_set_value_int_simple(self->gconf_helper,USER_HEIGHT,self->height);
     gtk_label_set_text(GTK_LABEL(self->height_label),current_selection);
     gtk_widget_destroy(self->height_dialog);
     DEBUG_END();
