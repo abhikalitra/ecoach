@@ -176,7 +176,7 @@ MapView *map_view_new(
 	self->beat_detector = beat_detector;
 	self->osso = osso;
 	self->track_helper = track_helper_new();
-
+	self->first_location_point_added = FALSE;
 
 
 
@@ -949,7 +949,7 @@ static void map_view_heart_rate_changed(
 
 		map_view_update_heart_rate_icon(self, heart_rate);
 	}
-		if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STARTED)
+		if(self->activity_state == MAP_VIEW_ACTIVITY_STATE_STARTED && self->first_location_point_added)
 		{
 			self->heart_rate_count++;
 			if(self->heart_rate_count == 10)
@@ -1008,6 +1008,7 @@ static void map_view_location_changed(
 			self->curr_speed = device->fix->speed;
 			map_view_check_and_add_route_point(self, &point,
 					device->fix);
+			self->first_location_point_added = TRUE;
 			DEBUG("SPEED ACCURACY %.5f",device->fix->eps);
 			
 			osm_gps_map_draw_gps(OSM_GPS_MAP(self->map),device->fix->latitude,device->fix->longitude,0);
@@ -1160,6 +1161,7 @@ static void map_view_btn_start_pause_clicked(GtkWidget *button,
 			osm_gps_map_remove_button((OsmGpsMap*)self->map,421, 346);
 			osm_gps_map_add_button((OsmGpsMap*)self->map,421, 346, self->rec_btn_selected);
 			osm_gps_map_clear_gps(OSM_GPS_MAP(self->map));
+			self->first_location_point_added = FALSE;
 			break;
 	}
 
