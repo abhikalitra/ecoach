@@ -831,8 +831,10 @@ void analyzer_view_show(AnalyzerView *self)
 	self->current_view = 0;
 	gchar *file_name = gconf_helper_get_value_string_with_default(self->gconf_helper,LAST_ACTIVITY,"");
 	DEBUG("%s",file_name);
+	if(self->activity_state ==3)
+	{
 	analyzer_view_show_last_activity(self,file_name);
-	
+	}
 	DEBUG_END();
 }
 

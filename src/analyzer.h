@@ -130,6 +130,9 @@ typedef struct _AnalyzerView {
 
 	gboolean metric;
 	
+	 /* Activity state */
+	gint activity_state;
+	
 	/*map */
 	const char *friendly_name;
 	char *cachedir;
