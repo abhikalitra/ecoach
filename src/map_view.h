@@ -221,7 +221,7 @@ struct _MapView {
 	gint buttons_hide_timeout;
 	gboolean add_calendar;
 	gboolean gps_initialized;
-	
+	gboolean first_location_point_added;
 	/* for data view */
 	GtkWidget *data_win;
 	GtkWidget *data_map_btn;
