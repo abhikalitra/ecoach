@@ -1,3 +1,9 @@
+ecoach (1.56) unstable; urgency=low
+
+  * Fixed bug: Dont try to open last activity automatically if there is an activity going on
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Thu, 22 Oct 2009 14:16:42 +0300
+
 ecoach (1.55) unstable; urgency=low
 
   * Bugfixes and UX improvements
