@@ -11,28 +11,54 @@ Package: ecoach
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: eCoach is an application for managing sport and exercise activities.
- eCoach is an application for managing sport and exercise activities.
+  Keep track of all your sports and outdoor activities with the GPS-based eCoach application.
+  With eCoach you can get the most from your workouts by monitoring your speed,distance and heart rate in real time.
+  You can also use the built-in training diary feature to track your progress as you work towards your specific training goals.
+  eCoach supports Open Street Map, Google Earth, and Virtual Earth,enabling you to view your routes on the map and share 
+  them with friends at a later point.eCoach currently supports FRWD B600 and Zephyr HxM heart rate monitors.
 XB-Maemo-Display-Name: eCoach
-XB-Maemo-Upgrade-Description: * Maemo-optified, added support for Zephyr HXM hrm
+XB-Maemo-Upgrade-Description: *Bug fixes and UX improvements
 XB-Maemo-Icon-26:
- iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAAAXNSR0IArs4c
- 6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0
- SU1FB9gFCw8gBLTtmxUAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJ
- TVBXgQ4XAAAC7UlEQVRIx82WT0hUURjFz/dmnu/pzEhvZGyaQRuiN7oJYWpZ
- CtKAkJi6aVoEgRkSQi3auBANly3CgrJNgruoRRtfwlBIbhLRxIWIQchrMVMy
- mKQ+zHmdNhX9MdNmhM7y43J/99z73XMv8D9KUZQzqqo+URTlhqIonv2ChMLh
- sGvbNjs6OqgoysV9AYnI8ba2NpKkbdv0eDwP9rTQPYz9MDc3R9d1sbm5CV3X
- GzVNeyQiF0REiukoqmlaZmZmhiTpui5XVlbY0tJCVVUtESkvBqTM5/MtTk5O
- cjuNjIxQ1/XXIlJdKOhaT08Pd5JlWdQ07UkhENMwjPdra2vbAhYXF5lOp+m6
- LoPB4Kt/hYjX6x0dHx8nSXZ3d3NpaeknUC6XY0lJCdPpNGOx2Md/BV1qbm6m
- 4zhsbW2liLxobGz8zVVFRQU7OzsZj8fX/jSXdwfI0WAweGt4eBiJRIILCws3
- AOSSyeSpX8eWlpZCURSUl5drInKQ5LvdpkBvVVWVY1kWI5HIloikAEDX9enl
- 5eXfHDU0NLCrq4s1NTWfRcTc9Zb5/f7VsbExGobxQUTOfHUYNk3z83YNYZom
- ReSOiFzd69lc8Xq9D0XkyA+18319fd8v6zetr6+zrKzs5d/SYdsIInk3n8+f
- I/nmh/KBeDwOABgYGMDGxgYAYHBwEI7jPCbJYkXQvfn5eWazWRqGQdd1OTEx
- QU3T5gAEixV1HsMw3rquy97eXqZSKZJkJBL5BOBYMV+JQG1tLUmyurqa09PT
- tCyLInIfgACIAzhUDFBJLBZbsW2byWSSJFlXV0cAJ1VVTdfX1zMajW4BuFwo
- 6KxpmluZTIZTU1McGhqiiDwCEG1qaiJJOo5DwzCeFwI5EQ6HP+VyOc7OznJ0
- dJSqqr4EEAAQSSQSJMlsNkufz/esEFCqv7+f7e3ttG2boVBoA8Dhb00iIjcr
- Kys3A4FABsDpQkAhALf9fv9qPp9nKBRK7/dXq1/X9acich3/s74ASI7Y/bKY
- PjYAAAAASUVORK5CYII=====
+  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
+  HMOy05zqBwAAAABJRU5ErkJggg==
+  ====
