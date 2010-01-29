@@ -187,6 +187,7 @@ struct _EcgData {
 	
 	gchar *bluetooth_name;
 	HRMName *hrm_name;
+	gint hr1,hr2,hr3,count;
 };
 
 /**

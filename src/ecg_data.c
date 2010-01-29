@@ -391,6 +391,7 @@ static void ecg_data_invoke_callbacks(EcgData *self, gint heart_rate)
 	DEBUG_BEGIN();
 
 	for(temp = self->callbacks; temp; temp = g_slist_next(temp))
+	  
 	{
 		cb_data = (EcgDataCallbackData *)temp->data;
 		if(cb_data->callback)
@@ -501,6 +502,45 @@ static void ecg_data_process(EcgData *self)
 	  
 	while(self->buffer->len > 0)
 	{
+	  
+		int i = 0;
+		for(i=0;i<self->buffer->len;i++){
+		  if(self->buffer->data[i] == 209){
+		 self->hr = self->buffer->data[i+1];
+		  }
+		}
+		//g_print("\n %d Count %d", self->hr, self->count);
+		
+		 switch(self->count){
+		   
+		   case 0:
+		   self->hr1 = self->hr;
+		   self->count++;
+		   break;
+		    
+		   case 1:
+		   self->hr2 = self->hr;
+		   self->count++;
+		   break;
+		  
+		   case 2:
+		   self->hr3= self->hr;
+		   self->count = 0;
+		   break;
+		     
+		 }
+		
+		if(self->hr2 !=0 && self->hr3 !=0)
+		{
+		gdouble average = (self->hr1+self->hr2+self->hr3)/3;
+		//g_print(" Average: %2f  Buffer %d", average, self->buffer->len);
+		    if(self->hr < (average *1.4) || self->hr > (average*0.6))
+		    {
+		      if(self->hr > 35 && self->hr < 235)
+		      ecg_data_invoke_callbacks(self,self->hr);
+		    }
+		}
+		  
 		gchar begin_char[] = {209, '\0'};
 		gchar *pointer = g_strstr_len((const gchar *)self->buffer->data,
 					       self->buffer->len,&begin_char);
