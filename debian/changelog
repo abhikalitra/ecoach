@@ -1,8 +1,8 @@
-ecoach (1.57) unstable; urgency=low
+ecoach (1.58) unstable; urgency=low
 
-  * Preliminary support for Polar Wearlink Bluetooth HRM
+  * Cleaned up old code, bug fixes
 
- -- Sampo Savola <samposav@paju.oulu.fi>  Thu, 21 Jan 2010 17:38:51 +0200
+ -- Sampo Savola <samposav@paju.oulu.fi>  Tue, 9 Mar 2010 17:38:51 +0200
 
 ecoach (1.56) unstable; urgency=low
 
