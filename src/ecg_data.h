@@ -63,7 +63,6 @@ typedef enum _EcgDataConnectionStatus {
 typedef enum _HRMName{
 	FRWD,
 	ZEPHYR,
-	POLAR
 } HRMName;
 /**
  * @brief Struct to hold data for a callback

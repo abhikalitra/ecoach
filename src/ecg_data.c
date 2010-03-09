@@ -77,7 +77,6 @@ static void ecg_data_wait_for_disconnect(EcgData *self);
 static gboolean ecg_data_setup_serial_pipe(EcgData *self, GError **error);
 static gboolean frwd_parse_heartrate(EcgData *self,gchar* frwd);
 static gboolean zephyr_parse_heartrate(EcgData *self,gchar* zephyr);
-static gboolean polar_parse_heartrate(EcgData *self,gchar* zephyr);
 /**
  * @brief Remove unnecessary voltage data from the array.
  *
@@ -226,11 +225,6 @@ gboolean ecg_data_add_callback_ecg(
 		{
 		 self->hrm_name = FRWD;
 		  DEBUG_LONG("FRWD HRM attached");
-		}
-		if(g_strrstr(self->bluetooth_name,"Polar") != NULL)
-		{
-		 self->hrm_name = POLAR;
-		  DEBUG_LONG("PolarHRM attached");
 		}
 	}
 
@@ -498,78 +492,9 @@ static void ecg_data_process(EcgData *self)
 	  
 	  
 	}
-	if(self->hrm_name == POLAR){
+	 
 	  
-	while(self->buffer->len > 0)
-	{
-	  
-		int i = 0;
-		for(i=0;i<self->buffer->len;i++){
-		  if(self->buffer->data[i] == 209){
-		 self->hr = self->buffer->data[i+1];
-		  }
-		}
-		//g_print("\n %d Count %d", self->hr, self->count);
-		
-		 switch(self->count){
-		   
-		   case 0:
-		   self->hr1 = self->hr;
-		   self->count++;
-		   break;
-		    
-		   case 1:
-		   self->hr2 = self->hr;
-		   self->count++;
-		   break;
-		  
-		   case 2:
-		   self->hr3= self->hr;
-		   self->count = 0;
-		   break;
-		     
-		 }
-		
-		if(self->hr2 !=0 && self->hr3 !=0)
-		{
-		gdouble average = (self->hr1+self->hr2+self->hr3)/3;
-		//g_print(" Average: %2f  Buffer %d", average, self->buffer->len);
-		    if(self->hr < (average *1.4) || self->hr > (average*0.6))
-		    {
-		      if(self->hr > 35 && self->hr < 235)
-		      ecg_data_invoke_callbacks(self,self->hr);
-		    }
-		}
-		  
-		gchar begin_char[] = {209, '\0'};
-		gchar *pointer = g_strstr_len((const gchar *)self->buffer->data,
-					       self->buffer->len,&begin_char);
-		if(!pointer)
-		{
-			/* No Polar data. Clear buffer and wait for more data. */
-			ecg_data_pop(self, self->buffer->len, NULL);
-			break;
-		}
-
-		/* Remove non-Polar data from the beginning of the buffer */
-		offset = pointer - (gchar *)self->buffer->data;
-		if(offset > 0)
-		ecg_data_pop(self, offset, NULL);
-
-		if(polar_parse_heartrate(self, pointer))
-		{
-			/* Remove parsed data */
-			ecg_data_pop(self, self->buffer->len,NULL);
-		}
-		else {
-			/*Wait for more data */
-			break;
-		}
-		/* Continue until the buffer is empty */
-	}
-	  
-	  
-	}
+	
 
 	DEBUG_END();
 }
@@ -1622,25 +1547,6 @@ static gboolean zephyr_parse_heartrate(EcgData *self,gchar* zephyr){
 	}
 	self->hr = zephyr[12];
 	ecg_data_invoke_callbacks(self,self->hr);
-	DEBUG_END();
-	return TRUE;
-  
-}
-
-static gboolean polar_parse_heartrate(EcgData *self,gchar* zephyr){
-  
-	int i;
-	gint value = 0;
-	DEBUG_BEGIN();
-	if(self->buffer->len < 7)
-	{
-		DEBUG_END();
-		return FALSE;
-	}
-	self->hr = zephyr[1];
-	if(self->hr < 240 && self->hr > 10){
-	ecg_data_invoke_callbacks(self,self->hr);
-	}
 	DEBUG_END();
 	return TRUE;
   
