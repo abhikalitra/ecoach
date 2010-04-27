@@ -654,16 +654,23 @@ void analyzer_view_show(AnalyzerView *self)
 {
 	gint i;
 	PangoFontDescription *desc;
-
+	GtkWidget * menu_button;
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
 
 	self->win = hildon_stackable_window_new ();
 	gtk_window_set_title ( GTK_WINDOW (self->win), "eCoach >Activity log");
 	gtk_widget_set_name(GTK_WIDGET(self->win), "mainwindow");
+	self->menu = hildon_app_menu_new ();
+	menu_button = hildon_gtk_button_new (HILDON_SIZE_AUTO);
+	gtk_button_set_label (GTK_BUTTON (menu_button),"Upload to service");
 
+ 	hildon_app_menu_append (self->menu, GTK_BUTTON (menu_button));
+	hildon_window_set_app_menu (HILDON_WINDOW (self->win), self->menu);
+
+	gtk_widget_show_all(self->menu);
 	g_signal_connect (self->win, "destroy", G_CALLBACK (analyzer_view_hide), self);
-
+	
 
 	self->main_table = gtk_table_new(5,2,TRUE);
 	

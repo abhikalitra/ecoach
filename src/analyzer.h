@@ -90,6 +90,7 @@ typedef struct _AnalyzerView {
 	GtkWidget *lbl_track_number;
 	GtkWidget *lbl_track_details;
 
+	GtkWidget *menu;
 	GtkWidget *scrolled;
 	GtkWidget *pannable;
 	/* Container for the different views */
@@ -105,7 +106,7 @@ typedef struct _AnalyzerView {
 
 	GtkWidget *pan;
 	GtkWidget *data;
-	
+
 	/* Data for info view */
 	GtkWidget *info_table;
 
