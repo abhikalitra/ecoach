@@ -64,7 +64,9 @@ PKG_CHECK_MODULES(CALENDAR, calendar-backend)
 AC_SUBST(CALENDAR_CFLAGS)
 AC_SUBST(CALENDAR_LIBS)
 
-
+PKG_CHECK_MODULES(OAUTH, oauth)
+AC_SUBST(OAUTH_CFLAGS)
+AC_SUBST(OAUTH_LIBS)
 
 AC_ARG_ENABLE(ecg-view,
 	      [  --enable-ecg-view		Enable ecg view], , enable_ecg_view=no )
