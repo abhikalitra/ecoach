@@ -48,6 +48,7 @@
 #include "location-distance-utils-fix.h"
 
 /* Other modules */
+#include "upload_dlg.h"
 #include "gconf_keys.h"
 #include "gpx_parser.h"
 #include "ec-button.h"
@@ -550,6 +551,8 @@ static void analyzer_view_draw_heart_rate(
 
 static void analyzer_view_set_units(AnalyzerView *self);
 static void create_map(gpointer user_data);
+static void upload_button_clicked (GtkButton *button, gpointer user_data);
+
 
 /**
  * @brief Free memory used by a #AnalyzerViewTrack
@@ -665,6 +668,9 @@ void analyzer_view_show(AnalyzerView *self)
 	menu_button = hildon_gtk_button_new (HILDON_SIZE_AUTO);
 	gtk_button_set_label (GTK_BUTTON (menu_button),"Upload to service");
 
+        g_signal_connect_after (menu_button, "clicked",
+                            G_CALLBACK (upload_button_clicked),
+                            self);
  	hildon_app_menu_append (self->menu, GTK_BUTTON (menu_button));
 	hildon_window_set_app_menu (HILDON_WINDOW (self->win), self->menu);
 
@@ -3797,5 +3803,11 @@ static void analyzer_view_set_units(AnalyzerView *self)
 		}
 	}while(loop);
 	gtk_widget_destroy (dialog);
+
+}
+static void upload_button_clicked (GtkButton *button, gpointer user_data){
+
+AnalyzerView *self = (AnalyzerView *)user_data;
+upload(self);
 
 }

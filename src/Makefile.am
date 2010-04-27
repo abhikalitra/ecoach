@@ -85,7 +85,9 @@ ecoach_SOURCES =			\
 	osm_gps_map/osm-gps-map.c		\
 	osm_gps_map/osm-gps-map-types.h		\
 	CCalendarUtil.cc			\
-	CCalendarUtil.h				
+	CCalendarUtil.h				\
+	upload_dlg.h			\
+	upload_dlg.c
 
 if WANT_ECG_VIEW
 ecoach_SOURCES += ecg_view.h ecg_view.c
@@ -114,6 +116,7 @@ AM_CPPFLAGS =				\
 	@CALENDAR_CFLAGS@               \
 	@LIBXML2_CFLAGS@		\
 	@LIBSOUP_CFLAGS@		\
+	@OAUTH_CFLAGS@			\
 	-DDATADIR=\"/usr/share/\"	\
 	-Wall
 
@@ -129,4 +132,5 @@ LIBS =					\
 	@LOCATION_LIBS@			\
 	@CALENDAR_LIBS@			\
 	@LIBXML2_LIBS@			\
-	@LIBSOUP_LIBS@
+	@LIBSOUP_LIBS@			\
+	@OAUTH_LIBS@
