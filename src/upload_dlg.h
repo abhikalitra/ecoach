@@ -23,8 +23,20 @@
 #define _UPLOAD_DLG_H
 
 #include "analyzer.h"
-
+/* Osso */
+#include <libosso.h>
+#include "gconf_helper.h"
+#include "gconf_keys.h"
 void upload(AnalyzerView *data);
-void first_time_authentication(AnalyzerView *data);
+static void first_time_authentication(AnalyzerView *data);
+
+/*
+typedef struct _UploadDlg {
+  
+  osso_context_t *osso;
+  
+  
+}UploadDlg;
+*/
 #endif
 

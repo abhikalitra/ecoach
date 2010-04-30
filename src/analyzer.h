@@ -36,6 +36,9 @@
 #include "gpx_parser.h"
 #include "gconf_helper.h"
 
+/* Osso */
+#include <libosso.h>
+
 /*****************************************************************************
  * Enumerations                                                              *
  *****************************************************************************/
@@ -77,9 +80,21 @@ typedef struct _AnalyzerView {
 	GtkWidget *map_win;
 	gchar *default_folder_name;
 
+	
+		/*for heiaheia */
+	gdouble distance;
+	gint heart_rate_avg;
+	gint heart_rate_max;
+	struct timeval duration;
+	struct timeval start_time;
+	gchar* comment;
+	gchar* name;
+	GtkWidget *dialog;
+
+	
+	
 	/* Following members are created when the view is shown and destroyed
 	 * when the view is hidden */
-
 	GtkWidget *win;
 	GtkWidget *vbox;
 	GtkWidget *main_table;
@@ -143,6 +158,7 @@ typedef struct _AnalyzerView {
 	gdouble lat,lon;
 	GdkPixbuf *zoom_in;
 	GdkPixbuf *zoom_out;
+	osso_context_t *osso;
 	/* Data that is parsed from tracks */
 
 	/**

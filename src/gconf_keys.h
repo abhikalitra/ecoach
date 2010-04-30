@@ -71,5 +71,7 @@
 #define FIRST_BOOT		ECGC_BASE_DIR "/first_boot"
 #define NOTIFY_USER		ECGC_BASE_DIR "/notify_user"
 #define LAST_ACTIVITY		ECGC_BASE_DIR "/last_activity"
+#define TOKEN_KEY		ECGC_BASE_DIR "/token"
+#define TOKEN_SECRET_KEY	ECGC_BASE_DIR "/token_secret"
 
 #endif /* _GCONF_KEYS_H */

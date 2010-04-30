@@ -650,6 +650,8 @@ static void interface_show_analyzer_view(
 	//navigation_menu_set_current_page(
 	//		app_data->navigation_menu,
 	//		app_data->analyzer_view_tab_id);
+	
+	app_data->analyzer_view->osso = app_data->osso;
 	app_data->analyzer_view->activity_state = app_data->map_view->activity_state;
 	
 	analyzer_view_show(app_data->analyzer_view);

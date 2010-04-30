@@ -57,6 +57,8 @@ typedef struct _ActivityChooserDialog {
 
 	GtkWidget *button;
 	GtkWidget *selector;
+	GtkWidget *sportselector;
+	GtkWidget *sportbutton;
 //	GtkWidget *cmb_pulse_ranges;
 	GtkWidget *entry_activity_name;
 	GtkWidget *entry_activity_comment;

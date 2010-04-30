@@ -20,77 +20,215 @@
  *  See the file COPYING
  */
 
-char* REQUEST_URI ="http://beta.moozement.net/oauth/request_token";
-char* ACCESS_URI  ="http://beta.moozement.net/oauth/access_token";
-char* AUTHORIZE_URI ="http://beta.moozement.net/oauth/authorize";
-char* CONSUMER_KEY ="ngZfKFCJ2TtwvKBMXoQ";
-char* CONSUMER_SECRET ="igR6ALGYUSlmU78APcw8CLtoNosBBXG6FhRlUdbP";
+char* REQUEST_URI ="http://www.heiaheia.com/oauth/request_token";
+char* ACCESS_URI  ="http://www.heiaheia.com/oauth/access_token";
+char* AUTHORIZE_URI ="http://www.heiaheia.com/oauth/authorize";
+char* CONSUMER_KEY ="wHaXs4sT0AVMtiLVH2uU";
+char* CONSUMER_SECRET ="Dp2pQAkIP5ALPcmAIZsSTWVTPomUoFwZGKehX0zY";
 
+char *TOKEN;
+char *TOKEN_SEC;
 
 #include <gtk/gtk.h>
 #include "upload_dlg.h"
 #include <oauth.h>
+
+static void authorized_clicked(GtkWidget *button,gpointer user_data);
+static int get_request_token(AnalyzerView *data);
 void upload(AnalyzerView *data){
 
 
 //if first time
+TOKEN = gconf_helper_get_value_string_with_default(data->gconf_helper,TOKEN_KEY,"");
+TOKEN_SEC = gconf_helper_get_value_string_with_default(data->gconf_helper,TOKEN_SECRET_KEY,"");
+if(!strcmp(TOKEN,"")){ 
 first_time_authentication(data);
-
 }
 
-void first_time_authentication(AnalyzerView *data){
+ int sport_type =1;
 
-
-  get_request_token();
-
-/*  GtkWidget *box;
-  GtkWidget *dialog;
-  dialog = gtk_dialog_new();
-  gtk_window_set_title(GTK_WINDOW(dialog), "Upload Settings");
-  gtk_widget_set_size_request(dialog,800,300);
+if(!g_ascii_strcasecmp("Running",data->name)){
   
-  gtk_dialog_run(GTK_DIALOG(dialog));
-*/
+ sport_type =1;
 }
 
-void parse_reply(const char *reply, char *token, char *secret){
-
- int rc;
-
-	char **rv = NULL;
-	rc = oauth_split_url_parameters(reply, &rv);
-	qsort(rv, rc, sizeof(char *), oauth_cmpstringp);
-	if( rc==2
-	&& !strncmp(rv[0],"oauth_token=",11)
-	&& !strncmp(rv[1],"oauth_token_secret=",18) ) {
-	token =strdup(&(rv[0][12]));
-	secret=strdup(&(rv[1][19]));
-	printf("key: '%s'\nsecret: '%s'\n",token, secret);
-	}
- 	if(rv) free(rv); 
+g_print("Track name %s", data->name);
 
 
+gdouble dist = data->distance/1000;
+int avghr = data->heart_rate_avg;
+int maxhr = data->heart_rate_max;
+
+time_t time_src;
+struct tm time_dest;
+time_src = data->start_time.tv_sec;
+gmtime_r(&time_src, &time_dest);
+gchar* date_string  = g_strdup_printf(
+				("%04d-%02d-%02d"),
+				time_dest.tm_year + 1900,
+				time_dest.tm_mon + 1,
+				time_dest.tm_mday);
+time_src = data->duration.tv_sec;
+gmtime_r(&time_src, &time_dest);
+
+int hour = time_dest.tm_hour;
+int min = time_dest.tm_min;
+int sec = time_dest.tm_sec;
+char *comment = "";
+
+if(!data->comment){
+char *comment = data->comment;
 }
-int get_request_token(){
+
+char *post = NULL;
+char *reply = NULL;
+gchar *test_call_uri =  g_strdup_printf( "http://www.heiaheia.com/api/v1/training_logs"\
+"&sport_id=%d&training_log[date]='%s'"\
+"&training_log[duration_h]=%d"\
+"&training_log[duration_m]=%d"\
+"&training_log[duration_s]=%d"\
+"&training_log[avg_hr]=%d"\
+"&training_log[max_hr]=%d"\
+"&training_log[comment]=%s"\
+"&training_log[sport_params][0][name]=distance&training_log[sport_params][0][value]=%f"
+,sport_type,date_string,hour,min,sec,avghr,maxhr,comment,dist);
+
+char *req_url = oauth_sign_url2(test_call_uri,&post, OA_HMAC, NULL, CONSUMER_KEY,CONSUMER_SECRET, TOKEN, TOKEN_SEC);
+reply = oauth_http_post(req_url,post);
+printf("query:'%s'\n",req_url);
+printf("REPLY:'%s'\n",reply);
+if(g_strrstr(reply,"training-log") != NULL){
+ 
+  hildon_banner_show_information(GTK_WIDGET(data->win),NULL,"Successfully uploaded to HeiaHeia!");
+}
+
+g_free(test_call_uri);
+g_free(date_string);
+}
+
+
+static void first_time_authentication(AnalyzerView *data){
+
+
+  get_request_token(data);
+  
+}
+
+static void show_authorize_dlg(AnalyzerView *data,gchar *url){
+ 
+  GtkWidget *box;
+  GtkWidget *browser;
+  GtkWidget *authorized;
+  GtkWidget *hbox;
+  data->dialog = gtk_dialog_new_with_buttons("Authorization",
+                                                  data->win,
+                                                  GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                  NULL);
+
+  authorized = gtk_button_new_with_label("Authorized");
+  g_signal_connect (G_OBJECT (authorized), "clicked",
+		    G_CALLBACK (authorized_clicked), (gpointer)data);
+
+  //gtk_widget_set_size_request(browser,200,200);
+  gtk_widget_set_size_request(authorized,200,200);
+  hbox = gtk_hbox_new(TRUE,0);
+ // gtk_box_pack_start (GTK_BOX (hbox), browser, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox),authorized, FALSE, FALSE, 0);
+  GtkWidget *area = gtk_dialog_get_content_area(data->dialog);
+  gtk_container_add (GTK_CONTAINER (area), hbox);
+  
+  gtk_window_set_title(GTK_WINDOW(data->dialog), "Authorization");
+  gtk_widget_set_size_request(data->dialog,800,100);
+  gtk_widget_show_all(data->dialog);
+  osso_rpc_t retval; 
+  system("/usr/bin/dbus-send --type=signal --session /com/nokia/hildon_desktop com.nokia.hildon_desktop.exit_app_view");
+  osso_rpc_run(data->osso, "com.nokia.osso_browser", "/com/nokia/osso_browser", "com.nokia.osso_browser","open_new_window",&retval, DBUS_TYPE_STRING,url, DBUS_TYPE_INVALID);
+  gtk_dialog_run(GTK_DIALOG(data->dialog));
+}
+
+static int parse_reply(const char *reply) {
+  int rc;
+  int ok=1;
+  char **rv = NULL;
+  rc = oauth_split_url_parameters(reply, &rv);
+  qsort(rv, rc, sizeof(char *), oauth_cmpstringp);
+  if( rc==2 
+      && !strncmp(rv[0],"oauth_token=",11)
+      && !strncmp(rv[1],"oauth_token_secret=",18) ) {
+    ok=0;
+   char *token =strdup(&(rv[0][12]));
+   char *secret=strdup(&(rv[1][19]));
+    printf("key:    '%s'\nsecret: '%s'\n",token, secret); // XXX 
+    TOKEN = token;
+    TOKEN_SEC = secret;
+  }
+  if(rv) free(rv);
+  return ok;
+}
+
+
+static int get_request_token(AnalyzerView *data){
    
 char *postarg = NULL; 
 char *req_url = NULL;
 char *reply = NULL;
-char *token = NULL;
-char *token_secret = NULL;
 
   req_url = oauth_sign_url2(REQUEST_URI, &postarg, OA_HMAC, NULL, CONSUMER_KEY, CONSUMER_SECRET,NULL, NULL);
   reply = oauth_http_post(req_url,postarg);
   if(reply != NULL){
   printf("REPLY: %s\n", reply);
-  parse_reply(reply,token,token_secret);
+  int status = parse_reply(reply);
+  printf("TOKEN: %s\n", TOKEN);
+  printf("TOKEN_SEC: %s\n", TOKEN_SEC);
+ 
+ gchar *url = g_strconcat((gchar*)AUTHORIZE_URI,"/?oauth_token=",(gchar*)TOKEN,"&oauth_callback=ecoach://",NULL);
 
-// open browser for authentication 
- // system(/oauth/authorize&request_token=
+  g_printf("\nURL: %s \n", url);
+  show_authorize_dlg(data,url);
+ 
   }
 }
+static int get_access_token(AnalyzerView *data){
+  char *postarg = NULL; 
+char *req_url = NULL;
+char *reply = NULL;
+char *token = NULL;
+char *token_secret = NULL;
 
+req_url = oauth_sign_url2(ACCESS_URI, NULL, OA_HMAC, NULL, CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SEC);
+printf("URL: %s\n", req_url);
+reply = oauth_http_get(req_url,NULL);
+printf("REPLY: %s\n", reply);
+parse_reply(reply);  
 
+  
+}
+static void authorized_clicked(GtkWidget*button, gpointer user_data){
+  
+  AnalyzerView *data = (AnalyzerView *)user_data;
+  g_return_if_fail(data != NULL);
+  get_access_token(data);
+  printf("\n ACCESS TOKEN %s\n",TOKEN);
+   printf("\n ACCESS SEC %s\n",TOKEN_SEC);
+   gconf_helper_set_value_string_simple(data->gconf_helper,TOKEN_KEY,TOKEN);
+   gconf_helper_set_value_string_simple(data->gconf_helper,TOKEN_SECRET_KEY,TOKEN_SEC);
+  gtk_widget_destroy (data->dialog);
+
+  
+		//gconf_helper_set_value_string_simple(self->gconf_helper,LAST_ACTIVITY,file_name);
+   /*
+   const char *test_call_uri = "http://beta.moozement.net/api/v1/training_logs&sport_id=1&training_log[date]='2010-04-27'&training_log[duration_h]=2&training_log[comment]='jee'";
+   char *post = "sport_id=3";
+  char *reply   = NULL;
+   char* req_url = oauth_sign_url2(test_call_uri,&post, OA_HMAC, NULL, CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SEC);
+  
+  printf("REQulr %s \n	", req_url);	
+ 
+ reply = oauth_http_post(req_url,post);
+    printf("query:'%s'\n",req_url);
+    printf("reply:'%s'\n",reply);
+   */
+}
 
 
 

@@ -1640,7 +1640,7 @@ static gchar *analyzer_view_choose_file_name(AnalyzerView *self)
 			GTK_FILE_CHOOSER(file_dialog),
 			self->default_folder_name);
 
-	gtk_widget_show_all(file_dialog);
+	gtk_widget_show_all(file_dialog);	
 	result = gtk_dialog_run(GTK_DIALOG(file_dialog));
 
 	if(result == GTK_RESPONSE_CANCEL)
@@ -1768,7 +1768,7 @@ static void analyzer_view_add_track(
 	self->tracks = g_slist_prepend(self->tracks, track);
 
 	track->name = g_strdup(parser_track->name);
-//	track->comment = g_strdup(parser_track->comment);
+	track->comment = g_strdup(parser_track->comment);
 	track->number = parser_track->number;
 
 	/* All other data is initialized correctly with g_new0 */
@@ -2599,8 +2599,15 @@ static void analyzer_view_show_track_information(
 	{
 		gtk_widget_queue_draw(self->graphs_drawing_area);
 	}
-
-	DEBUG_END();
+	 self->heart_rate_avg = track->heart_rate_avg;
+	 self->heart_rate_max = track->heart_rate_max;
+	 self->duration = track->duration;
+         self->distance = track->distance;
+	 self->start_time = track->start_time;
+	 self->comment = track->comment;
+	 self->name = track->name;
+	 
+	 DEBUG_END();
 }
 
 static void analyzer_view_graphs_btn_speed_clicked(

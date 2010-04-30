@@ -34,7 +34,7 @@
 #include <hildon/hildon-file-chooser-dialog.h>
 #include <hildon/hildon-file-system-model.h>
 #include <hildon/hildon-caption.h>
-
+#include <hildon/hildon-file-selection.h>
 /* Other modules */
 #include "gconf_keys.h"
 #include "ec_error.h"
@@ -214,10 +214,13 @@ ActivityDescription *activity_chooser_choose_activity(ActivityChooser *self)
 
 	} while(!file_name);
 
-	activity_description = activity_description_new(
+/*	activity_description = activity_description_new(
 			gtk_entry_get_text(GTK_ENTRY(chooser_dialog->
 					entry_activity_name)));
+*/
 
+	activity_description = activity_description_new(hildon_touch_selector_get_current_text(chooser_dialog->sportselector));
+					
 	activity_description->activity_comment = g_strdup(
 			gtk_entry_get_text(GTK_ENTRY(chooser_dialog->
 					entry_activity_comment)));
@@ -388,8 +391,20 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 
 	size_group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
-
-
+	chooser_dialog->sportbutton = hildon_picker_button_new (HILDON_SIZE_FINGER_HEIGHT, HILDON_BUTTON_ARRANGEMENT_VERTICAL);
+        hildon_button_set_title (HILDON_BUTTON (chooser_dialog->sportbutton), "Sport");
+      
+	chooser_dialog->sportselector = hildon_touch_selector_new_text ();
+	
+	/* In the future show all sports and last used as the first one */
+	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Running");
+	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Cycling");
+	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Walking");
+	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Nordic Walking");
+	
+	hildon_touch_selector_set_active (HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), 0, 0);
+	hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (chooser_dialog->sportbutton),HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector));
+/*
 	chooser_dialog->entry_activity_name = hildon_entry_new (HILDON_SIZE_AUTO);
 	if(self->default_activity_name)
 	{
@@ -407,9 +422,11 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 			chooser_dialog->entry_activity_name,
 			NULL,
 			HILDON_CAPTION_OPTIONAL);
+*/
+	gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->sportbutton, FALSE, FALSE, 0);
 
-	gtk_box_pack_start(GTK_BOX(vbox), caption, FALSE, FALSE, 0);
-/*
+	
+	/*
 	chooser_dialog->entry_activity_comment = hildon_entry_new (HILDON_SIZE_AUTO);
 
 	caption = hildon_caption_new(
@@ -490,10 +507,13 @@ static gchar *activity_chooser_dialog_choose_file_name(
 	DEBUG_BEGIN();
 	gchar* extension;
 	extension = g_strdup_printf(".gpx");
-	
+	/*
 	activity_name = gtk_entry_get_text(
 			GTK_ENTRY(chooser_dialog->entry_activity_name));
-
+*/
+//	activity_name = hildon_picker_button_get_active (chooser_dialog->button);
+	activity_name = hildon_touch_selector_get_current_text(chooser_dialog->sportselector);
+	DEBUG("%s", activity_name);
 	date_str = util_date_string_from_timeval(NULL);
 
 	if(strcmp(activity_name, "") == 0)
@@ -509,6 +529,8 @@ static gchar *activity_chooser_dialog_choose_file_name(
 	fs_model = HILDON_FILE_SYSTEM_MODEL(
 		g_object_new(HILDON_TYPE_FILE_SYSTEM_MODEL,
 		"ref_widget", GTK_WIDGET(self->parent_window), NULL));
+	GtkWidget *selection = hildon_file_selection_new_with_model(fs_model);
+	hildon_file_selection_set_sort_key(selection,HILDON_FILE_SELECTION_SORT_NAME,GTK_SORT_DESCENDING);
 
 	if(!fs_model)
 	{
@@ -517,6 +539,7 @@ static gchar *activity_chooser_dialog_choose_file_name(
 		DEBUG_END();
 		return NULL;
 	}
+	
 	gtk_file_chooser_set_current_folder(
 			GTK_FILE_CHOOSER(file_dialog),
 			self->default_folder_name);
