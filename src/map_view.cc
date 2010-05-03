@@ -1839,7 +1839,7 @@ static void add_note_cb(HildonButton *button, gpointer user_data)
 	 text_view = hildon_text_view_new();
 
 	 buffer = hildon_text_view_get_buffer (HILDON_TEXT_VIEW(text_view));
-	 gtk_text_buffer_set_text(buffer,self->activity_comment,g_utf8_strlen(self->activity_comment,1000));
+	 gtk_text_buffer_set_text(buffer,self->activity_comment,g_utf8_strlen(self->activity_comment,254));
 
 	 gtk_container_add (GTK_CONTAINER (content), text_view);
 	 gtk_widget_set_size_request(dialog,800,250);
