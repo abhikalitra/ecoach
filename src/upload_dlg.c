@@ -29,30 +29,47 @@ char* CONSUMER_SECRET ="Dp2pQAkIP5ALPcmAIZsSTWVTPomUoFwZGKehX0zY";
 char *TOKEN;
 char *TOKEN_SEC;
 
+#include "debug.h"
 #include <gtk/gtk.h>
 #include "upload_dlg.h"
 #include <oauth.h>
 
 static void authorized_clicked(GtkWidget *button,gpointer user_data);
 static int get_request_token(AnalyzerView *data);
+static void  show_information_note(GtkWidget *parent);
 void upload(AnalyzerView *data){
+DEBUG_BEGIN();
+data->status = 1;
 
-
-//if first time
+/*Check if it is the first time and get tokens */
 TOKEN = gconf_helper_get_value_string_with_default(data->gconf_helper,TOKEN_KEY,"");
 TOKEN_SEC = gconf_helper_get_value_string_with_default(data->gconf_helper,TOKEN_SECRET_KEY,"");
 if(!strcmp(TOKEN,"")){ 
-first_time_authentication(data);
+ data->status = 0;
+ first_time_authentication(data);
 }
 
- int sport_type =1;
+if(data->status){
+int sport_type =0;
 
 if(!g_ascii_strcasecmp("Running",data->name)){
   
  sport_type =1;
 }
+if(!g_ascii_strcasecmp("Cycling",data->name)){
+  
+ sport_type =2;
+}
+if(!g_ascii_strcasecmp("Walking",data->name)){
+  
+ sport_type =14;
+}
+if(!g_ascii_strcasecmp("Nordic Walking",data->name)){
+  
+ sport_type =4;
+}
 
-g_print("Track name %s", data->name);
+DEBUG("Track name %s", data->name);
 
 
 gdouble dist = data->distance/1000;
@@ -75,11 +92,10 @@ int hour = time_dest.tm_hour;
 int min = time_dest.tm_min;
 int sec = time_dest.tm_sec;
 char *comment = "";
-
-if(!data->comment){
-char *comment = data->comment;
+DEBUG("COMMENT %s", data->comment);
+if(data->comment == NULL){
+  data->comment = "";
 }
-
 char *post = NULL;
 char *reply = NULL;
 gchar *test_call_uri =  g_strdup_printf( "http://www.heiaheia.com/api/v1/training_logs"\
@@ -90,8 +106,8 @@ gchar *test_call_uri =  g_strdup_printf( "http://www.heiaheia.com/api/v1/trainin
 "&training_log[avg_hr]=%d"\
 "&training_log[max_hr]=%d"\
 "&training_log[comment]=%s"\
-"&training_log[sport_params][0][name]=distance&training_log[sport_params][0][value]=%f"
-,sport_type,date_string,hour,min,sec,avghr,maxhr,comment,dist);
+"&training_log[sport_params][0][name]=distance&training_log[sport_params][0][value]=%.2f"
+,sport_type,date_string,hour,min,sec,avghr,maxhr,data->comment,dist);
 
 char *req_url = oauth_sign_url2(test_call_uri,&post, OA_HMAC, NULL, CONSUMER_KEY,CONSUMER_SECRET, TOKEN, TOKEN_SEC);
 reply = oauth_http_post(req_url,post);
@@ -105,34 +121,35 @@ if(g_strrstr(reply,"training-log") != NULL){
 g_free(test_call_uri);
 g_free(date_string);
 }
-
-
-static void first_time_authentication(AnalyzerView *data){
-
-
-  get_request_token(data);
-  
+DEBUG_END();
 }
 
-static void show_authorize_dlg(AnalyzerView *data,gchar *url){
- 
+
+static int first_time_authentication(AnalyzerView *data){
+DEBUG_BEGIN();
+  int status = 0;
+  show_information_note(data->win);
+  status = get_request_token(data);
+  return status;
+DEBUG_END();
+}
+
+static int show_authorize_dlg(AnalyzerView *data,gchar *url){
+ DEBUG_BEGIN();
   GtkWidget *box;
   GtkWidget *browser;
   GtkWidget *authorized;
   GtkWidget *hbox;
+  int status = 0;
   data->dialog = gtk_dialog_new_with_buttons("Authorization",
                                                   data->win,
                                                   GTK_DIALOG_DESTROY_WITH_PARENT,
                                                   NULL);
-
   authorized = gtk_button_new_with_label("Authorized");
   g_signal_connect (G_OBJECT (authorized), "clicked",
 		    G_CALLBACK (authorized_clicked), (gpointer)data);
-
-  //gtk_widget_set_size_request(browser,200,200);
   gtk_widget_set_size_request(authorized,200,200);
   hbox = gtk_hbox_new(TRUE,0);
- // gtk_box_pack_start (GTK_BOX (hbox), browser, FALSE, FALSE, 0);
   gtk_box_pack_start (GTK_BOX (hbox),authorized, FALSE, FALSE, 0);
   GtkWidget *area = gtk_dialog_get_content_area(data->dialog);
   gtk_container_add (GTK_CONTAINER (area), hbox);
@@ -143,10 +160,15 @@ static void show_authorize_dlg(AnalyzerView *data,gchar *url){
   osso_rpc_t retval; 
   system("/usr/bin/dbus-send --type=signal --session /com/nokia/hildon_desktop com.nokia.hildon_desktop.exit_app_view");
   osso_rpc_run(data->osso, "com.nokia.osso_browser", "/com/nokia/osso_browser", "com.nokia.osso_browser","open_new_window",&retval, DBUS_TYPE_STRING,url, DBUS_TYPE_INVALID);
-  gtk_dialog_run(GTK_DIALOG(data->dialog));
+  status = gtk_dialog_run(GTK_DIALOG(data->dialog));
+  if(status == GTK_RESPONSE_DELETE_EVENT){
+  gtk_widget_destroy (data->dialog);  
+  }
+  DEBUG_END();
 }
 
 static int parse_reply(const char *reply) {
+  DEBUG_BEGIN();
   int rc;
   int ok=1;
   char **rv = NULL;
@@ -163,32 +185,36 @@ static int parse_reply(const char *reply) {
     TOKEN_SEC = secret;
   }
   if(rv) free(rv);
+  DEBUG_END();
   return ok;
+  
 }
 
 
 static int get_request_token(AnalyzerView *data){
-   
+   DEBUG_BEGIN();
 char *postarg = NULL; 
 char *req_url = NULL;
 char *reply = NULL;
-
+int status = 0;
   req_url = oauth_sign_url2(REQUEST_URI, &postarg, OA_HMAC, NULL, CONSUMER_KEY, CONSUMER_SECRET,NULL, NULL);
   reply = oauth_http_post(req_url,postarg);
   if(reply != NULL){
-  printf("REPLY: %s\n", reply);
-  int status = parse_reply(reply);
-  printf("TOKEN: %s\n", TOKEN);
-  printf("TOKEN_SEC: %s\n", TOKEN_SEC);
+ DEBUG("REPLY: %s\n", reply);
+ int status = parse_reply(reply);
+ DEBUG("TOKEN: %s\n", TOKEN);
+ DEBUG("TOKEN_SEC: %s\n", TOKEN_SEC);
  
  gchar *url = g_strconcat((gchar*)AUTHORIZE_URI,"/?oauth_token=",(gchar*)TOKEN,"&oauth_callback=ecoach://",NULL);
 
-  g_printf("\nURL: %s \n", url);
-  show_authorize_dlg(data,url);
- 
+ DEBUG("\nURL: %s \n", url);
+status =  show_authorize_dlg(data,url);
+ return status;
   }
+  DEBUG_END();
 }
 static int get_access_token(AnalyzerView *data){
+  DEBUG_BEGIN();
   char *postarg = NULL; 
 char *req_url = NULL;
 char *reply = NULL;
@@ -200,44 +226,34 @@ printf("URL: %s\n", req_url);
 reply = oauth_http_get(req_url,NULL);
 printf("REPLY: %s\n", reply);
 parse_reply(reply);  
-
-  
+DEBUG_END();
 }
 static void authorized_clicked(GtkWidget*button, gpointer user_data){
-  
+  DEBUG_BEGIN();
   AnalyzerView *data = (AnalyzerView *)user_data;
   g_return_if_fail(data != NULL);
   get_access_token(data);
   printf("\n ACCESS TOKEN %s\n",TOKEN);
-   printf("\n ACCESS SEC %s\n",TOKEN_SEC);
-   gconf_helper_set_value_string_simple(data->gconf_helper,TOKEN_KEY,TOKEN);
-   gconf_helper_set_value_string_simple(data->gconf_helper,TOKEN_SECRET_KEY,TOKEN_SEC);
+  printf("\n ACCESS SEC %s\n",TOKEN_SEC);
+  gconf_helper_set_value_string_simple(data->gconf_helper,TOKEN_KEY,TOKEN);
+  gconf_helper_set_value_string_simple(data->gconf_helper,TOKEN_SECRET_KEY,TOKEN_SEC);
   gtk_widget_destroy (data->dialog);
-
-  
-		//gconf_helper_set_value_string_simple(self->gconf_helper,LAST_ACTIVITY,file_name);
-   /*
-   const char *test_call_uri = "http://beta.moozement.net/api/v1/training_logs&sport_id=1&training_log[date]='2010-04-27'&training_log[duration_h]=2&training_log[comment]='jee'";
-   char *post = "sport_id=3";
-  char *reply   = NULL;
-   char* req_url = oauth_sign_url2(test_call_uri,&post, OA_HMAC, NULL, CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SEC);
-  
-  printf("REQulr %s \n	", req_url);	
- 
- reply = oauth_http_post(req_url,post);
-    printf("query:'%s'\n",req_url);
-    printf("reply:'%s'\n",reply);
-   */
+  data->status = 1;
+  DEBUG_END();
 }
 
-
-
-
-
-
-
-
-
-
-
-
+static void
+show_information_note(GtkWidget *parent){
+  DEBUG_BEGIN();
+  GtkWidget *window, *note;
+  gint response;
+  note = hildon_note_new_information (NULL,
+    "Before you can upload activity to HeiaHeia you have to allow eCoach to connect your account.\n"
+    "eCoach will now open new browser window.\n"
+    "Once you have authrized eCoach, press \"Authorized\" button on eCoach.");
+  response = gtk_dialog_run (GTK_DIALOG (note));
+  if (response == GTK_RESPONSE_DELETE_EVENT)
+    g_debug ("%s: GTK_RESPONSE_DELETE_EVENT", __FUNCTION__);
+  gtk_object_destroy (GTK_OBJECT (note));
+  DEBUG_END();
+}

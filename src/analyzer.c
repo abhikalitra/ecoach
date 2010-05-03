@@ -619,11 +619,10 @@ void analyzer_view_set_default_folder(
 
 	DEBUG_END();
 }
-
+/*legacy code */
 static GtkWidget *create_table ()
 {
 
-  GtkWidget *hbox;
   GtkWidget *table;
   GtkWidget *button;
   char buffer[32];
@@ -657,7 +656,7 @@ void analyzer_view_show(AnalyzerView *self)
 {
 	gint i;
 	PangoFontDescription *desc;
-	GtkWidget * menu_button;
+	
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
 
@@ -665,14 +664,15 @@ void analyzer_view_show(AnalyzerView *self)
 	gtk_window_set_title ( GTK_WINDOW (self->win), "eCoach >Activity log");
 	gtk_widget_set_name(GTK_WIDGET(self->win), "mainwindow");
 	self->menu = hildon_app_menu_new ();
-	menu_button = hildon_gtk_button_new (HILDON_SIZE_AUTO);
-	gtk_button_set_label (GTK_BUTTON (menu_button),"Upload to service");
+	self->menu_button = hildon_gtk_button_new (HILDON_SIZE_AUTO);
+	gtk_widget_set_sensitive(self->menu_button,FALSE);
+	gtk_button_set_label (GTK_BUTTON (self->menu_button),"Upload to HeiaHeia");
 
-        g_signal_connect_after (menu_button, "clicked",
+        g_signal_connect_after (self->menu_button, "clicked",
                             G_CALLBACK (upload_button_clicked),
                             self);
- 	hildon_app_menu_append (self->menu, GTK_BUTTON (menu_button));
-	hildon_window_set_app_menu (HILDON_WINDOW (self->win), self->menu);
+ 	hildon_app_menu_append (HILDON_APP_MENU(self->menu), GTK_BUTTON (self->menu_button));
+	hildon_window_set_app_menu (HILDON_WINDOW (self->win),HILDON_APP_MENU(self->menu));
 
 	gtk_widget_show_all(self->menu);
 	g_signal_connect (self->win, "destroy", G_CALLBACK (analyzer_view_hide), self);
@@ -807,7 +807,7 @@ void analyzer_view_show(AnalyzerView *self)
 
 	self->pannable = hildon_pannable_area_new ();
 	gtk_widget_set_name(GTK_WIDGET(self->pannable), "mainwindow");
-	g_object_set (G_OBJECT(self->pannable),"mov-mode", HILDON_MOVEMENT_MODE_HORIZ );
+	g_object_set (G_OBJECT(self->pannable),"mov-mode", HILDON_MOVEMENT_MODE_HORIZ,NULL);
 
 	//g_object_set (G_OBJECT (self->pannable),"low-friction-mode", TRUE);
 
@@ -1418,7 +1418,7 @@ static void analyzer_view_btn_open_clicked(
 				self,
 				(AnalyzerViewTrack *)self->tracks->data);
 	}
-
+	
 	g_free(file_name);
 	DEBUG_END();
 }
@@ -1530,7 +1530,7 @@ gboolean
 map_button_release_cb (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
 
-     AnalyzerView *self = (AnalyzerView *)user_data;
+  //   AnalyzerView *self = (AnalyzerView *)user_data;
      if(user_data == NULL){ return FALSE;}
       DEBUG_BEGIN();
     float lat,lon;
@@ -1581,7 +1581,7 @@ static void analyzer_view_btn_map_clicked(
 		GtkWidget *button,
 		gpointer user_data)
 {
-  AnalyzerViewTrack *track = NULL;
+ // AnalyzerViewTrack *track = NULL;
   AnalyzerView *self = (AnalyzerView *)user_data;
 
   DEBUG_BEGIN();
@@ -1706,7 +1706,7 @@ static void analyzer_view_clear_data(AnalyzerView *self)
 	self->tracks = NULL;
 
 	self->current_track_number = 0;
-
+	gtk_widget_set_sensitive(self->menu_button,FALSE);
 	gtk_widget_queue_draw(self->graphs_drawing_area);
 
 	DEBUG_END();
@@ -1768,7 +1768,10 @@ static void analyzer_view_add_track(
 	self->tracks = g_slist_prepend(self->tracks, track);
 
 	track->name = g_strdup(parser_track->name);
+	if(parser_track->comment  != NULL){
 	track->comment = g_strdup(parser_track->comment);
+        self->comment = track->comment;
+	}
 	track->number = parser_track->number;
 
 	/* All other data is initialized correctly with g_new0 */
@@ -2599,12 +2602,13 @@ static void analyzer_view_show_track_information(
 	{
 		gtk_widget_queue_draw(self->graphs_drawing_area);
 	}
+	gtk_widget_set_sensitive(self->menu_button, TRUE);
 	 self->heart_rate_avg = track->heart_rate_avg;
 	 self->heart_rate_max = track->heart_rate_max;
 	 self->duration = track->duration;
          self->distance = track->distance;
 	 self->start_time = track->start_time;
-	 self->comment = track->comment;
+	
 	 self->name = track->name;
 	 
 	 DEBUG_END();

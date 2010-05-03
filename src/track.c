@@ -125,7 +125,7 @@ void track_helper_setup_track(TrackHelper *self,
 	//g_free(self->track_comment);
 
 	self->track_name = g_strdup(name);
-	//self->track_comment = g_strdup(comment);
+	self->track_comment = g_strdup(comment);
 
 	DEBUG_END();
 }

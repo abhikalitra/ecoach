@@ -90,6 +90,8 @@ typedef struct _AnalyzerView {
 	gchar* comment;
 	gchar* name;
 	GtkWidget *dialog;
+	GtkWidget * menu_button;
+	int status;
 
 	
 	

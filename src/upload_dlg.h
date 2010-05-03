@@ -28,7 +28,7 @@
 #include "gconf_helper.h"
 #include "gconf_keys.h"
 void upload(AnalyzerView *data);
-static void first_time_authentication(AnalyzerView *data);
+static int first_time_authentication(AnalyzerView *data);
 
 /*
 typedef struct _UploadDlg {
