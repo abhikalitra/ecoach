@@ -1,3 +1,9 @@
+ecoach (1.60) unstable; urgency=low
+
+  * Added support for uploading activities to www.heiaheia.com
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Mon,  3 May 2010 13:59:53 +0300
+
 ecoach (1.58) unstable; urgency=low
 
   * Cleaned up old code, bug fixes
