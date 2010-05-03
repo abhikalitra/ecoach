@@ -2148,7 +2148,7 @@ static void about_dlg(HildonButton *button, gpointer user_data){
     gtk_show_about_dialog((GtkWindow*)self->win
                 , "name",      "eCoach"
 		, "logo-icon-name",	"ecoach"
-                , "version",   "1.56"
+                , "version",   "1.60"
                 , "copyright", "Sampo Savola <samposav@paju.oulu.fi>\n"
 		"Jukka Alasalmi\n Veli-Pekka Haajanen\n Kai Skiftesvik"
                 , "website",   "http://ecoach.garage.maemo.org"
