@@ -200,7 +200,7 @@ struct _MapView {
 	GdkPixbuf *pxb_hrm_status[MAP_VIEW_HRM_STATUS_COUNT];
 					/**< Heart rate status		*/
 
-
+        GtkWidget *mapchooserdialog;
 	/*distance unit*/
 
 	gboolean metric;
