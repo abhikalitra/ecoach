@@ -592,6 +592,7 @@ static void interface_confirm_close(GtkWidget *btn,GdkEvent  *event, gpointer us
 		location_gpsd_control_stop(control);
 		map_view_stop(app_data->map_view);
 		osso_deinitialize(app_data->osso);
+	//	g_free(app_data);
 		gtk_main_quit();
 	}
 	  
