@@ -1869,7 +1869,7 @@ select_map_source_cb (HildonButton *button, gpointer user_data)
        const gchar* maps [] = {
 	"Open Street Map",
 	"Open Street Map Renderer",
-	"Open Aerial Map",
+        "Open Aerial Map",
 	"Maps For Free",
 	"Google Street",
 	"Google Satellite",
@@ -1882,11 +1882,11 @@ select_map_source_cb (HildonButton *button, gpointer user_data)
 
 
     GtkWidget *selector;
-    GtkWidget *dialog = gtk_dialog_new();
+    self->mapchooserdialog = gtk_dialog_new();
 
 
-    gtk_window_set_title(GTK_WINDOW(dialog),"Select map source");
-    gtk_widget_set_size_request(dialog, 800, 390);
+    gtk_window_set_title(GTK_WINDOW(self->mapchooserdialog),"Select map source");
+    gtk_widget_set_size_request(self->mapchooserdialog, 800, 390);
     selector = hildon_touch_selector_new_text();
     hildon_touch_selector_set_column_selection_mode (HILDON_TOUCH_SELECTOR (selector),
     HILDON_TOUCH_SELECTOR_SELECTION_MODE_SINGLE);
@@ -1897,9 +1897,9 @@ select_map_source_cb (HildonButton *button, gpointer user_data)
     }
     hildon_touch_selector_set_active(HILDON_TOUCH_SELECTOR(selector),0,self->map_provider-1);
     hildon_touch_selector_center_on_selected(HILDON_TOUCH_SELECTOR(selector));
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),selector);
+    gtk_container_add (GTK_CONTAINER (GTK_DIALOG(self->mapchooserdialog)->vbox),selector);
     g_signal_connect (G_OBJECT (selector), "changed", G_CALLBACK(map_source_selected),user_data);
-    gtk_widget_show_all(dialog);
+    gtk_widget_show_all(self->mapchooserdialog);
     DEBUG_END();
 }
 
@@ -1912,6 +1912,7 @@ void map_source_selected(HildonTouchSelector * selector, gint column, gpointer u
     active++;
     DEBUG("SELECTED MAP INDEX %d",active);
     gconf_helper_set_value_int_simple(self->gconf_helper,MAP_SOURCE,active);
+    gtk_widget_destroy(self->mapchooserdialog);
     hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Selected map source will be used next time you start eCoach");
     DEBUG_END();
 }
