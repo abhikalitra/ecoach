@@ -1,6 +1,7 @@
 ecoach (1.60) unstable; urgency=low
 
   * Added support for uploading activities to www.heiaheia.com
+  * Couple of bug fixes
 
  -- Sampo Savola <samposav@paju.oulu.fi>  Mon,  3 May 2010 13:59:53 +0300
 
