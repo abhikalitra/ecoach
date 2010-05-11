@@ -205,7 +205,7 @@ static int get_request_token(AnalyzerView *data){
         DEBUG("TOKEN: %s\n", TOKEN);
         DEBUG("TOKEN_SEC: %s\n", TOKEN_SEC);
 
-        gchar *url = g_strconcat((gchar*)AUTHORIZE_URI,"/?oauth_token=",(gchar*)TOKEN,"&oauth_callback=ecoach://",NULL);
+        gchar *url = g_strconcat((gchar*)AUTHORIZE_URI,"/?oauth_token=",(gchar*)TOKEN,NULL);
 
         DEBUG("\nURL: %s \n", url);
         status =  show_authorize_dlg(data,url);
