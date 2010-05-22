@@ -1,3 +1,11 @@
+ecoach (1.62) unstable; urgency=low
+
+  * Added feature to reset heiaheia authentication
+  * Fixed bug: sometimes unauthorized oauth tokens were stored to gconf after a failed authorization
+  * Changed graphs position to below the stats in analyze view
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Sat, 22 May 2010 19:01:27 +0300
+
 ecoach (1.61) unstable; urgency=low
 
   * Added support for uploading activities to www.heiaheia.com
