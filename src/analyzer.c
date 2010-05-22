@@ -552,6 +552,7 @@ static void analyzer_view_draw_heart_rate(
 static void analyzer_view_set_units(AnalyzerView *self);
 static void create_map(gpointer user_data);
 static void upload_button_clicked (GtkButton *button, gpointer user_data);
+static void reset_button_clicked (GtkButton *button, gpointer user_data);
 
 
 /**
@@ -672,6 +673,31 @@ void analyzer_view_show(AnalyzerView *self)
                             G_CALLBACK (upload_button_clicked),
                             self);
  	hildon_app_menu_append (HILDON_APP_MENU(self->menu), GTK_BUTTON (self->menu_button));
+
+	self->reset_button = hildon_gtk_button_new (HILDON_SIZE_AUTO);
+	gtk_widget_set_sensitive(self->reset_button,TRUE);
+	
+	
+	//DEBUG("TOKEN %s",gconf_helper_get_value_string_with_default(self->gconf_helper,
+	  //  TOKEN_KEY, ""));
+	gchar* token = gconf_helper_get_value_string_with_default(self->gconf_helper,TOKEN_KEY, "");
+
+	if(!g_strcmp0(token,"")){
+	
+	g_spawn_command_line_async("gconftool-2 -u /apps/ecoach/token",NULL);
+	gtk_widget_set_sensitive(self->reset_button,FALSE);		
+	}
+
+
+	
+	gtk_button_set_label (GTK_BUTTON (self->reset_button),"Reset upload settings");
+ 	g_signal_connect_after (self->reset_button, "clicked",
+                            G_CALLBACK (reset_button_clicked),
+                            self);
+ 	hildon_app_menu_append (HILDON_APP_MENU(self->menu), GTK_BUTTON (self->reset_button));
+
+
+
 	hildon_window_set_app_menu (HILDON_WINDOW (self->win),HILDON_APP_MENU(self->menu));
 
 	gtk_widget_show_all(self->menu);
@@ -784,7 +810,7 @@ void analyzer_view_show(AnalyzerView *self)
 			self);
 			
 
-	self->data = gtk_table_new(1,2,TRUE);
+	self->data = gtk_table_new(2,1,TRUE);
       /* Create the views */
 	self->views[ANALYZER_VIEW_INFO] =
 		analyzer_view_create_view_info(self);
@@ -803,17 +829,14 @@ void analyzer_view_show(AnalyzerView *self)
 	}
 
 	gtk_table_attach_defaults (GTK_TABLE (self->data), self->views[ANALYZER_VIEW_INFO], 0, 1, 0, 1);
-	gtk_table_attach_defaults (GTK_TABLE (self->data), self->views[ANALYZER_VIEW_GRAPHS], 1, 2, 0, 1);
+	gtk_table_attach(GTK_TABLE(self->data), self->views[ANALYZER_VIEW_GRAPHS], 0, 1, 1, 2,GTK_EXPAND | GTK_FILL,GTK_EXPAND | GTK_FILL,0,8);
+	gtk_table_set_row_spacing(GTK_TABLE (self->data),0,15);
 
 	self->pannable = hildon_pannable_area_new ();
 	gtk_widget_set_name(GTK_WIDGET(self->pannable), "mainwindow");
-	g_object_set (G_OBJECT(self->pannable),"mov-mode", HILDON_MOVEMENT_MODE_HORIZ,NULL);
-
-	//g_object_set (G_OBJECT (self->pannable),"low-friction-mode", TRUE);
-
-//	g_object_set (G_OBJECT (self->pannable),
-//               "deceleration", 0.01);
-
+	g_object_set (G_OBJECT(self->pannable),"mov-mode", HILDON_MOVEMENT_MODE_VERT,NULL);
+	g_object_set (G_OBJECT(self->pannable),"hscrollbar-policy",GTK_POLICY_NEVER,NULL);
+	
 	hildon_pannable_area_add_with_viewport (HILDON_PANNABLE_AREA (self->pannable), self->data);
 
 	self->pan = gtk_table_new(1,1,TRUE);
@@ -829,7 +852,7 @@ void analyzer_view_show(AnalyzerView *self)
 	gtk_widget_modify_bg(weight_event,0,&black);
 
 	gtk_widget_set_size_request(self->pannable,
-			762,
+			780,
 			340);
 	gtk_container_add (GTK_CONTAINER (self->pan), self->pannable);
 	gtk_container_add (GTK_CONTAINER (weight_event), self->pan);
@@ -1055,7 +1078,6 @@ static GtkWidget *analyzer_view_create_view_graphs(AnalyzerView *self)
 			"expose-event",
 			G_CALLBACK(analyzer_view_graphs_drawing_area_exposed),
 			self);
-
 	return self->graphs_table;
 
 	DEBUG_END();
@@ -3820,5 +3842,20 @@ static void upload_button_clicked (GtkButton *button, gpointer user_data){
 
 AnalyzerView *self = (AnalyzerView *)user_data;
 upload(self);
+
+}
+static void reset_button_clicked (GtkButton *button, gpointer user_data){
+
+AnalyzerView *self = (AnalyzerView *)user_data;
+//upload(self);
+GtkWidget *confirm = hildon_note_new_confirmation(NULL,"Are you sure you want to reset settings?");
+ if(GTK_RESPONSE_OK == gtk_dialog_run(GTK_DIALOG(confirm))){
+
+g_spawn_command_line_async("gconftool-2 -u /apps/ecoach/token",NULL);
+g_spawn_command_line_async("gconftool-2 -u /apps/ecoach/token_secret",NULL);
+gtk_widget_set_sensitive(self->reset_button,FALSE);
+}
+ gtk_widget_destroy(confirm);
+DEBUG("Reset clicked");
 
 }
