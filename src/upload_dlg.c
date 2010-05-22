@@ -119,6 +119,10 @@ void upload(AnalyzerView *data){
 
             hildon_banner_show_information(GTK_WIDGET(data->win),NULL,"Successfully uploaded to HeiaHeia!");
         }
+     	if(g_strrstr(reply,"<error>") != NULL){
+
+            hildon_banner_show_information(GTK_WIDGET(data->win),NULL,"Uploading to HeiaHeia failed!");
+        }
 
         g_free(test_call_uri);
         g_free(date_string);
@@ -173,6 +177,8 @@ static int parse_reply(const char *reply) {
     int rc;
     int ok=1;
     char **rv = NULL;
+    TOKEN = NULL;
+    TOKEN_SEC = NULL;
     rc = oauth_split_url_parameters(reply, &rv);
     qsort(rv, rc, sizeof(char *), oauth_cmpstringp);
     if( rc==2
