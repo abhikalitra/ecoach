@@ -40,9 +40,16 @@ char *TOKEN_SEC;
 static void authorized_clicked(GtkWidget *button,gpointer user_data);
 static int get_request_token(AnalyzerView *data);
 static void  show_information_note(GtkWidget *parent);
+
 void upload(AnalyzerView *data){
     DEBUG_BEGIN();
     data->status = 1;
+
+   DEBUG("Filename %s",data->filename);
+   gchar *gpx;
+   g_file_get_contents(data->filename,&gpx,NULL,NULL);
+
+
 
     /*Check if it is the first time and get tokens */
     TOKEN = gconf_helper_get_value_string_with_default(data->gconf_helper,TOKEN_KEY,"");
@@ -100,7 +107,8 @@ void upload(AnalyzerView *data){
         }
         char *post = NULL;
         char *reply = NULL;
-        gchar *test_call_uri =  g_strdup_printf( "http://www.heiaheia.com/api/v1/training_logs"\
+	char *gp = oauth_url_escape(gpx	);
+	gchar *test_call_uri =  g_strdup_printf( "http://www.heiaheia.com/api/v1/training_logs"\
                                                  "&sport_id=%d&training_log[date]='%s'"\
                                                  "&training_log[duration_h]=%d"\
                                                  "&training_log[duration_m]=%d"\
@@ -108,13 +116,13 @@ void upload(AnalyzerView *data){
                                                  "&training_log[avg_hr]=%d"\
                                                  "&training_log[max_hr]=%d"\
                                                  "&training_log[comment]=%s"\
-                                                 "&training_log[sport_params][0][name]=distance&training_log[sport_params][0][value]=%.2f"
-                                                 ,sport_type,date_string,hour,min,sec,avghr,maxhr,data->comment,dist);
+						 "&training_log[gpx]=%s"\ 
+						"&training_log[sport_params][0][name]=distance&training_log[sport_params][0][value]=%.2f"\
+						 ,sport_type,date_string,hour,min,sec,avghr,maxhr,data->comment,gp,dist);
 
         char *req_url = oauth_sign_url2(test_call_uri,&post, OA_HMAC, NULL, CONSUMER_KEY,CONSUMER_SECRET, TOKEN, TOKEN_SEC);
         reply = oauth_http_post(req_url,post);
-        printf("query:'%s'\n",req_url);
-        printf("REPLY:'%s'\n",reply);
+        printf("\nREPLY:'%s'\n",reply);
         if(g_strrstr(reply,"training-log") != NULL){
 
             hildon_banner_show_information(GTK_WIDGET(data->win),NULL,"Successfully uploaded to HeiaHeia!");
@@ -123,7 +131,8 @@ void upload(AnalyzerView *data){
 
             hildon_banner_show_information(GTK_WIDGET(data->win),NULL,"Uploading to HeiaHeia failed!");
         }
-
+	g_free(gp);
+	g_free(gpx);
         g_free(test_call_uri);
         g_free(date_string);
     }
