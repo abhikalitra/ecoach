@@ -897,7 +897,7 @@ void analyzer_view_hide(AnalyzerView *self)
 		//gtk_widget_destroy(self->views[i]);
 		self->views[i] = NULL;
 	}
-
+	g_free(self->filename);
 	//analyzer_view_destroy_widget(self, &self->scrolled);
 
 	DEBUG_END();
@@ -1389,7 +1389,7 @@ static void analyzer_view_btn_open_clicked(
 		DEBUG_END();
 		return;
 	}
-
+	self->filename =  g_strdup(file_name);
 	analyzer_view_clear_data(self);
 	osm_gps_map_clear_gps(OSM_GPS_MAP(self->map));
 	parser_status = gpx_parser_parse_file(
