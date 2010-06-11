@@ -897,9 +897,8 @@ void analyzer_view_hide(AnalyzerView *self)
 		//gtk_widget_destroy(self->views[i]);
 		self->views[i] = NULL;
 	}
-	g_free(self->filename);
 	//analyzer_view_destroy_widget(self, &self->scrolled);
-
+	g_free(self->filename);
 	DEBUG_END();
 }
 
@@ -1355,7 +1354,7 @@ static void analyzer_view_show_last_activity(gpointer user_data,gchar* file_name
 				self,
 				(AnalyzerViewTrack *)self->tracks->data);
 	}
-
+	self->filename =  g_strdup(file_name);
 	g_free(file_name);
 	DEBUG_END();
   
