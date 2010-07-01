@@ -151,10 +151,10 @@ ActivityChooser *activity_chooser_new(
 	self->parent_window = parent_window;
 
 	/* Setup necessary GConf settings */
-	gconf_helper_add_key_string(
+        gconf_helper_add_key_int(
 			self->gconf_helper,
 			ECGC_EXERC_DFL_NAME,
-			"",
+                        0,
 			activity_default_name_changed,
 			self,
 			NULL);
@@ -257,11 +257,14 @@ ActivityDescription *activity_chooser_choose_activity(ActivityChooser *self)
 	if(hildon_check_button_get_active(HILDON_CHECK_BUTTON(
 					chooser_dialog->chk_save_dfl)))
 	{
+
+           gint selected =  hildon_touch_selector_get_active(chooser_dialog->sportselector,0);
+
 		/* Save the default values */
-		gconf_helper_set_value_string(
+                gconf_helper_set_value_int(
 				self->gconf_helper,
 				ECGC_EXERC_DFL_NAME,
-				activity_description->activity_name);
+                                selected);
 
 		gconf_helper_set_value_int(
 				self->gconf_helper,
@@ -318,22 +321,17 @@ static void activity_default_name_changed(
 		gpointer user_data_2)
 {
 	GConfValue *value = NULL;
-	const gchar *activity_name = NULL;
+        gint id;
 	ActivityChooser *self = (ActivityChooser *)user_data;
 
 	g_return_if_fail(self != NULL);
 	g_return_if_fail(entry != NULL);
 	DEBUG_BEGIN();
 
-	if(self->default_activity_name)
-	{
-		g_free(self->default_activity_name);
-	}
+        value = gconf_entry_get_value(entry);
+        id = gconf_value_get_int(value);
 
-	value = gconf_entry_get_value(entry);
-	activity_name = gconf_value_get_string(value);
-
-	self->default_activity_name = g_strdup(activity_name);
+        self->default_activity_name = id;
 
 	DEBUG_END();
 }
@@ -402,7 +400,12 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Walking");
 	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Nordic Walking");
 	
-	hildon_touch_selector_set_active (HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), 0, 0);
+
+        gint dfl_index =  gconf_helper_get_value_int_with_default(
+                self->gconf_helper,
+                ECGC_EXERC_DFL_NAME,
+                        0);
+        hildon_touch_selector_set_active (HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), 0, dfl_index);
 	hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (chooser_dialog->sportbutton),HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector));
 /*
 	chooser_dialog->entry_activity_name = hildon_entry_new (HILDON_SIZE_AUTO);
@@ -451,16 +454,17 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 
 	chooser_dialog->button = hildon_picker_button_new (HILDON_SIZE_FINGER_HEIGHT, HILDON_BUTTON_ARRANGEMENT_VERTICAL);
         hildon_button_set_title (HILDON_BUTTON (chooser_dialog->button), "Target heart rate type");
-	 chooser_dialog->selector = hildon_touch_selector_new_text ();
+        chooser_dialog->selector = hildon_touch_selector_new_text ();
 
 	for(i = 0; i < EC_EXERCISE_TYPE_COUNT; i++)
 	{
 
 	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->selector), self->heart_rate_settings->exercise_descriptions[i].name);
-	hildon_touch_selector_set_active (HILDON_TOUCH_SELECTOR (chooser_dialog->selector), 0, 0);
+        hildon_touch_selector_set_active (HILDON_TOUCH_SELECTOR (chooser_dialog->selector), 0, self->default_heart_rate_range_id);
 
 	}
        hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (chooser_dialog->button),HILDON_TOUCH_SELECTOR (chooser_dialog->selector));
+
 
 	gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->button, FALSE, FALSE, 0);
 
