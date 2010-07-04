@@ -1,4 +1,4 @@
-  /*
+/*
  *  eCoach
  *
  *  Copyright (C) 2009 Sampo Savola, Jukka Alasalmi
@@ -55,20 +55,20 @@
  *===========================================================================*/
 
 static void activity_default_range_changed(
-		const GConfEntry *entry,
-		gpointer user_data,
-		gpointer user_data_2);
+        const GConfEntry *entry,
+        gpointer user_data,
+        gpointer user_data_2);
 
 static void activity_default_name_changed(
-		const GConfEntry *entry,
-		gpointer user_data,
-		gpointer user_data_2);
+        const GConfEntry *entry,
+        gpointer user_data,
+        gpointer user_data_2);
 
 static ActivityChooserDialog *activity_chooser_dialog_new(
-		ActivityChooser *self);
+        ActivityChooser *self);
 
 static void activity_chooser_dialog_destroy(
-		ActivityChooserDialog *chooser_dialog);
+        ActivityChooserDialog *chooser_dialog);
 
 /**
  * @brief Return a file name for saving, or NULL if Cancel was pressed
@@ -80,8 +80,8 @@ static void activity_chooser_dialog_destroy(
  * must be freed with g_free.
  */
 static gchar *activity_chooser_dialog_choose_file_name(
-		ActivityChooser *self,
-		ActivityChooserDialog *chooser_dialog);
+        ActivityChooser *self,
+        ActivityChooserDialog *chooser_dialog);
 
 /*****************************************************************************
  * Function declarations                                                     *
@@ -97,26 +97,26 @@ static gchar *activity_chooser_dialog_choose_file_name(
 
 ActivityDescription *activity_description_new(const gchar *activity_name)
 {
-	ActivityDescription *self = NULL;
-	DEBUG_BEGIN();
+    ActivityDescription *self = NULL;
+    DEBUG_BEGIN();
 
-	self = g_new0(ActivityDescription, 1);
-	self->activity_name = g_strdup(activity_name);
+    self = g_new0(ActivityDescription, 1);
+    self->activity_name = g_strdup(activity_name);
 
-	DEBUG_END();
-	return self;
+    DEBUG_END();
+    return self;
 }
 
 void activity_description_free(ActivityDescription *self)
 {
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
+    g_return_if_fail(self != NULL);
+    DEBUG_BEGIN();
 
-	g_free(self->file_name);
-	g_free(self->activity_name);
-	g_free(self);
+    g_free(self->file_name);
+    g_free(self->activity_name);
+    g_free(self);
 
-	DEBUG_END();
+    DEBUG_END();
 }
 
 /*---------------------------------------------------------------------------*
@@ -132,183 +132,183 @@ void activity_description_free(ActivityDescription *self)
  *---------------------------------------------------------------------------*/
 
 ActivityChooser *activity_chooser_new(
-		GConfHelperData *gconf_helper,
-		HeartRateSettings *heart_rate_settings,
-		MapView *map_view,
-		GtkWindow *parent_window)
+        GConfHelperData *gconf_helper,
+        HeartRateSettings *heart_rate_settings,
+        MapView *map_view,
+        GtkWindow *parent_window)
 {
-	ActivityChooser *self = NULL;
+    ActivityChooser *self = NULL;
 
-	g_return_val_if_fail(gconf_helper != NULL, NULL);
-	g_return_val_if_fail(heart_rate_settings != NULL, NULL);
-	g_return_val_if_fail(parent_window != NULL, NULL);
-	DEBUG_BEGIN();
+    g_return_val_if_fail(gconf_helper != NULL, NULL);
+    g_return_val_if_fail(heart_rate_settings != NULL, NULL);
+    g_return_val_if_fail(parent_window != NULL, NULL);
+    DEBUG_BEGIN();
 
-	self = g_new0(ActivityChooser, 1);
-	self->gconf_helper = gconf_helper;
-	self->heart_rate_settings = heart_rate_settings;
-	self->map_view = map_view;
-	self->parent_window = parent_window;
+    self = g_new0(ActivityChooser, 1);
+    self->gconf_helper = gconf_helper;
+    self->heart_rate_settings = heart_rate_settings;
+    self->map_view = map_view;
+    self->parent_window = parent_window;
 
-	/* Setup necessary GConf settings */
-        gconf_helper_add_key_int(
-			self->gconf_helper,
-			ECGC_EXERC_DFL_NAME,
-                        0,
-			activity_default_name_changed,
-			self,
-			NULL);
+    /* Setup necessary GConf settings */
+    gconf_helper_add_key_int(
+            self->gconf_helper,
+            ECGC_EXERC_DFL_NAME,
+            0,
+            activity_default_name_changed,
+            self,
+            NULL);
 
-	gconf_helper_add_key_int(
-			self->gconf_helper,
-			ECGC_EXERC_DFL_RANGE_ID,
-			0,
-			activity_default_range_changed,
-			self,
-			NULL);
+    gconf_helper_add_key_int(
+            self->gconf_helper,
+            ECGC_EXERC_DFL_RANGE_ID,
+            0,
+            activity_default_range_changed,
+            self,
+            NULL);
 
-	DEBUG_END();
-	return self;
+    DEBUG_END();
+    return self;
 }
 
 void activity_chooser_set_default_folder(
-		ActivityChooser *self,
-		const gchar *folder)
+        ActivityChooser *self,
+        const gchar *folder)
 {
-	g_return_if_fail(self != NULL);
-	DEBUG_BEGIN();
+    g_return_if_fail(self != NULL);
+    DEBUG_BEGIN();
 
-	g_free(self->default_folder_name);
-	self->default_folder_name = g_strdup(folder);
+    g_free(self->default_folder_name);
+    self->default_folder_name = g_strdup(folder);
 
-	DEBUG_END();
+    DEBUG_END();
 }
 
 ActivityDescription *activity_chooser_choose_activity(ActivityChooser *self)
 {
-	ActivityChooserDialog *chooser_dialog = NULL;
-	ActivityDescription *activity_description;
-	EcExerciseDescription *exercise_description;
-	gint response;
-	gchar *file_name = NULL;
+    ActivityChooserDialog *chooser_dialog = NULL;
+    ActivityDescription *activity_description;
+    EcExerciseDescription *exercise_description;
+    gint response;
+    gchar *file_name = NULL;
 
-	g_return_val_if_fail(self != NULL, NULL);
-	DEBUG_BEGIN();
+    g_return_val_if_fail(self != NULL, NULL);
+    DEBUG_BEGIN();
 
-	chooser_dialog = activity_chooser_dialog_new(self);
+    chooser_dialog = activity_chooser_dialog_new(self);
 
-	gtk_widget_show_all(chooser_dialog->dialog);
+    gtk_widget_show_all(chooser_dialog->dialog);
 
-	do {
-		response = gtk_dialog_run(GTK_DIALOG(chooser_dialog->dialog));
+    do {
+        response = gtk_dialog_run(GTK_DIALOG(chooser_dialog->dialog));
 
-		if(response == GTK_RESPONSE_DELETE_EVENT)
-		{
-			activity_chooser_dialog_destroy(chooser_dialog);
-			DEBUG_END();
-			return NULL;
-		}
-		file_name = activity_chooser_dialog_choose_file_name(
-					self,
-					chooser_dialog);
+        if(response == GTK_RESPONSE_DELETE_EVENT)
+        {
+            activity_chooser_dialog_destroy(chooser_dialog);
+            DEBUG_END();
+            return NULL;
+        }
+        file_name = activity_chooser_dialog_choose_file_name(
+                self,
+                chooser_dialog);
 
-	} while(!file_name);
+    } while(!file_name);
 
-/*	activity_description = activity_description_new(
+    /*	activity_description = activity_description_new(
 			gtk_entry_get_text(GTK_ENTRY(chooser_dialog->
 					entry_activity_name)));
 */
 
-	activity_description = activity_description_new(hildon_touch_selector_get_current_text(chooser_dialog->sportselector));
-					
-	activity_description->activity_comment = g_strdup(
-			gtk_entry_get_text(GTK_ENTRY(chooser_dialog->
-					entry_activity_comment)));
+    activity_description = activity_description_new(hildon_touch_selector_get_current_text(chooser_dialog->sportselector));
 
-	activity_description->file_name = file_name;
+    activity_description->activity_comment = g_strdup(
+            gtk_entry_get_text(GTK_ENTRY(chooser_dialog->
+                                         entry_activity_comment)));
+
+    activity_description->file_name = file_name;
 
 
-//	  activity_description->heart_rate_range_id = gtk_combo_box_get_active(
-//			GTK_COMBO_BOX(chooser_dialog->cmb_pulse_ranges));
+    //	  activity_description->heart_rate_range_id = gtk_combo_box_get_active(
+    //			GTK_COMBO_BOX(chooser_dialog->cmb_pulse_ranges));
 
-      activity_description->heart_rate_range_id = hildon_picker_button_get_active (chooser_dialog->button);
-      DEBUG("HR RANGE ID SELECTED: %d", activity_description->heart_rate_range_id);
-	exercise_description = &self->heart_rate_settings->
-		exercise_descriptions[activity_description->
-		heart_rate_range_id];
+    activity_description->heart_rate_range_id = hildon_picker_button_get_active (chooser_dialog->button);
+    DEBUG("HR RANGE ID SELECTED: %d", activity_description->heart_rate_range_id);
+    exercise_description = &self->heart_rate_settings->
+                           exercise_descriptions[activity_description->
+                                                 heart_rate_range_id];
 
-	activity_description->heart_rate_limit_low =
-		exercise_description->low;
-	activity_description->heart_rate_limit_high =
-		exercise_description->high;
-       DEBUG("%d",activity_description->heart_rate_limit_low);
-       DEBUG("%d",activity_description->heart_rate_limit_high);
-	if(hildon_check_button_get_active(HILDON_CHECK_BUTTON(
-					chooser_dialog->chk_add_calendar)))
-	{
+    activity_description->heart_rate_limit_low =
+            exercise_description->low;
+    activity_description->heart_rate_limit_high =
+            exercise_description->high;
+    DEBUG("%d",activity_description->heart_rate_limit_low);
+    DEBUG("%d",activity_description->heart_rate_limit_high);
+    if(hildon_check_button_get_active(HILDON_CHECK_BUTTON(
+            chooser_dialog->chk_add_calendar)))
+    {
 
 	activity_description->add_calendar = TRUE;
 
-	}
-	else{
+    }
+    else{
 
-	 activity_description->add_calendar = FALSE;
-	}
-	if(hildon_check_button_get_active(HILDON_CHECK_BUTTON(
-					chooser_dialog->chk_save_dfl)))
-	{
+        activity_description->add_calendar = FALSE;
+    }
+    if(hildon_check_button_get_active(HILDON_CHECK_BUTTON(
+            chooser_dialog->chk_save_dfl)))
+    {
 
-           gint selected =  hildon_touch_selector_get_active(chooser_dialog->sportselector,0);
+        gint selected =  hildon_touch_selector_get_active(chooser_dialog->sportselector,0);
 
-		/* Save the default values */
-                gconf_helper_set_value_int(
-				self->gconf_helper,
-				ECGC_EXERC_DFL_NAME,
-                                selected);
+        /* Save the default values */
+        gconf_helper_set_value_int(
+                self->gconf_helper,
+                ECGC_EXERC_DFL_NAME,
+                selected);
 
-		gconf_helper_set_value_int(
-				self->gconf_helper,
-				ECGC_EXERC_DFL_RANGE_ID,
-				activity_description->heart_rate_range_id);
-	}
+        gconf_helper_set_value_int(
+                self->gconf_helper,
+                ECGC_EXERC_DFL_RANGE_ID,
+                activity_description->heart_rate_range_id);
+    }
 
-	activity_chooser_dialog_destroy(chooser_dialog);
+    activity_chooser_dialog_destroy(chooser_dialog);
 
-	DEBUG_END();
-	return activity_description;
+    DEBUG_END();
+    return activity_description;
 }
 
 gboolean activity_chooser_choose_and_setup_activity(ActivityChooser *self)
 {
-	ActivityDescription *activity_description = NULL;
+    ActivityDescription *activity_description = NULL;
 
-	g_return_val_if_fail(self != NULL, FALSE);
-	DEBUG_BEGIN();
+    g_return_val_if_fail(self != NULL, FALSE);
+    DEBUG_BEGIN();
 
-	activity_description = activity_chooser_choose_activity(self);
-	if(!activity_description)
-	{
-		DEBUG_END();
-		return FALSE;
-	}
+    activity_description = activity_chooser_choose_activity(self);
+    if(!activity_description)
+    {
+        DEBUG_END();
+        return FALSE;
+    }
 
-	if(map_view_setup_activity(
-				self->map_view,
-				activity_description->activity_name,
-				activity_description->activity_comment,
-				activity_description->file_name,
-				activity_description->heart_rate_limit_low,
-				activity_description->heart_rate_limit_high,
-				   activity_description->add_calendar))
-	{
-		activity_description_free(activity_description);
-		DEBUG_END();
-		return TRUE;
-	}
+    if(map_view_setup_activity(
+            self->map_view,
+            activity_description->activity_name,
+            activity_description->activity_comment,
+            activity_description->file_name,
+            activity_description->heart_rate_limit_low,
+            activity_description->heart_rate_limit_high,
+            activity_description->add_calendar))
+    {
+        activity_description_free(activity_description);
+        DEBUG_END();
+        return TRUE;
+    }
 
-	activity_description_free(activity_description);
-	DEBUG_END();
-	return FALSE;
+    activity_description_free(activity_description);
+    DEBUG_END();
+    return FALSE;
 }
 
 /*---------------------------------------------------------------------------*
@@ -316,98 +316,115 @@ gboolean activity_chooser_choose_and_setup_activity(ActivityChooser *self)
  *---------------------------------------------------------------------------*/
 
 static void activity_default_name_changed(
-		const GConfEntry *entry,
-		gpointer user_data,
-		gpointer user_data_2)
+        const GConfEntry *entry,
+        gpointer user_data,
+        gpointer user_data_2)
 {
-	GConfValue *value = NULL;
-        gint id;
-	ActivityChooser *self = (ActivityChooser *)user_data;
+    GConfValue *value = NULL;
+    gint id;
+    ActivityChooser *self = (ActivityChooser *)user_data;
 
-	g_return_if_fail(self != NULL);
-	g_return_if_fail(entry != NULL);
-	DEBUG_BEGIN();
+    g_return_if_fail(self != NULL);
+    g_return_if_fail(entry != NULL);
+    DEBUG_BEGIN();
 
-        value = gconf_entry_get_value(entry);
-        id = gconf_value_get_int(value);
+    value = gconf_entry_get_value(entry);
+    id = gconf_value_get_int(value);
 
-        self->default_activity_name = id;
+    self->default_activity_name = id;
 
-	DEBUG_END();
+    DEBUG_END();
 }
 
 static void activity_default_range_changed(
-		const GConfEntry *entry,
-		gpointer user_data,
-		gpointer user_data_2)
+        const GConfEntry *entry,
+        gpointer user_data,
+        gpointer user_data_2)
 {
-	gint id;
-	GConfValue *value = NULL;
-	ActivityChooser *self = (ActivityChooser *)user_data;
+    gint id;
+    GConfValue *value = NULL;
+    ActivityChooser *self = (ActivityChooser *)user_data;
 
-	g_return_if_fail(self != NULL);
-	g_return_if_fail(entry != NULL);
-	DEBUG_BEGIN();
+    g_return_if_fail(self != NULL);
+    g_return_if_fail(entry != NULL);
+    DEBUG_BEGIN();
 
-	value = gconf_entry_get_value(entry);
-	id = gconf_value_get_int(value);
-	if(id < 0 || id >= EC_EXERCISE_TYPE_COUNT)
-	{
-		g_warning("Invalid heart rate range type");
-		DEBUG_END();
-		return;
-	}
-	self->default_heart_rate_range_id = id;
+    value = gconf_entry_get_value(entry);
+    id = gconf_value_get_int(value);
+    if(id < 0 || id >= EC_EXERCISE_TYPE_COUNT)
+    {
+        g_warning("Invalid heart rate range type");
+        DEBUG_END();
+        return;
+    }
+    self->default_heart_rate_range_id = id;
 
-	DEBUG_END();
+    DEBUG_END();
 }
 
 static ActivityChooserDialog *activity_chooser_dialog_new(
-		ActivityChooser *self)
+        ActivityChooser *self)
 {
-	ActivityChooserDialog *chooser_dialog = NULL;
-	GtkWidget *vbox = NULL;
-	GtkWidget *caption = NULL;
+    ActivityChooserDialog *chooser_dialog = NULL;
+    GtkWidget *vbox = NULL;
+    GtkWidget *caption = NULL;
 
-	GtkSizeGroup *size_group = NULL;
+    GtkSizeGroup *size_group = NULL;
 
-	gint i;
+    gint i;
 
-	g_return_val_if_fail(self != NULL, NULL);
-	DEBUG_BEGIN();
+    g_return_val_if_fail(self != NULL, NULL);
+    DEBUG_BEGIN();
 
-	chooser_dialog = g_new0(ActivityChooserDialog, 1);
-	chooser_dialog->dialog = gtk_dialog_new_with_buttons(
-			_("Start a new activity"),
-			GTK_WINDOW(self->parent_window),
-			GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR,
-			_("OK"), GTK_RESPONSE_OK,
-			_("Cancel"), GTK_RESPONSE_CANCEL,
-			NULL);
+    chooser_dialog = g_new0(ActivityChooserDialog, 1);
+    chooser_dialog->dialog = gtk_dialog_new_with_buttons(
+            _("Start a new activity"),
+            GTK_WINDOW(self->parent_window),
+            GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR,
+            _("OK"), GTK_RESPONSE_OK,
+            _("Cancel"), GTK_RESPONSE_CANCEL,
+            NULL);
 
-	vbox = GTK_DIALOG(chooser_dialog->dialog)->vbox;
+    vbox = GTK_DIALOG(chooser_dialog->dialog)->vbox;
 
-	size_group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+    size_group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
-	chooser_dialog->sportbutton = hildon_picker_button_new (HILDON_SIZE_FINGER_HEIGHT, HILDON_BUTTON_ARRANGEMENT_VERTICAL);
-        hildon_button_set_title (HILDON_BUTTON (chooser_dialog->sportbutton), "Sport");
-      
-	chooser_dialog->sportselector = hildon_touch_selector_new_text ();
-	
-	/* In the future show all sports and last used as the first one */
-	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Running");
-	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Cycling");
-	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Walking");
-	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Nordic Walking");
-	
+    chooser_dialog->sportbutton = hildon_picker_button_new (HILDON_SIZE_FINGER_HEIGHT, HILDON_BUTTON_ARRANGEMENT_VERTICAL);
+    hildon_button_set_title (HILDON_BUTTON (chooser_dialog->sportbutton), "Sport");
 
-        gint dfl_index =  gconf_helper_get_value_int_with_default(
-                self->gconf_helper,
-                ECGC_EXERC_DFL_NAME,
-                        0);
-        hildon_touch_selector_set_active (HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), 0, dfl_index);
-	hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (chooser_dialog->sportbutton),HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector));
-/*
+    chooser_dialog->sportselector = hildon_touch_selector_new_text ();
+
+
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Running");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Cycling");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Walking");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Nordic walking");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Skiing");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Roller skating");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Alpine skiing");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Rowing");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Riding");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Mountain biking");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Snowboarding");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Snowshoeing");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Orienteering");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Sailing");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Hiking");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Roller skiing");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Telemark skiing");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Jogging");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Walking the dog");
+
+
+
+
+    gint dfl_index =  gconf_helper_get_value_int_with_default(
+            self->gconf_helper,
+            ECGC_EXERC_DFL_NAME,
+            0);
+    hildon_touch_selector_set_active (HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), 0, dfl_index);
+    hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (chooser_dialog->sportbutton),HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector));
+    /*
 	chooser_dialog->entry_activity_name = hildon_entry_new (HILDON_SIZE_AUTO);
 	if(self->default_activity_name)
 	{
@@ -426,10 +443,10 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 			NULL,
 			HILDON_CAPTION_OPTIONAL);
 */
-	gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->sportbutton, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->sportbutton, FALSE, FALSE, 0);
 
-	
-	/*
+
+    /*
 	chooser_dialog->entry_activity_comment = hildon_entry_new (HILDON_SIZE_AUTO);
 
 	caption = hildon_caption_new(
@@ -441,7 +458,7 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 
 	gtk_box_pack_start(GTK_BOX(vbox), caption, FALSE, FALSE, 0);
 */
-	/*
+    /*
 	chooser_dialog->cmb_pulse_ranges = gtk_combo_box_new_text();
 
 
@@ -452,119 +469,119 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 
 	*/
 
-	chooser_dialog->button = hildon_picker_button_new (HILDON_SIZE_FINGER_HEIGHT, HILDON_BUTTON_ARRANGEMENT_VERTICAL);
-        hildon_button_set_title (HILDON_BUTTON (chooser_dialog->button), "Target heart rate type");
-        chooser_dialog->selector = hildon_touch_selector_new_text ();
+    chooser_dialog->button = hildon_picker_button_new (HILDON_SIZE_FINGER_HEIGHT, HILDON_BUTTON_ARRANGEMENT_VERTICAL);
+    hildon_button_set_title (HILDON_BUTTON (chooser_dialog->button), "Target heart rate type");
+    chooser_dialog->selector = hildon_touch_selector_new_text ();
 
-	for(i = 0; i < EC_EXERCISE_TYPE_COUNT; i++)
-	{
+    for(i = 0; i < EC_EXERCISE_TYPE_COUNT; i++)
+    {
 
 	hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->selector), self->heart_rate_settings->exercise_descriptions[i].name);
         hildon_touch_selector_set_active (HILDON_TOUCH_SELECTOR (chooser_dialog->selector), 0, self->default_heart_rate_range_id);
 
-	}
-       hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (chooser_dialog->button),HILDON_TOUCH_SELECTOR (chooser_dialog->selector));
+    }
+    hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (chooser_dialog->button),HILDON_TOUCH_SELECTOR (chooser_dialog->selector));
 
 
-	gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->button, FALSE, FALSE, 0);
 
-	chooser_dialog->chk_save_dfl = hildon_check_button_new(HILDON_SIZE_FINGER_HEIGHT);
-	gtk_button_set_label (GTK_BUTTON ( chooser_dialog->chk_save_dfl), "Save as default");
+    chooser_dialog->chk_save_dfl = hildon_check_button_new(HILDON_SIZE_FINGER_HEIGHT);
+    gtk_button_set_label (GTK_BUTTON ( chooser_dialog->chk_save_dfl), "Save as default");
 
-	gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->chk_save_dfl, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->chk_save_dfl, FALSE, FALSE, 0);
 
-	 chooser_dialog->chk_add_calendar = hildon_check_button_new(HILDON_SIZE_FINGER_HEIGHT);
-	gtk_button_set_label (GTK_BUTTON (chooser_dialog->chk_add_calendar), "Add to calendar");
-	 hildon_check_button_set_active(GTK_BUTTON ( chooser_dialog->chk_add_calendar),TRUE);
-	gtk_box_pack_start(GTK_BOX(vbox),chooser_dialog->chk_add_calendar, FALSE, FALSE, 0);
-	DEBUG_END();
-	return chooser_dialog;
+    chooser_dialog->chk_add_calendar = hildon_check_button_new(HILDON_SIZE_FINGER_HEIGHT);
+    gtk_button_set_label (GTK_BUTTON (chooser_dialog->chk_add_calendar), "Add to calendar");
+    hildon_check_button_set_active(GTK_BUTTON ( chooser_dialog->chk_add_calendar),TRUE);
+    gtk_box_pack_start(GTK_BOX(vbox),chooser_dialog->chk_add_calendar, FALSE, FALSE, 0);
+    DEBUG_END();
+    return chooser_dialog;
 }
 
 static void activity_chooser_dialog_destroy(
-		ActivityChooserDialog *chooser_dialog)
+        ActivityChooserDialog *chooser_dialog)
 {
-	DEBUG_BEGIN();
-	g_return_if_fail(chooser_dialog != NULL);
+    DEBUG_BEGIN();
+    g_return_if_fail(chooser_dialog != NULL);
 
-	gtk_widget_destroy(chooser_dialog->dialog);
-	g_free(chooser_dialog);
+    gtk_widget_destroy(chooser_dialog->dialog);
+    g_free(chooser_dialog);
 
-	DEBUG_END();
+    DEBUG_END();
 }
 
 static gchar *activity_chooser_dialog_choose_file_name(
-		ActivityChooser *self,
-		ActivityChooserDialog *chooser_dialog)
+        ActivityChooser *self,
+        ActivityChooserDialog *chooser_dialog)
 {
-	HildonFileSystemModel *fs_model = NULL;
-	GtkWidget *file_dialog = NULL;
+    HildonFileSystemModel *fs_model = NULL;
+    GtkWidget *file_dialog = NULL;
 
-	gchar *file_name = NULL;
-	const gchar *activity_name = NULL;
-	gchar *date_str = NULL;
-	gchar *dfl_fname = NULL;
-	gint result;
-	gint i = 1;
-	g_return_val_if_fail(self != NULL, NULL);
-	g_return_val_if_fail(chooser_dialog != NULL, NULL);
-	DEBUG_BEGIN();
-	gchar* extension;
-	extension = g_strdup_printf(".gpx");
-	/*
+    gchar *file_name = NULL;
+    const gchar *activity_name = NULL;
+    gchar *date_str = NULL;
+    gchar *dfl_fname = NULL;
+    gint result;
+    gint i = 1;
+    g_return_val_if_fail(self != NULL, NULL);
+    g_return_val_if_fail(chooser_dialog != NULL, NULL);
+    DEBUG_BEGIN();
+    gchar* extension;
+    extension = g_strdup_printf(".gpx");
+    /*
 	activity_name = gtk_entry_get_text(
 			GTK_ENTRY(chooser_dialog->entry_activity_name));
 */
-//	activity_name = hildon_picker_button_get_active (chooser_dialog->button);
-	activity_name = hildon_touch_selector_get_current_text(chooser_dialog->sportselector);
-	DEBUG("%s", activity_name);
-	date_str = util_date_string_from_timeval(NULL);
+    //	activity_name = hildon_picker_button_get_active (chooser_dialog->button);
+    activity_name = hildon_touch_selector_get_current_text(chooser_dialog->sportselector);
+    DEBUG("%s", activity_name);
+    date_str = util_date_string_from_timeval(NULL);
 
-	if(strcmp(activity_name, "") == 0)
-	{
-		dfl_fname = g_strdup_printf("%s", date_str);
-	} else {
-		dfl_fname = g_strdup_printf("%s-%s", date_str,
-				activity_name);
-	}
+    if(strcmp(activity_name, "") == 0)
+    {
+        dfl_fname = g_strdup_printf("%s", date_str);
+    } else {
+        dfl_fname = g_strdup_printf("%s-%s", date_str,
+                                    activity_name);
+    }
 
-	g_free(date_str);
+    g_free(date_str);
 
-	fs_model = HILDON_FILE_SYSTEM_MODEL(
-		g_object_new(HILDON_TYPE_FILE_SYSTEM_MODEL,
-		"ref_widget", GTK_WIDGET(self->parent_window), NULL));
-	GtkWidget *selection = hildon_file_selection_new_with_model(fs_model);
-	hildon_file_selection_set_sort_key(selection,HILDON_FILE_SELECTION_SORT_NAME,GTK_SORT_DESCENDING);
+    fs_model = HILDON_FILE_SYSTEM_MODEL(
+            g_object_new(HILDON_TYPE_FILE_SYSTEM_MODEL,
+                         "ref_widget", GTK_WIDGET(self->parent_window), NULL));
+    GtkWidget *selection = hildon_file_selection_new_with_model(fs_model);
+    hildon_file_selection_set_sort_key(selection,HILDON_FILE_SELECTION_SORT_NAME,GTK_SORT_DESCENDING);
 
-	if(!fs_model)
-	{
-		ec_error_show_message_error(
-				_("Unable to open File chooser dialog"));
-		DEBUG_END();
-		return NULL;
-	}
-	
-	gtk_file_chooser_set_current_folder(
-			GTK_FILE_CHOOSER(file_dialog),
-			self->default_folder_name);
+    if(!fs_model)
+    {
+        ec_error_show_message_error(
+                _("Unable to open File chooser dialog"));
+        DEBUG_END();
+        return NULL;
+    }
 
-	gtk_file_chooser_set_current_name(
-			GTK_FILE_CHOOSER(file_dialog),
-			dfl_fname);
+    gtk_file_chooser_set_current_folder(
+            GTK_FILE_CHOOSER(file_dialog),
+            self->default_folder_name);
 
-	file_name =  g_strdup_printf("%s/%s%s",self->default_folder_name,dfl_fname,extension);
-	DEBUG("%s",file_name);
-	while(g_file_test(file_name,G_FILE_TEST_EXISTS))
-	{
+    gtk_file_chooser_set_current_name(
+            GTK_FILE_CHOOSER(file_dialog),
+            dfl_fname);
+
+    file_name =  g_strdup_printf("%s/%s%s",self->default_folder_name,dfl_fname,extension);
+    DEBUG("%s",file_name);
+    while(g_file_test(file_name,G_FILE_TEST_EXISTS))
+    {
 	g_free(file_name);
 	file_name =  g_strdup_printf("%s/%s-%d%s",self->default_folder_name,dfl_fname,i,extension);
 	DEBUG("%s",file_name);
 	i++;
-	}
-	gconf_helper_set_value_string_simple(self->gconf_helper,LAST_ACTIVITY,file_name);
-	g_free(extension);
-	g_free(dfl_fname);
-	
-	DEBUG_END();
-	return file_name;
+    }
+    gconf_helper_set_value_string_simple(self->gconf_helper,LAST_ACTIVITY,file_name);
+    g_free(extension);
+    g_free(dfl_fname);
+
+    DEBUG_END();
+    return file_name;
 }
