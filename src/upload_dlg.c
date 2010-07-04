@@ -59,6 +59,7 @@ void upload(AnalyzerView *data){
         first_time_authentication(data);
     }
 
+    /* Very ugly code, implement proper list matching when time :) */
     if(data->status){
         int sport_type =0;
 
@@ -78,6 +79,68 @@ void upload(AnalyzerView *data){
 
             sport_type =4;
         }
+        if(!g_ascii_strcasecmp("Skiing",data->name)){
+
+            sport_type =6;
+        }
+        if(!g_ascii_strcasecmp("Roller skating",data->name)){
+
+            sport_type =8;
+        }
+        if(!g_ascii_strcasecmp("Alpine skiing",data->name)){
+
+            sport_type =33;
+        }
+        if(!g_ascii_strcasecmp("Rowing",data->name)){
+
+            sport_type =40;
+        }
+        if(!g_ascii_strcasecmp("Riding",data->name)){
+
+            sport_type =45;
+        }
+        if(!g_ascii_strcasecmp("Mountain biking",data->name)){
+
+            sport_type =49;
+        }
+        if(!g_ascii_strcasecmp("Snowboarding",data->name)){
+
+            sport_type =55;
+        }
+        if(!g_ascii_strcasecmp("Snowshoeing",data->name)){
+
+            sport_type =56;
+        }
+        if(!g_ascii_strcasecmp("Orienteering",data->name)){
+
+            sport_type =57;
+        }
+        if(!g_ascii_strcasecmp("Sailing",data->name)){
+
+            sport_type =72;
+        }
+        if(!g_ascii_strcasecmp("Hiking",data->name)){
+
+            sport_type =79;
+        }
+        if(!g_ascii_strcasecmp("Roller skiing",data->name)){
+
+            sport_type =102;
+        }
+        if(!g_ascii_strcasecmp("Telemark skiing",data->name)){
+
+            sport_type =149;
+        }
+        if(!g_ascii_strcasecmp("Jogging",data->name)){
+
+            sport_type =148;
+        }
+        if(!g_ascii_strcasecmp("Walking the dog",data->name)){
+
+            sport_type =220;
+        }
+
+
 
         DEBUG("Track name %s", data->name);
 
