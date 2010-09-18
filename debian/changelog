@@ -1,3 +1,10 @@
+ecoach (1.65) unstable; urgency=low
+
+  * Added more sports for uploading to HeiaHeia
+  * Fixed bug: Didnt remember the default sport type or hr range
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Sun,  4 Jul 2010 15:26:33 +0300
+
 ecoach (1.64) unstable; urgency=low
 
   * Fixed bug, eCoach crashed if user uploads to heiaheia right after excercise
