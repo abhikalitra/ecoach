@@ -414,8 +414,8 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
     hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Telemark skiing");
     hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Jogging");
     hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Walking the dog");
-
-
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Golf");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Frisbeegolf");
 
 
     gint dfl_index =  gconf_helper_get_value_int_with_default(

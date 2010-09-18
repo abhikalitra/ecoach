@@ -139,6 +139,14 @@ void upload(AnalyzerView *data){
 
             sport_type =220;
         }
+        if(!g_ascii_strcasecmp("Golf",data->name)){
+
+            sport_type =9;
+        }
+        if(!g_ascii_strcasecmp("Frisbeegolf",data->name)){
+
+            sport_type =77;
+        }
 
 
 
