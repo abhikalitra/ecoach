@@ -1,5 +1,6 @@
 ecoach (1.66) unstable; urgency=low
 
+  * Added auto-saving GPX file every 5 mins
   * Added new sports: Golf and Frisbeegolf
   * Fixed bug: main window was hidden after rejected exit confirmation dialog
 

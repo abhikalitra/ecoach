@@ -18,7 +18,8 @@ Description: eCoach is an application for managing sport and exercise activities
   eCoach supports Open Street Map, Google Earth, and Virtual Earth,enabling you to view your routes on the map and share 
   them with friends at a later point.eCoach currently supports FRWD B600 and Zephyr HxM heart rate monitors.
 XB-Maemo-Display-Name: eCoach
-XB-Maemo-Upgrade-Description: Added new sports: Golf and Frisbeegolf
+XB-Maemo-Upgrade-Description: Added GPX auto-saving every 5 mins
+ Added new sports: Golf and Frisbeegolf
  Fixed bug: Main window was hidden if exit confirmation was rejected
 XB-Maemo-Icon-26:
   iVBORw0KGgoAAAANSUhEUgAAADAAAAApCAYAAABz26rUAAAAAXNSR0IArs4c
