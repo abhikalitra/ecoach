@@ -1,3 +1,10 @@
+ecoach (1.66) unstable; urgency=low
+
+  * Added new sports: Golf and Frisbeegolf
+  * Fixed bug: main window was hidden after rejected exit confirmation dialog
+
+ -- Sampo Savola <samposav@paju.oulu.fi>  Sat, 18 Sep 2010 15:28:09 +0300
+
 ecoach (1.65) unstable; urgency=low
 
   * Added more sports for uploading to HeiaHeia
