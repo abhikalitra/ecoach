@@ -44,7 +44,7 @@
  * Definitions                                                               *
  *****************************************************************************/
 
-#define TRACK_HELPER_AUTOSAVE_INTERVAL 1 * 60 * 1000
+#define TRACK_HELPER_AUTOSAVE_INTERVAL 5 * 60 * 1000
 
 /*****************************************************************************
  * Private function prototypes                                               *
@@ -228,6 +228,8 @@ void track_helper_add_track_point(
 		DEBUG_END();
 		return;
 	}
+
+	track_helper_data_changed(self);
 
 	/* Get the previous point from the list */
 	prev_point = (TrackHelperPoint *)g_slist_nth(
