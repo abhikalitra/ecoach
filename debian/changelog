@@ -1,3 +1,9 @@
+ecoach (1.67) unstable; urgency=low
+
+  * Add backend mapping support for OviMaps
+
+ -- Oliver Hookins <ohookins@gmail.com>  Thu, 04 Aug 2011 15:40:16 +0200
+
 ecoach (1.66) unstable; urgency=low
 
   * Added auto-saving GPX file every 5 mins

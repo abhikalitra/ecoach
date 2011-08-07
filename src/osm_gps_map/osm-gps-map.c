@@ -2021,6 +2021,12 @@ osm_gps_map_source_get_friendly_name(OsmGpsMapSource_t source)
             return "Yahoo Satellite";
         case OSM_GPS_MAP_SOURCE_YAHOO_HYBRID:
             return "Yahoo Hybrid";
+        case OSM_GPS_MAP_SOURCE_OVIMAPS_NORMAL:
+            return "OviMaps";
+        case OSM_GPS_MAP_SOURCE_OVIMAPS_HYBRID:
+            return "OviMaps Hybrid";
+        case OSM_GPS_MAP_SOURCE_OVIMAPS_TRANSIT:
+            return "OviMaps Public Transport";
         default:
             return NULL;
     }
@@ -2068,6 +2074,12 @@ osm_gps_map_source_get_repo_uri(OsmGpsMapSource_t source)
              *  z = zoom - (MAX_ZOOM - 17));
              */
             return NULL;
+        case OSM_GPS_MAP_SOURCE_OVIMAPS_NORMAL:
+            return "http://maptile.maps.svc.ovi.com/maptiler/v2/maptile/newest/normal.day/#Z/#X/#Y/256/png8";
+        case OSM_GPS_MAP_SOURCE_OVIMAPS_HYBRID:
+            return "http://maptile.maps.svc.ovi.com/maptiler/v2/maptile/newest/hybrid.day/#Z/#X/#Y/256/png8";
+        case OSM_GPS_MAP_SOURCE_OVIMAPS_TRANSIT:
+            return "http://maptile.maps.svc.ovi.com/maptiler/v2/maptile/newest/normal.day.transit/#Z/#X/#Y/256/png8";
         default:
             return NULL;
     }
@@ -2081,6 +2093,9 @@ osm_gps_map_source_get_image_format(OsmGpsMapSource_t source)
         case OSM_GPS_MAP_SOURCE_NULL:
         case OSM_GPS_MAP_SOURCE_OPENSTREETMAP:
         case OSM_GPS_MAP_SOURCE_OPENSTREETMAP_RENDERER:
+        case OSM_GPS_MAP_SOURCE_OVIMAPS_NORMAL:
+        case OSM_GPS_MAP_SOURCE_OVIMAPS_HYBRID:
+        case OSM_GPS_MAP_SOURCE_OVIMAPS_TRANSIT:
             return "png";
         case OSM_GPS_MAP_SOURCE_OPENAERIALMAP:
         case OSM_GPS_MAP_SOURCE_GOOGLE_STREET:
@@ -2121,6 +2136,9 @@ osm_gps_map_source_get_max_zoom(OsmGpsMapSource_t source)
         case OSM_GPS_MAP_SOURCE_GOOGLE_HYBRID:
         case OSM_GPS_MAP_SOURCE_VIRTUAL_EARTH_STREET:
         case OSM_GPS_MAP_SOURCE_VIRTUAL_EARTH_SATELLITE:
+        case OSM_GPS_MAP_SOURCE_OVIMAPS_NORMAL:
+        case OSM_GPS_MAP_SOURCE_OVIMAPS_HYBRID:
+        case OSM_GPS_MAP_SOURCE_OVIMAPS_TRANSIT:
 	  return 19;
         case OSM_GPS_MAP_SOURCE_VIRTUAL_EARTH_HYBRID:
 	  return 19;

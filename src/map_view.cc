@@ -1765,6 +1765,9 @@ static HildonAppMenu *create_menu (MapView *self)
   "Virtual Earth Street",
   "Virtual Earth Satellite",
   "Virtual Earth Hybrid",
+  "OviMaps",
+  "OviMaps Hybrid",
+  "OviMaps Public Transport",
   NULL
 };
 
@@ -1876,7 +1879,10 @@ select_map_source_cb (HildonButton *button, gpointer user_data)
 	"Google Hybrid",
 	"Virtual Earth Street",
 	"Virtual Earth Satellite",
-	"Virtual Earth Hybrid"
+	"Virtual Earth Hybrid",
+	"OviMaps",
+	"OviMaps Hybrid",
+	"OviMaps Public Transport"
 	};
     DEBUG_BEGIN();
 
@@ -1892,7 +1898,7 @@ select_map_source_cb (HildonButton *button, gpointer user_data)
     HILDON_TOUCH_SELECTOR_SELECTION_MODE_SINGLE);
 
 
-    for( int j = 0;j<10;j++){
+    for( int j = 0;j<13;j++){
     hildon_touch_selector_append_text (HILDON_TOUCH_SELECTOR (selector),maps[j]);
     }
     hildon_touch_selector_set_active(HILDON_TOUCH_SELECTOR(selector),0,self->map_provider-1);
