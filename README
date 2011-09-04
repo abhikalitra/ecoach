@@ -1,3 +1,6 @@
+Building
+--------
+
 To compile eCoach, you need the set up the Scratcbhox. For more
 information on this, please see documentation at
 	- http://maemo.org/
@@ -12,7 +15,7 @@ commands in the source directory (that is usually something like
 gob2 ec-progress.gob
 gob2 ec-button.gob
 
-When you have scratcbhox installed and the sources unpacked, please do the
+When you have scratcbox installed and the sources unpacked, please do the
 following:
 
 1) Go to the source directory (e.g., "cd ecoach" or something like that)
@@ -23,3 +26,26 @@ dpkg-buildpackage -rfakeroot
 	OR if you downloaded the software using svn
 
 dpkg-buildpackage -rfakeroot -I.svn
+
+
+Maintenance
+-----------
+* Please read http://wiki.maemo.org/Maemo_packaging
+
+On each new release, please:
+1) Increment the package version, e.g. with "dch -i".
+
+2) Add an entry to ChangeLog describing the changes you have made.
+
+3) Add the changes added in this release to the XB-Maemo-Upgrade-Description
+   section of debian/control.
+
+4) Increment the package version to the same as in 1) and verify the correct
+   maintainer address in configure.ac.
+
+5) Make sure your release builds and packages successfully in your local
+   Scratchbox (FREMANTLE_ARMEL environment) and in the Maemo Garage build
+   system.
+
+6) Tag the release by making an svn copy to the tags directory with the new
+   release version number.

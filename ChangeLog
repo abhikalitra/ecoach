@@ -1,3 +1,577 @@
+2011-08-07  Oliver Hookins <ohookins@gmail.com>
+  * Tag the 1.67 release
+  * Add backend mapping support for OviMaps
+
+2010-09-18  Sampo Savola <samposav@paju.oulu.fi>
+  * updated changelog
+  * added autosaving gpx file every 5mins
+  * updated version info
+  * added golf and frisbeegolf as new sport types
+  * fixed bug: main window went hidden if user pressed "no" in exit
+  confirmation dialog
+  * updated version information
+  * Tagging v.1.65
+  * Tagging v.1.65
+
+2010-07-04  Sampo Savola <samposav@paju.oulu.fi>
+  * added more sport types to upload to heiaheia
+  * added more sports to choose fixed bug: didnt remember to save default
+  values for sport and hr range
+
+2010-07-01  Sampo Savola <samposav@paju.oulu.fi>
+  * fixed bug, now rember the default sports type and hr range
+
+2010-06-29  Sampo Savola <samposav@paju.oulu.fi>
+  * update
+  * update version info
+  * updated news
+  * updated
+  * updated copyright years
+
+2010-06-11  Sampo Savola <samposav@paju.oulu.fi>
+  * updated version info
+  * fixed bug, crashed because filename was not copied to another variable for
+  uploading to heiaheia, if tried to upload right after excercise
+
+2010-06-10  Sampo Savola <samposav@paju.oulu.fi>
+  * Updated version number and update info
+  * store filename for uploading gpx
+  * upload the gpx file also to HeiaHeia
+
+2010-05-22  Sampo Savola <samposav@paju.oulu.fi>
+  * added button files
+  * disable debug messages
+  * version and changelog updates
+  * added feature to reset heiaheia authentication changed graphs position to
+  below the stats
+  * show error banner if upload failed for some reason dont store token and
+  token secret if they were not authorized
+
+2010-05-18  Sampo Savola <samposav@paju.oulu.fi>
+  * update news
+  * update
+  * update
+
+2010-05-11  Sampo Savola <samposav@paju.oulu.fi>
+  * removed oauth_callback parameter from authorization url
+
+2010-05-06  Sampo Savola <samposav@paju.oulu.fi>
+  * Tagged version 1.61
+  * Tagged version 1.61
+
+2010-05-04  Sampo Savola <samposav@paju.oulu.fi>
+  * updated build dependencies and update info
+  * updated version nummber
+  * version number fix
+  * changed versioning and updated changelog
+  * g_free()
+  * added GtkWidget* mapchooserdialog
+  * fixed map chooser to disappear when map is chosen
+
+2010-05-03  Sampo Savola <samposav@paju.oulu.fi>
+  * updated version number
+  * cleaned up unused variables
+  * implemented upload feature for heiaheia.com
+  * limited maxium comment lenght to 255 characters
+  * Updated version number and changelog
+
+2010-04-30  Sampo Savola <samposav@paju.oulu.fi>
+  * implemented Upload feature for HeiaHeia.com
+
+2010-04-27  Sampo Savola <samposav@paju.oulu.fi>
+  * add feature for uploading activity data to service
+  * added hildon menu for uploading excercises to service
+  * added dependency for liboauth
+
+2010-04-13  Sampo Savola <samposav@paju.oulu.fi>
+  * updated svn location
+
+2010-03-09  Sampo Savola <samposav@paju.oulu.fi>
+  * updateinfo
+  * cleaned up some legacy code
+
+2010-01-29  Sampo Savola <samposav@paju.oulu.fi>
+  * added support for Polar bluetooth hrm
+
+2009-11-26  Sampo Savola <samposav@paju.oulu.fi>
+  * added initial support for Polar iWearlink Bluetooth HRM
+  * Tagged version 1.56
+
+2009-10-22  Sampo Savola <samposav@paju.oulu.fi>
+  * updated new version info
+  * Open last activity automatically only if there is no activity going on
+  * updated version information for 1.55 changed icon to size 48x48
+  * added variable for checking if the first proper gps fix is written in gpx
+  file
+  * fixed crash that occur when recording with HR data was started but
+  application didnt have gps fix
+
+2009-10-21  Sampo Savola <samposav@paju.oulu.fi>
+  * write hr values for different levels in the gconf based on the user details
+  * added maxhr variable in the main data struct
+  * fixed selecting target heart rate level
+
+2009-10-20  Sampo Savola <samposav@paju.oulu.fi>
+  * dont switch mapview fullscreen if personal data view is shown.
+  * moved personal_data win to main struct
+  * fixed copyright disclaimer
+  * dont put mapview in to a fullscreen mode while data view is show. This
+  fixes occasional errors in map view while coming back from dataview.
+
+2009-10-19  Sampo Savola <samposav@paju.oulu.fi>
+  * update heartrate label in data view only if the label is shown
+  * check if it was a fresh installation of ecoach, dont try to open last
+  excercise
+  * added GConf key for a filename of last activity
+  * open last activity automatically, if there is one
+  * added saving file automatically to /home/user/MyDocs/eCoach/
+
+2009-10-14  Sampo Savola <samposav@paju.oulu.fi>
+  * Changed the text shown if not able to connect to HRM
+  * shows now "none" in the device label if no hrm paired
+  * fixed removing heart rate monitor, does not crash anymore
+  * Can now show all graphs at the same time, not just two
+
+2009-10-07  Sampo Savola <samposav@paju.oulu.fi>
+  * updated upgrade info field
+  * changed the location of icon in ec-button widget
+  * load icons for heartrate level removed help from the menu in map view
+  because we dont have help documentation yet..
+  * updated changelog
+
+2009-10-06  Sampo Savola <samposav@paju.oulu.fi>
+  * Maemo-optified eCoach
+
+2009-10-05  Sampo Savola <samposav@paju.oulu.fi>
+  * added support for Zephyr HXM heartrate monitor
+  * added variables for Zephyr HRM
+
+2009-10-04  Sampo Savola <samposav@paju.oulu.fi>
+  * updated version number
+  * added variables for map
+  * implemented map for showing track on the map
+  * button for map in analyze view
+  * added new graphic for map button in analyze view
+
+2009-09-29  Sampo Savola <samposav@paju.oulu.fi>
+  * updated version number
+
+2009-09-14  Sampo Savola <samposav@paju.oulu.fi>
+  * dont clear route from the map, if recording is stopped and location changes
+
+  * added banner for showing GPS status
+
+2009-09-08  Sampo Savola <samposav@paju.oulu.fi>
+  * changed STOCK_OK to "OK" in add note dialog to not to have mnemonics
+  * updated version  and upgrade info
+
+2009-09-07  Sampo Savola <samposav@paju.oulu.fi>
+  * removed comment label from summary view, adde min per km field
+  * added column for showing min/km info
+  * added feature to show min/km info on dataview, it will also be added to
+  calendar
+  * added new variable
+  * added calculation for min/km
+  * new variables
+
+2009-09-04  Sampo Savola <samposav@paju.oulu.fi>
+  * updated version number
+
+2009-09-03  Sampo Savola <samposav@paju.oulu.fi>
+  * removed duplicated self->info_heart_rate
+  * deleted old C map_view
+  * fixed bug, tried to free activity_comment even it was not allocated
+
+2009-09-01  Sampo Savola <samposav@paju.oulu.fi>
+  * changed version number and fixed max speed calculation
+  * updated version number and upgrade info
+  * added notification to fill up user data if its the first boot
+  * added GCONF key for showing notification to fill user data for the first
+  boot
+  * fixed no null value to calendar if comment is not set
+  * doesnt get button-press events anymore if fullscreen is enabled
+  * added variable for fullscreen status
+  * changed gtkeventbox transparent and increased their size for easier finger
+  usage
+  * fixed bug: selectors did not activate value currently in use, for example
+  for the age or height
+  * added variables for age,weight and height
+
+2009-08-31  Sampo Savola <samposav@paju.oulu.fi>
+  * cleaned up some legacy code *made it more energy efficient, do not update
+  map or data if them are not visible etc..
+  * set debug on
+  * added variable for display set on
+  * disabled debug mode as default
+  * fixed bug, null values in the calendar
+
+2009-08-27  Sampo Savola <samposav@paju.oulu.fi>
+  * fixed bug
+
+2009-08-26  Sampo Savola <samposav@paju.oulu.fi>
+  * upgraded version number
+  * fixed bug, app closes now even if the activity is not ongoing
+  * changed versionnumber
+  * addded confirmation if there is an activity going on and user wants to
+  close appx
+  * added variable for GPS setting
+  * disabled starting multiple gps connections when going main menu and back
+  * info buttons show again descriptions after stopping an activity
+  * on data view, info buttons show first description, when activity is started
+  they are showing current data
+  * fixed map data rec and pause button alignment, now centered
+  * changed upgrade description
+  * updated changelog
+  * updated version number
+  * implemented add note feature
+  * removed text entry for setting comment when starting new activity
+  * added function for setting comment
+  * added function for setting comment
+
+2009-08-25  Sampo Savola <samposav@paju.oulu.fi>
+  * implemented personal data view
+  * added new graphics
+  * addedd new graphics
+  * changed version number
+  * removed confirmation for closing app
+
+2009-08-24  Sampo Savola <samposav@paju.oulu.fi>
+  * open filechooser in default folder
+  * changed default folder
+  * fixed GTK_RESPONSE_DELETE_EVENT when user wants to cancel starting up new
+  activity
+  * implemented hildonnote for asking hr monitor, only once
+  * added hildon note for notifying how to set up Heartrate monitor, only once
+  * added new key for firstboot
+  * removed unneeded line
+  * added update information
+  * changed version
+  * changed version number
+  * added data_view
+  * added new variables
+
+2009-08-22  Sampo Savola <samposav@paju.oulu.fi>
+  * test
+
+2009-08-21  Sampo Savola <samposav@paju.oulu.fi>
+  * added new graphics
+  * added new variable
+  * test for liblocation speed setting
+
+2009-08-20  Sampo Savola <samposav@paju.oulu.fi>
+  * added calendar-backend-dev as builddepency
+  * changed version number and location method
+  * updated version number
+  * updated description
+  * added new variables
+  * implemented calendar integration
+  * added new variables for new dialog
+  * Changing new activity dialog towards Maemo5 style and added checkbox for
+  calendar integration
+
+2009-08-18  Sampo Savola <samposav@paju.oulu.fi>
+  * fixed array handling
+
+2009-08-17  Sampo Savola <samposav@paju.oulu.fi>
+  * calendar integration
+  * added new files for calendar-integration
+  * added c++ ifdefs and time_t variable
+  * added c++ ifdefs
+  * added ifdefs for c++
+  * added new time variables
+  * added c++ ifdefs
+  * added libs for calendar-backend and c++ compilier
+
+2009-08-10  Sampo Savola <samposav@paju.oulu.fi>
+  * changed version number
+  * DO DEBUG 1
+
+2009-08-07  Sampo Savola <samposav@paju.oulu.fi>
+  * added missing depency for libsoup
+  * fixed version number
+  * changed section and description
+  * updated versioninfo
+  * fixed drawing gps route
+  * Implemented About dialog
+
+2009-08-06  Sampo Savola <samposav@paju.oulu.fi>
+  * removed clearing map
+  * added new graphics
+  * added new graphics
+  * fix
+  * major changes in the map_view.c, new map engine, menu, etc.
+  * changes in hrm settings dialog
+  * new general settings view
+  * changed to use hildon pannable area as a container for graphs and data
+  * major changes in the interface because of new fremantle UI
+  * added new widgets for Fremantle UI
+  * added new widgets for general settings dialog
+  * added new widgets
+  * removed include #include "hrm_shared.h"
+  * removed minimize and close buttons from the main view
+  * added new GConf keys
+  * use "none" for empty bluetooth device instead of ""
+  * added weight picker
+  * added include #include "general_settings.h" removed include interface.h
+  * added new map engine, osm_gps_map
+  * new buttons
+  * added new buttons for fremantle ui
+  * Added source and header files for osm gps map + libsoup compiler flags
+  * added new buttons for FREMANTLE UI
+  * added PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4 ) for osm_gps_map
+  * removed depency for ecoach-maptile-loader
+
+2009-07-21  Sampo Savola <samposav@paju.oulu.fi>
+  * added new GCONF keys for user weight, height and age
+  * added new new graphics:
+  * added new graphics
+  * added new graphics
+  * added new graphics
+
+2009-07-14  Sampo Savola <samposav@paju.oulu.fi>
+  * update version
+
+2009-07-01  Sampo Savola <samposav@paju.oulu.fi>
+  * Tag for version 1.14e
+
+2009-06-27  Sampo Savola <samposav@paju.oulu.fi>
+  * added graphs in hildon pannable
+  * added struct for private data
+  * implemented number choosing with hildonpickerbutton
+  * added include for calculate_bmi.h
+  * changed about dialog to hildonpannable
+
+2009-06-06  Sampo Savola <samposav@paju.oulu.fi>
+  * changed bluetooth device type to work with libbluetooth3
+  * changed minimize to go to task switcher
+  * update version
+
+2009-05-28  Sampo Savola <samposav@paju.oulu.fi>
+  * update
+  * Changed graphs and info to Hildon Pannable area container.. old
+  implementation is still there but commented
+  * added GtkWidget *pannable
+
+2009-05-27  Sampo Savola <samposav@paju.oulu.fi>
+  * removed call for maemo-select-menu-location which was removed from
+  fremantle
+
+2009-05-25  Sampo Savola <samposav@paju.oulu.fi>
+  * changed default directory
+
+2009-04-22  Sampo Savola <samposav@paju.oulu.fi>
+  * changed default folder for file operations
+  * added dbus signal for terminating ecoach-maptile-loader process
+  * updated version number
+
+2009-04-21  Sampo Savola <samposav@paju.oulu.fi>
+  * updated changes
+  * Modified text alignment for Fremantle UI
+  * Modified text alignment for Fremantle UI
+  * Modified text alignment for fremantle
+
+2009-04-17  Sampo Savola <samposav@paju.oulu.fi>
+  * removed duplicate fields in enum
+
+2009-04-03  Sampo Savola <samposav@paju.oulu.fi>
+  * changed depencies for fremantle  libbluetooth2-dev ->  libbluetooth3-dev
+
+2009-01-30  Sampo Savola <samposav@paju.oulu.fi>
+  * Tag for v1.14
+
+2009-01-21  Sampo Savola <samposav@paju.oulu.fi>
+  * removed unfinished "test max heart rate" from menu and moved max hr
+  calculation to upper menu
+  * updated version number
+  * updated log
+
+2009-01-07  Sampo Savola <samposav@paju.oulu.fi>
+  * Tag of version 1.13-1
+
+2009-01-05  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+  * Modified the ECG parameters to signed integers to prevent errors in
+  calculations. Improves heart beat detection.
+
+2008-12-17  Sampo Savola <samposav@paju.oulu.fi>
+  * create default datafolder /media/mmc2/Ecoach use default datafolder for
+  default saving location for gpx files
+
+2008-12-12  Sampo Savola <samposav@paju.oulu.fi>
+  * added filter for not sending zero hr to mapview
+  * updated version number
+  * updated version number
+  * added filtering bogus hr data, hr data is not updated if it is less than 20
+
+2008-12-11  Sampo Savola <samposav@paju.oulu.fi>
+  * updated changelog
+  * updated changes
+
+2008-12-10  Sampo Savola <samposav@paju.oulu.fi>
+  * fixed reading from bluetooth. didnt check if the buffer is empty when
+  popping out unneeded data.
+  * changed icons. Red for too high pulse and yeallow for too low. Removed temp
+  g_prints. Heartrate will be shown even if it is 0.
+  * added support for FRWD b600 heartrate monitor
+  * Added support for FRWD b600 heartrate monitor
+  * Added support for FRWD B600 heartrate monitor
+
+2008-12-09  Sampo Savola <samposav@paju.oulu.fi>
+  * updated changelog
+
+2008-11-26  Sampo Savola <samposav@paju.oulu.fi>
+  * updated
+  * updated upgrade-description
+  * updated changelog for version 1.2
+  * updated upgrade-description
+
+2008-11-25  Kaitsu <kaitsu@unknown.com>
+  * added keeping display_on feature
+  * added display_on
+  * added display_on setup
+  * added gconf display_on handling
+
+2008-11-21  Sampo Savola <samposav@paju.oulu.fi>
+  * added icon for general settings
+  * fixed bug, gconf setting USEMETRICwas not ready everytime when user changed
+  to map_view.
+  * updated changelog
+  * changed depency for version 0.31 of ecoach-maptile-loader
+
+2008-11-21  Kaitsu <kaitsu@unknown.com>
+  * Implemented 'no gps fix'-banner
+
+2008-11-21  Sampo Savola <samposav@paju.oulu.fi>
+  * modified upgrade description
+  * updated changelog
+  * Added more fields: XB-Maemo-Display-Name,XB-Maemo-Upgrade-Description and
+  XB-Maemo-Icon-26
+
+2008-11-20  Kaitsu <kaitsu@unknown.com>
+  * fixed map_view time presentation bug
+
+2008-11-20  Sampo Savola <samposav@paju.oulu.fi>
+  * changed maptile-loader exec name to "ecoach-maptile-loader"
+  * changed dbus service to org.ecoac.maptileloader
+
+2008-11-19  Sampo Savola <samposav@paju.oulu.fi>
+  * read measuring unit to use from gconf instead of asking it from user
+
+2008-11-18  Sampo Savola <samposav@paju.oulu.fi>
+  * removed space between date and activity name from gpx filename
+  * set default measuring units to gconf default: metric=TRUE
+  * implemented saving selected measuring unit to gconf
+  * added check for measuring units from gconf
+
+2008-11-18  Kaitsu <kaitsu@unknown.com>
+  * navibar changed (main menu -> eCoach)
+  * reading metric/english setup from gconf implemeted
+
+2008-11-13  Kaitsu <kaitsu@unknown.com>
+  * location indicator expanded
+  * location indicator expanded
+
+2008-11-13  Sampo Savola <samposav@paju.oulu.fi>
+  * added define for use_metric values
+  * added gconf value for measuring units, default setting is metric added
+  callback for setting use_metric gconf value
+
+2008-11-13  Kaitsu <kaitsu@unknown.com>
+  * implemented dialog+radiobuttons
+  * implemented dialog+radio buttons
+  * Added General settings
+  * added General settings
+  * added general_settings.h & general_settings.c
+
+2008-11-13  Sampo Savola <samposav@paju.oulu.fi>
+  * Tagged release 1.1 of ecoach
+
+2008-11-12  Sampo Savola <samposav@paju.oulu.fi>
+  * updated version number
+  * added new images
+  * updated changelog
+  * Changed depency for ecoach-maptile-loader version 0.3 or greater
+  * added icons for about and maximum heartrate dialogs
+
+2008-11-11  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
+  * Large update to analyzer module:
+	* Added a new view with map
+	* Able to view a point on the graph on the map
+	* Also some work started on creating a selection, but the selection does not
+	have any effct currently
+  * Moved maptile loader starting from map_view.c to interface.c (as it is
+  needed also in the analyzer view now)
+	* Added some new navigation menu graphics
+	* Fixed a small memory leak in map_view (the pango font description
+  was not freed)
+  * Added the rest of the osea library files (just for the case they are needed
+  later, even though they are not used at the moment)
+  * Added some new graphics
+
+2008-11-11  Kaitsu <kaitsu@unknown.com>
+  * implemented calculating maximum heart rate
+  * implemented calculating maximum heart rate
+  * added calculate_maxheartrate
+  * added calculate_maxheartrate.c, calculate_maxheartrate.h
+  * added calculate_maxheartrate.c
+
+2008-11-11  Sampo Savola <samposav@paju.oulu.fi>
+  * changed play button to rec button, it makes more sense changed to display
+  0.0 mph if english units selected
+  * added rec button
+  * added new images for menu
+  * added km to mile conversion and m to feet
+  * changed tracknumbers to start from 1 instead of 0
+
+2008-11-11  Kaitsu <kaitsu@unknown.com>
+  * BMI calculation implemented
+
+2008-11-06  Sampo Savola <samposav@paju.oulu.fi>
+  * removed dummy g_print
+  * removed dummy g_print
+  * added more authors
+  * disabled simulate gps
+  * updated changelog
+  * Added feature to change altitude measuring unit between meters and feets
+
+2008-11-05  Sampo Savola <samposav@paju.oulu.fi>
+	* Added function to change measurement units metric/english
+	* added variable gboolean metric for setting measurement units
+	* added GtkWidget *info_units for changing measuring unit
+	* Added feature to change units between metric and english
+
+2008-10-30  Sampo Savola <samposav@paju.oulu.fi>
+	* added new images for menu
+	* Modified to correspond needed headers
+	* added stub for bmi function calculation
+	* added include for calculate_bmi.c/h
+	* changed to display images at menu for BMI, maximum heartrate, target
+		heartrate and calculate
+	* modified to include new pictures
+	* changed picture little bit
+
+2008-10-29  Sampo Savola <samposav@paju.oulu.fi>
+	* Changed version number
+
+2008-10-27  Sampo Savola <samposav@paju.oulu.fi>
+	* Added signalhandling for hardware keys to move and zoom map.
+	* added command to stop gpsd when closing application
+	* changed gpsd control handling
+
+2008-10-15  Kaitsu <kaitsu@unknown.com>
+	* Calculate BMI function structure (error)
+	* Added function call for BMI-button
+	* Simulate GPS turned on
+
+2008-10-15  Sampo Savola <samposav@paju.oulu.fi>
+	* Took out unimplemented button for analyze an old activity menu
+	* Changed paths and project name. User should now on replace  USERNAME with
+		his/her unix username
+
+2008-10-14  Sampo Savola <samposav@paju.oulu.fi>
+	* Tagged release code for version 1.0-2
+	* Added autoreconf command
+	* Added build depencies for maemo extras autobuilder
+
 2008-05-25  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
 	* A few bug fixes to data clearing related to
 	  stopping/leaving/entering MapView
@@ -90,7 +664,7 @@
 	* Added function analyzer_view_create_scale that will draw all the
 	  scales to reduce duplicated code
 	* Fixed some bugs that prevented heart rate from being drawn correctly
-	  
+
 
 2008-05-22  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
 	* Added heart speed, altitude and heart rate icons and background
@@ -602,7 +1176,7 @@
 	* Implemented GConf wrapper that works around several major obstacles
 	  in the GConf architechture (at least type stability,
 	  key-specific callbacks, checking if the value actually was
-	  changed). This is so far untested (except for compilation).	  
+	  changed). This is so far untested (except for compilation).
 
 2008-01-27  Jukka Alasalmi <jualasal@mail.student.oulu.fi>
 	* Implemented device selection (the selected device is not yet

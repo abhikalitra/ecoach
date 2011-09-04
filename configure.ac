@@ -1,4 +1,4 @@
-AC_INIT([ecoach], [1.64], [samposav@paju.oulu.fi])
+AC_INIT([ecoach], [1.67], [ohookins@gmail.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_PROG_CC
 AC_PROG_CXX
