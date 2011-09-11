@@ -643,10 +643,10 @@ if((self->activity_state == MAP_VIEW_ACTIVITY_STATE_STOPPED) ||
 	gtk_widget_show_all(self->data_pause_unselected_event);
 	
 	  ec_button_set_title_text(EC_BUTTON(self->info_speed),
-		  "Speed");
+		  _("Speed"));
 		  
 	  ec_button_set_label_text(EC_BUTTON(self->info_speed),
-		  "Avg. Speed");
+		  _("Avg. Speed"));
 
 	}
 
@@ -743,11 +743,11 @@ void map_view_stop(MapView *self)
 	DEBUG("KULUNUT MATKA %f", travelled_distance);
 	gdouble minkm = (result.tv_sec / (travelled_distance/1000)/60);
 	self->secs = modf(minkm,&self->mins);
-	gchar *min_per_km = g_strdup_printf(" %02.f:%02.f",self->mins,(60*self->secs));
+	gchar *min_per_km = g_strdup_printf(_(" %02.f:%02.f"),self->mins,(60*self->secs));
 	
 	
 
-	util->addEvent(self->activity_name,"",g_strdup_printf("Duration: %s\nDistance: %s\nAvg.speed: %s\nMin/km: %s\nComment: %s \nGPX File: %s"
+	util->addEvent(self->activity_name,"",g_strdup_printf(_("Duration: %s\nDistance: %s\nAvg.speed: %s\nMin/km: %s\nComment: %s \nGPX File: %s")
 	,time,dist_text,avg_text,min_per_km,self->activity_comment,self->file_name),self->start,self->end);
 	
 	g_free(dist_text);
@@ -834,10 +834,10 @@ static gboolean map_view_connect_beat_detector_idle(gpointer user_data)
 			first_boot = gconf_helper_get_value_bool_with_default(self->gconf_helper,FIRST_BOOT,FALSE);
 
 			if(!first_boot){
-			 note = hildon_note_new_information(GTK_WINDOW(self->win), "Heart rate monitor is not configured.\n"
+			 note = hildon_note_new_information(GTK_WINDOW(self->win), _("Heart rate monitor is not configured.\n"
 						"To get heart rate data, please\n"
 						"configure heart rate monitor in\n"
-						"the settings menu.");
+						"the settings menu."));
 			 retcode = gtk_dialog_run (GTK_DIALOG (note));
 			 gtk_widget_destroy (note);
 			 gconf_helper_set_value_bool_simple(self->gconf_helper,FIRST_BOOT,TRUE);
@@ -990,7 +990,7 @@ static void map_view_location_changed(
 	{
 		if(!self->has_gps_fix && (device->fix->eph < 9000)){
 		
-		  GtkWidget *ban = hildon_banner_show_information(GTK_WIDGET(self->win),NULL,"Got GPS Fix ");
+		  GtkWidget *ban = hildon_banner_show_information(GTK_WIDGET(self->win),NULL,_("Got GPS Fix "));
 		  self->has_gps_fix = TRUE;
 		}
 		
@@ -1034,7 +1034,7 @@ static void map_view_location_changed(
 	} else {
 		DEBUG("Latitude and longitude are not valid");
 		  self->has_gps_fix = FALSE;
-		  GtkWidget *banner = hildon_banner_show_information(GTK_WIDGET(self->win),NULL,"Waiting for GPS...");
+		  GtkWidget *banner = hildon_banner_show_information(GTK_WIDGET(self->win),NULL,_("Waiting for GPS..."));
 	}
 
 
@@ -1248,18 +1248,18 @@ static void map_view_start_activity(MapView *self)
 	if(self->metric)
 	{
 	ec_button_set_title_text(EC_BUTTON(self->info_speed),
-		"0 km/h");
+		_("0 km/h"));
 		
 	ec_button_set_label_text(EC_BUTTON(self->info_speed),
-		"0 km/h");
+		_("0 km/h"));
 	}
 	else
 	{
 	  ec_button_set_title_text(EC_BUTTON(self->info_speed),
-		"0 mph");
+		_("0 mph"));
 		
 	ec_button_set_label_text(EC_BUTTON(self->info_speed),
-		"0 mph");
+		_("0 mph"));
 	  
 	}
 	DEBUG_END();
@@ -1469,7 +1469,7 @@ static gboolean map_view_update_stats(gpointer user_data)
 	self->secs = modf(minkm,&self->mins);
 	DEBUG("MIN / KM  %02.f:%02.f ",self->mins,(60*self->secs));
 	  
-	ec_button_set_title_text(EC_BUTTON(self->info_speed),"Min/km");
+	ec_button_set_title_text(EC_BUTTON(self->info_speed),_("Min/km"));
 	lbl_text = g_strdup_printf(_("%02.f:%02.f"),self->mins,(60*self->secs));
 	
 	ec_button_set_label_text(EC_BUTTON(self->info_speed),
@@ -1504,7 +1504,7 @@ static void map_view_set_elapsed_time(MapView *self, struct timeval *tv)
 	hours = minutes / 60;
 	minutes = minutes % 60;
 
-	lbl_text = g_strdup_printf("%02d:%02d:%02d", hours, minutes, seconds);
+	lbl_text = g_strdup_printf(_("%02d:%02d:%02d"), hours, minutes, seconds);
 	ec_button_set_label_text(EC_BUTTON(self->info_time), lbl_text);
 	g_free(lbl_text);
 }
@@ -1755,19 +1755,19 @@ static HildonAppMenu *create_menu (MapView *self)
 {
 
    const gchar* maps [] = {
-  "Open Street Map",
-  "Open Street Map Renderer",
-  "Open Aerial Map",
-  "Maps For Free",
-  "Google Street",
-  "Google Satellite",
-  "Google Hybrid",
-  "Virtual Earth Street",
-  "Virtual Earth Satellite",
-  "Virtual Earth Hybrid",
-  "OviMaps",
-  "OviMaps Hybrid",
-  "OviMaps Public Transport",
+  _("Open Street Map"),
+  _("Open Street Map Renderer"),
+  _("Open Aerial Map"),
+  _("Maps For Free"),
+  _("Google Street"),
+  _("Google Satellite"),
+  _("Google Hybrid"),
+  _("Virtual Earth Street"),
+  _("Virtual Earth Satellite"),
+  _("Virtual Earth Hybrid"),
+  _("OviMaps"),
+  _("OviMaps Hybrid"),
+  _("OviMaps Public Transport"),
   NULL
 };
 
@@ -1784,7 +1784,7 @@ static HildonAppMenu *create_menu (MapView *self)
 
   button = hildon_button_new_with_text((HildonSizeType)(HILDON_SIZE_AUTO_WIDTH | HILDON_SIZE_FINGER_HEIGHT),
 			HILDON_BUTTON_ARRANGEMENT_VERTICAL,
-				    "Map Source",
+				    _("Map Source"),
 				      maps[self->map_provider-1]);
 
   g_signal_connect_after (button, "clicked", G_CALLBACK (select_map_source_cb), self);
@@ -1795,25 +1795,25 @@ static HildonAppMenu *create_menu (MapView *self)
 
   center_button = hildon_check_button_new((HildonSizeType)(HILDON_SIZE_AUTO_WIDTH | HILDON_SIZE_FINGER_HEIGHT));
 
-  gtk_button_set_label (GTK_BUTTON (center_button), "Auto Centering");
+  gtk_button_set_label (GTK_BUTTON (center_button), _("Auto Centering"));
   hildon_check_button_set_active(HILDON_CHECK_BUTTON(center_button),TRUE);
   hildon_app_menu_append (menu, GTK_BUTTON(center_button));
   g_signal_connect_after(center_button, "toggled", G_CALLBACK (toggle_map_centering), self);
 
-  personal_button = gtk_button_new_with_label ("Personal Data");
+  personal_button = gtk_button_new_with_label (_("Personal Data"));
   g_signal_connect_after (personal_button, "clicked", G_CALLBACK (personal_data_dlg),self);
   hildon_app_menu_append (menu, GTK_BUTTON (personal_button));
 
-  note_button = gtk_button_new_with_label ("Add Note");
+  note_button = gtk_button_new_with_label (_("Add Note"));
   g_signal_connect_after (note_button, "clicked", G_CALLBACK (add_note_cb),self);
   hildon_app_menu_append (menu, GTK_BUTTON (note_button));
 
 
-  about_button = gtk_button_new_with_label ("About");
+  about_button = gtk_button_new_with_label (_("About"));
 
   hildon_app_menu_append (menu, GTK_BUTTON (about_button));
   g_signal_connect_after (about_button, "clicked", G_CALLBACK (about_dlg), self);
-  /*help_button = gtk_button_new_with_label ("Help");
+  /*help_button = gtk_button_new_with_label (_("Help"));
   hildon_app_menu_append (menu, GTK_BUTTON (help_button));*/
   gtk_widget_show_all (GTK_WIDGET (menu));
 
@@ -1831,10 +1831,10 @@ static void add_note_cb(HildonButton *button, gpointer user_data)
 	 gint response;
 	 DEBUG_BEGIN();
 
-	 dialog = gtk_dialog_new_with_buttons ("Add Note",
+	 dialog = gtk_dialog_new_with_buttons (_("Add Note"),
 	                                         self->parent_window,
 	                                         GTK_DIALOG_DESTROY_WITH_PARENT,
-	                                         "OK",
+	                                         _("OK"),
 	                                         GTK_RESPONSE_ACCEPT,
 	                                         NULL);
 
@@ -1870,19 +1870,19 @@ select_map_source_cb (HildonButton *button, gpointer user_data)
 {
     MapView *self = (MapView *)user_data;
        const gchar* maps [] = {
-	"Open Street Map",
-	"Open Street Map Renderer",
-        "Open Aerial Map",
-	"Maps For Free",
-	"Google Street",
-	"Google Satellite",
-	"Google Hybrid",
-	"Virtual Earth Street",
-	"Virtual Earth Satellite",
-	"Virtual Earth Hybrid",
-	"OviMaps",
-	"OviMaps Hybrid",
-	"OviMaps Public Transport"
+	_("Open Street Map"),
+	_("Open Street Map Renderer"),
+        _("Open Aerial Map"),
+	_("Maps For Free"),
+	_("Google Street"),
+	_("Google Satellite"),
+	_("Google Hybrid"),
+	_("Virtual Earth Street"),
+	_("Virtual Earth Satellite"),
+	_("Virtual Earth Hybrid"),
+	_("OviMaps"),
+	_("OviMaps Hybrid"),
+	_("OviMaps Public Transport")
 	};
     DEBUG_BEGIN();
 
@@ -1891,7 +1891,7 @@ select_map_source_cb (HildonButton *button, gpointer user_data)
     self->mapchooserdialog = gtk_dialog_new();
 
 
-    gtk_window_set_title(GTK_WINDOW(self->mapchooserdialog),"Select map source");
+    gtk_window_set_title(GTK_WINDOW(self->mapchooserdialog),_("Select map source"));
     gtk_widget_set_size_request(self->mapchooserdialog, 800, 390);
     selector = hildon_touch_selector_new_text();
     hildon_touch_selector_set_column_selection_mode (HILDON_TOUCH_SELECTOR (selector),
@@ -1919,7 +1919,7 @@ void map_source_selected(HildonTouchSelector * selector, gint column, gpointer u
     DEBUG("SELECTED MAP INDEX %d",active);
     gconf_helper_set_value_int_simple(self->gconf_helper,MAP_SOURCE,active);
     gtk_widget_destroy(self->mapchooserdialog);
-    hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, "Selected map source will be used next time you start eCoach");
+    hildon_banner_show_information(GTK_WIDGET(self->parent_window), NULL, _("Selected map source will be used next time you start eCoach"));
     DEBUG_END();
 }
 
@@ -2022,7 +2022,7 @@ moder_ex = gtk_image_new_from_file(GFXDIR "personal_data_button.png");
 self->personal_win = hildon_stackable_window_new();
 g_signal_connect(self->personal_win, "delete-event", G_CALLBACK(destroy_personal_data_dlg), self);
 
-gtk_window_set_title ( GTK_WINDOW (self->personal_win), "eCoach >Personal Data");
+gtk_window_set_title ( GTK_WINDOW (self->personal_win), _("eCoach >Personal Data"));
 fixed = gtk_fixed_new();
 
 desc = pango_font_description_new();
@@ -2074,25 +2074,25 @@ gtk_fixed_put(GTK_FIXED(fixed),lbl_bmi,530, 35);
 gtk_fixed_put(GTK_FIXED(fixed),scale,18, 125);
 
 gtk_fixed_put(GTK_FIXED(fixed),anaerobic,116, 85);
-lbl_anaero = gtk_label_new("Anaerobic");
+lbl_anaero = gtk_label_new(_("Anaerobic"));
 gtk_widget_modify_font(lbl_anaero,desc);
 gtk_fixed_put(GTK_FIXED(fixed),lbl_anaero,132, 209);
 
 gtk_fixed_put(GTK_FIXED(fixed),aerobic,290, 85);
-lbl_aero =gtk_label_new("Aerobic");
+lbl_aero =gtk_label_new(_("Aerobic"));
 gtk_widget_modify_font(lbl_aero,desc);
 gtk_fixed_put(GTK_FIXED(fixed),lbl_aero,317, 209);
 
 
 gtk_fixed_put(GTK_FIXED(fixed),weight_control,464, 85);
-lbl_wc =gtk_label_new("Weight\ncontrol");
+lbl_wc =gtk_label_new(_("Weight\ncontrol"));
 gtk_widget_modify_font(lbl_wc,desc);
 gtk_misc_set_alignment(GTK_MISC(lbl_wc), 0.5f, 0.5f);
 gtk_fixed_put(GTK_FIXED(fixed),lbl_wc,494, 196);
 
 
 gtk_fixed_put(GTK_FIXED(fixed),moder_ex,638, 85);
-lbl_me =gtk_label_new("Moderate\n exercise");
+lbl_me =gtk_label_new(_("Moderate\n exercise"));
 
 gtk_widget_modify_font(lbl_me,desc);
 gtk_misc_set_alignment(GTK_MISC(lbl_me), 0.5f, 0.5f);
@@ -2155,12 +2155,12 @@ static void about_dlg(HildonButton *button, gpointer user_data){
     gtk_show_about_dialog((GtkWindow*)self->win
                 , "name",      "eCoach"
 		, "logo-icon-name",	"ecoach"
-                , "version",   "1.66"
+                , "version",   "1.67"
                 , "copyright", "Sampo Savola <samposav@paju.oulu.fi>\n"
 		"Jukka Alasalmi\n Veli-Pekka Haajanen\n Kai Skiftesvik"
                 , "website",   "http://ecoach.garage.maemo.org"
 		 ,"wrap-license", TRUE
-		 , "license","eCoach comes with ABSOLUTELY NO WARRANTY. This is "
+		 , "license",_("eCoach comes with ABSOLUTELY NO WARRANTY. This is "
 		"free software, and you are welcome to redistribute it under "
 		"certain conditions. Read below for details.\n\nThis software contains components from\n"
 		"OSM GPS MAP\n"
@@ -2511,7 +2511,7 @@ static void about_dlg(HildonButton *button, gpointer user_data){
 "proprietary programs.  If your program is a subroutine library, you may\n"
 "consider it more useful to permit linking proprietary applications with the\n"
 "library.  If this is what you want to do, use the GNU Library General\n"
-"Public License instead of this License.\n"
+"Public License instead of this License.\n")
                 , NULL );
 
 

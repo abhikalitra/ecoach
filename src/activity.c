@@ -30,6 +30,9 @@
 /* System */
 #include <string.h>
 
+/* i18n */
+#include <glib/gi18n.h>
+
 /* Hildon */
 #include <hildon/hildon-file-chooser-dialog.h>
 #include <hildon/hildon-file-system-model.h>
@@ -390,32 +393,32 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
     size_group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
     chooser_dialog->sportbutton = hildon_picker_button_new (HILDON_SIZE_FINGER_HEIGHT, HILDON_BUTTON_ARRANGEMENT_VERTICAL);
-    hildon_button_set_title (HILDON_BUTTON (chooser_dialog->sportbutton), "Sport");
+    hildon_button_set_title (HILDON_BUTTON (chooser_dialog->sportbutton), _("Sport"));
 
     chooser_dialog->sportselector = hildon_touch_selector_new_text ();
 
 
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Running");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Cycling");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Walking");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Nordic walking");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Skiing");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Roller skating");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Alpine skiing");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Rowing");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Riding");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Mountain biking");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Snowboarding");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Snowshoeing");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Orienteering");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Sailing");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Hiking");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Roller skiing");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Telemark skiing");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Jogging");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Walking the dog");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Golf");
-    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), "Frisbeegolf");
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Running"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Cycling"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Walking"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Nordic walking"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Skiing"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Roller skating"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Alpine skiing"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Rowing"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Riding"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Mountain biking"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Snowboarding"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Snowshoeing"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Orienteering"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Sailing"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Hiking"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Roller skiing"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Telemark skiing"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Jogging"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Walking the dog"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Golf"));
+    hildon_touch_selector_append_text(HILDON_TOUCH_SELECTOR (chooser_dialog->sportselector), _("Frisbeegolf"));
 
 
     gint dfl_index =  gconf_helper_get_value_int_with_default(
@@ -470,7 +473,7 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
 	*/
 
     chooser_dialog->button = hildon_picker_button_new (HILDON_SIZE_FINGER_HEIGHT, HILDON_BUTTON_ARRANGEMENT_VERTICAL);
-    hildon_button_set_title (HILDON_BUTTON (chooser_dialog->button), "Target heart rate type");
+    hildon_button_set_title (HILDON_BUTTON (chooser_dialog->button), _("Target heart rate type"));
     chooser_dialog->selector = hildon_touch_selector_new_text ();
 
     for(i = 0; i < EC_EXERCISE_TYPE_COUNT; i++)
@@ -486,12 +489,12 @@ static ActivityChooserDialog *activity_chooser_dialog_new(
     gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->button, FALSE, FALSE, 0);
 
     chooser_dialog->chk_save_dfl = hildon_check_button_new(HILDON_SIZE_FINGER_HEIGHT);
-    gtk_button_set_label (GTK_BUTTON ( chooser_dialog->chk_save_dfl), "Save as default");
+    gtk_button_set_label (GTK_BUTTON ( chooser_dialog->chk_save_dfl), _("Save as default"));
 
     gtk_box_pack_start(GTK_BOX(vbox), chooser_dialog->chk_save_dfl, FALSE, FALSE, 0);
 
     chooser_dialog->chk_add_calendar = hildon_check_button_new(HILDON_SIZE_FINGER_HEIGHT);
-    gtk_button_set_label (GTK_BUTTON (chooser_dialog->chk_add_calendar), "Add to calendar");
+    gtk_button_set_label (GTK_BUTTON (chooser_dialog->chk_add_calendar), _("Add to calendar"));
     hildon_check_button_set_active(GTK_BUTTON ( chooser_dialog->chk_add_calendar),TRUE);
     gtk_box_pack_start(GTK_BOX(vbox),chooser_dialog->chk_add_calendar, FALSE, FALSE, 0);
     DEBUG_END();

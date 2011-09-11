@@ -26,6 +26,9 @@ Copyright (C) 2009, Sampo Savola
 #include "hrm_settings.h"
 #define GFXDIR DATADIR		"/pixmaps/" PACKAGE_NAME "/"
 
+/* i18n */
+#include <glib/gi18n.h>
+
 
 typedef enum _EcExerciseTypes {
 	EC_EXERCISE_TYPE_AEROBIC = 0,
@@ -186,7 +189,7 @@ void general_settings_show(GeneralSettings *self){
   PangoFontDescription *desc = NULL;
 
   self->win = hildon_stackable_window_new();
-  gtk_window_set_title ( GTK_WINDOW (self->win), "eCoach >Settings");
+  gtk_window_set_title ( GTK_WINDOW (self->win), _("eCoach >Settings"));
   gtk_widget_set_name(GTK_WIDGET(self->win), "mainwindow");
   g_signal_connect(G_OBJECT(self->win), "delete-event",
 			G_CALLBACK(general_settings_destroy), self);
@@ -208,7 +211,7 @@ void general_settings_show(GeneralSettings *self){
   
   self->weight = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_WEIGHT,0);
   gchar weight_str[8];
-  g_sprintf(weight_str,"%d kg", self->weight);
+  g_sprintf(weight_str,_("%d kg"), self->weight);
 
   self->age = gconf_helper_get_value_int_with_default(self->gconf_helper,USER_AGE,0);
   gchar age_str[3];
@@ -222,7 +225,7 @@ void general_settings_show(GeneralSettings *self){
   if(update==0){
     update = 5;}
   gchar update_str[8];
-  g_sprintf(update_str,"%d sec",update);
+  g_sprintf(update_str,_("%d sec"),update);
   
   self->weight_label = gtk_label_new(weight_str);
   self->age_label = gtk_label_new(age_str);
@@ -236,16 +239,16 @@ void general_settings_show(GeneralSettings *self){
   //pango_layout_set_font_description(self->weight_label,desc);
   
   if(gconf_helper_get_value_bool_with_default(self->gconf_helper,DISPLAY_ON,TRUE)) {
-  self->display_label = gtk_label_new("On");
+  self->display_label = gtk_label_new(_("On"));
   }
   else
-  { self->display_label = gtk_label_new("Off");}
+  { self->display_label = gtk_label_new(_("Off"));}
 	
   if(gconf_helper_get_value_bool_with_default(self->gconf_helper,USE_METRIC,TRUE)) {
-  self->units_label = gtk_label_new("Metric");
+  self->units_label = gtk_label_new(_("Metric"));
   }
   else
-  { self->units_label = gtk_label_new("Imperial");}
+  { self->units_label = gtk_label_new(_("Imperial"));}
    
    gtk_widget_modify_font(self->units_label, desc);
    gtk_widget_modify_font(self->display_label, desc);
@@ -253,11 +256,11 @@ void general_settings_show(GeneralSettings *self){
   hrm_key = gconf_helper_get_value_string_with_default(
 		self->gconf_helper,
 		ECGC_BLUETOOTH_NAME,
-		"none");
+		_("none"));
 
   if(hrm_key == NULL || (strcmp(hrm_key, "") == 0))  
   {
-  self->device_label = gtk_label_new("none");
+  self->device_label = gtk_label_new(_("none"));
   }
   else
   {
@@ -359,7 +362,7 @@ static void pick_weight(GtkWidget *widget, GdkEvent *event,gpointer user_data)
     g_return_if_fail(self != NULL);
     DEBUG_BEGIN();
     self->weight_dialog = gtk_dialog_new();	
-    gtk_window_set_title(GTK_WINDOW(self->weight_dialog),"Set weight");
+    gtk_window_set_title(GTK_WINDOW(self->weight_dialog),_("Set weight"));
     gtk_widget_set_size_request(self->weight_dialog, 800, 390);
     self->weight_selector = hildon_touch_selector_new_text();
     hildon_touch_selector_set_column_selection_mode (HILDON_TOUCH_SELECTOR (self->weight_selector),
@@ -368,14 +371,14 @@ static void pick_weight(GtkWidget *widget, GdkEvent *event,gpointer user_data)
     int j = 0;
     for(;j< 300;j++){
     gchar *number;	
-    number = g_strdup_printf("%d kg",j);	
+    number = g_strdup_printf(_("%d kg"),j);	
     hildon_touch_selector_append_text (HILDON_TOUCH_SELECTOR (self->weight_selector),number);
     g_free(number);
     }
     hildon_touch_selector_set_active(HILDON_TOUCH_SELECTOR(self->weight_selector),0,self->weight);
     hildon_touch_selector_center_on_selected(HILDON_TOUCH_SELECTOR(self->weight_selector));
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG(self->weight_dialog)->vbox),self->weight_selector);
-    g_signal_connect (G_OBJECT (self->weight_selector), "changed",
+    g_signal_connect (G_OBJECT (self->weight_selector), _("changed"),
     G_CALLBACK(weight_selected),user_data);
     gtk_widget_show_all(self->weight_dialog);
     DEBUG_END();
@@ -387,7 +390,7 @@ static void pick_age(GtkWidget *widget, GdkEvent *event,gpointer user_data)
 	g_return_if_fail(self != NULL);
 	DEBUG_BEGIN();
 	self->age_dialog = gtk_dialog_new();	
-	gtk_window_set_title(GTK_WINDOW(self->age_dialog),"Set age");
+	gtk_window_set_title(GTK_WINDOW(self->age_dialog),_("Set age"));
 	gtk_widget_set_size_request(self->age_dialog, 800, 390);
 	self->age_selector = hildon_touch_selector_new_text();
 	hildon_touch_selector_set_column_selection_mode (HILDON_TOUCH_SELECTOR (self->age_selector),
@@ -406,7 +409,7 @@ static void pick_age(GtkWidget *widget, GdkEvent *event,gpointer user_data)
 	
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(self->age_dialog)->vbox),self->age_selector);
 	
-	g_signal_connect (G_OBJECT (self->age_selector), "changed",
+	g_signal_connect (G_OBJECT (self->age_selector), _("changed"),
 	G_CALLBACK(age_selected),user_data);
 	
 	gtk_widget_show_all(self->age_dialog);
@@ -420,7 +423,7 @@ static void pick_height(GtkWidget *widget, GdkEvent *event,gpointer user_data)
 	
 	
 	self->height_dialog = gtk_dialog_new();	
-	gtk_window_set_title(GTK_WINDOW(self->height_dialog),"Set height");
+	gtk_window_set_title(GTK_WINDOW(self->height_dialog),_("Set height"));
 	gtk_widget_set_size_request(self->height_dialog, 800, 390);
 	self->height_selector = hildon_touch_selector_new_text();
 	hildon_touch_selector_set_column_selection_mode (HILDON_TOUCH_SELECTOR (self->height_selector),
@@ -429,7 +432,7 @@ static void pick_height(GtkWidget *widget, GdkEvent *event,gpointer user_data)
 	int j = 0;
 	for(;j< 250;j++){
 	gchar *number;	
-	number = g_strdup_printf("%d cm",j);	
+	number = g_strdup_printf(_("%d cm"),j);	
 	hildon_touch_selector_append_text (HILDON_TOUCH_SELECTOR (self->height_selector),number);
 	g_free(number);
 	 }
@@ -439,7 +442,7 @@ static void pick_height(GtkWidget *widget, GdkEvent *event,gpointer user_data)
 	
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(self->height_dialog)->vbox),self->height_selector);
 	
-	g_signal_connect (G_OBJECT (self->height_selector), "changed",
+	g_signal_connect (G_OBJECT (self->height_selector), _("changed"),
 	G_CALLBACK(height_selected),user_data);
 	gtk_widget_show_all(self->height_dialog);
 }
@@ -452,7 +455,7 @@ static void pick_update_interval(GtkWidget *widget, GdkEvent *event,gpointer use
 	
 	
 	self->update_dialog = gtk_dialog_new();	
-	gtk_window_set_title(GTK_WINDOW(self->update_dialog),"Set GPS update interval");
+	gtk_window_set_title(GTK_WINDOW(self->update_dialog),_("Set GPS update interval"));
 	gtk_widget_set_size_request(self->update_dialog, 800, 300);
 	self->update_selector = hildon_touch_selector_new_text();
 	hildon_touch_selector_set_column_selection_mode (HILDON_TOUCH_SELECTOR (self->update_selector),
@@ -462,7 +465,7 @@ static void pick_update_interval(GtkWidget *widget, GdkEvent *event,gpointer use
 	int j = 0;
 	for(;j<  intervals[j] != NULL ;j++){
 	gchar *number;	
-	number = g_strdup_printf("%d sec",intervals[j]);
+	number = g_strdup_printf(_("%d sec"),intervals[j]);
 	hildon_touch_selector_append_text (HILDON_TOUCH_SELECTOR (self->update_selector),number);
 	g_free(number);
 	}	 
@@ -471,7 +474,7 @@ static void pick_update_interval(GtkWidget *widget, GdkEvent *event,gpointer use
 	
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(self->update_dialog)->vbox),self->update_selector);
 	
-	g_signal_connect (G_OBJECT (self->update_selector), "changed",
+	g_signal_connect (G_OBJECT (self->update_selector), _("changed"),
 	G_CALLBACK(update_interval_selected),user_data);
 	gtk_widget_show_all(self->update_dialog);
 }
@@ -484,11 +487,11 @@ static void change_display(GtkWidget *widget, GdkEvent *event,gpointer user_data
 	gboolean display = gconf_helper_get_value_bool_with_default(self->gconf_helper,DISPLAY_ON,TRUE);
 	if(display){
 	 
-	  gtk_label_set_text(GTK_LABEL(self->display_label),"Off");
+	  gtk_label_set_text(GTK_LABEL(self->display_label),_("Off"));
 	  gconf_helper_set_value_bool(self->gconf_helper, DISPLAY_ON, FALSE);
 	}
 	else{
-	 gtk_label_set_text(GTK_LABEL(self->display_label),"On");
+	 gtk_label_set_text(GTK_LABEL(self->display_label),_("On"));
 	 gconf_helper_set_value_bool(self->gconf_helper, DISPLAY_ON, TRUE);
 	}
 	DEBUG_END();
@@ -503,11 +506,11 @@ static void change_units(GtkWidget *widget, GdkEvent *event,gpointer user_data)
 	gboolean units = gconf_helper_get_value_bool_with_default(self->gconf_helper,USE_METRIC,TRUE);
 	if(units){
 	 
-	  gtk_label_set_text(GTK_LABEL(self->units_label),"Imperial");
+	  gtk_label_set_text(GTK_LABEL(self->units_label),_("Imperial"));
 	  gconf_helper_set_value_bool(self->gconf_helper, USE_METRIC, FALSE);
 	}
 	else{
-	 gtk_label_set_text(GTK_LABEL(self->units_label),"Metric");
+	 gtk_label_set_text(GTK_LABEL(self->units_label),_("Metric"));
 	 gconf_helper_set_value_bool(self->gconf_helper, USE_METRIC, TRUE);
 	}
 	DEBUG_END();

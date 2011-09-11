@@ -1,9 +1,11 @@
-AC_INIT([ecoach], [1.67], [ohookins@gmail.com])
+AC_INIT([ecoach], [1.67], [https://bugs.maemo.org/enter_bug.cgi?product=ecoach])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.17])
 AC_PROG_CC
 AC_PROG_CXX
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([
+AC_CONFIG_FILES([ po/Makefile.in
 		 Makefile
 		 src/Makefile
 		 gfx/Makefile

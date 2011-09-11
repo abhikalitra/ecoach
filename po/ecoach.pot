@@ -1,0 +1,1486 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ecoach 1.67\n"
+"Report-Msgid-Bugs-To: https://bugs.maemo.org/enter_bug.cgi?product=ecoach\n"
+"POT-Creation-Date: 2011-09-11 22:52+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/general_settings.c:192
+msgid "eCoach >Settings"
+msgstr ""
+
+#: src/general_settings.c:214 src/general_settings.c:374
+#: src/calculate_bmi.c:143
+#, c-format
+msgid "%d kg"
+msgstr ""
+
+#: src/general_settings.c:228 src/general_settings.c:468
+#, c-format
+msgid "%d sec"
+msgstr ""
+
+#: src/general_settings.c:242 src/general_settings.c:494
+msgid "On"
+msgstr ""
+
+#: src/general_settings.c:245 src/general_settings.c:490
+msgid "Off"
+msgstr ""
+
+#: src/general_settings.c:248 src/general_settings.c:513 src/analyzer.c:3818
+msgid "Metric"
+msgstr ""
+
+#: src/general_settings.c:251 src/general_settings.c:509
+msgid "Imperial"
+msgstr ""
+
+#: src/general_settings.c:259 src/general_settings.c:263
+#: src/hrm_settings.c:548
+msgid "none"
+msgstr ""
+
+#: src/general_settings.c:365
+msgid "Set weight"
+msgstr ""
+
+#: src/general_settings.c:381 src/general_settings.c:412
+#: src/general_settings.c:445 src/general_settings.c:477
+msgid "changed"
+msgstr ""
+
+#: src/general_settings.c:393
+msgid "Set age"
+msgstr ""
+
+#: src/general_settings.c:426
+msgid "Set height"
+msgstr ""
+
+#: src/general_settings.c:435 src/calculate_bmi.c:132
+#, c-format
+msgid "%d cm"
+msgstr ""
+
+#: src/general_settings.c:458
+msgid "Set GPS update interval"
+msgstr ""
+
+#: src/interface.c:150
+msgid "eCoach"
+msgstr ""
+
+#: src/interface.c:281
+msgid ""
+"This seems to be the first time you use eCoach.\n"
+"Please fill in the user data in the settings view"
+msgstr ""
+
+#: src/interface.c:338
+msgid ""
+"New\n"
+"activity"
+msgstr ""
+
+#: src/interface.c:347
+msgid ""
+"Activity\n"
+"log"
+msgstr ""
+
+#: src/interface.c:429
+msgid "Settings"
+msgstr ""
+
+#: src/interface.c:469
+msgid "Show ECG"
+msgstr ""
+
+#: src/interface.c:566
+msgid ""
+"You are about to close eCoach but there is currently an activity going on.\n"
+"Are you sure you want to close?"
+msgstr ""
+
+#: src/interface.c:738
+msgid "About eCoach"
+msgstr ""
+
+#: src/interface.c:746
+#, c-format
+msgid ""
+"eCoach version %s Copyright (C) 2009 \n"
+"Jukka Alasalmi Sampo Savola\n"
+"Kai Skiftesvik Veli-Pekka Haajanen\n"
+msgstr ""
+
+#: src/interface.c:776
+msgid ""
+"eCoach comes with ABSOLUTELY NO WARRANTY. This is free software, and you are "
+"welcome to redistribute it under certain conditions. Read below for "
+"details.\n"
+"\n"
+msgstr ""
+
+#: src/interface.c:783
+msgid ""
+"This software contains components from MapWidget [https://garage.maemo.org/"
+"projects/mapwidget/], Open Source ECG Analysis Software (OSEA) [http://"
+"eplimited.com/] and PhysioToolkit [http://www.physionet.org/physiotools/wfdb."
+"shtml]\n"
+"\n"
+msgstr ""
+
+#: src/interface.c:792
+msgid ""
+"MapWidget\n"
+"\tCopyright (C) 2007 Pekka Rönkkö\tCopyright (C) 2006-2007 John Costigan\n"
+"\n"
+msgstr ""
+
+#: src/interface.c:798
+msgid ""
+"WFDB library (ecgcodes.h)\n"
+"\tCopyright (C) 1999 George B. Moody\n"
+msgstr ""
+
+#: src/interface.c:804
+msgid ""
+"OSEA\n"
+"\tCopywrite (C) 2000-2002 Patrick S. Hamilton\n"
+"\n"
+msgstr ""
+
+#: src/interface.c:1230
+msgid ""
+"There is an activity in stopped state.\n"
+"Do you want to continue it into a new track or\n"
+"start a new activity?"
+msgstr ""
+
+#: src/interface.c:1233
+msgid "New"
+msgstr ""
+
+#: src/interface.c:1234
+msgid "Continue"
+msgstr ""
+
+#: src/navigation_menu.c:198
+msgid "This feature is not yet implemented."
+msgstr ""
+
+#: src/navigation_menu.c:517
+msgid "Main menu"
+msgstr ""
+
+#: src/navigation_menu.c:733 src/analyzer.c:594
+msgid "Back"
+msgstr ""
+
+#: src/target_heart_rate.c:144
+msgid "bpm"
+msgstr ""
+
+#: src/target_heart_rate.c:201
+msgid "Lower limit"
+msgstr ""
+
+#: src/target_heart_rate.c:214
+msgid "Upper limit"
+msgstr ""
+
+#: src/target_heart_rate.c:230 src/calculate_bmi.c:246
+#: src/calculate_maxheartrate.c:108
+msgid "Calculate"
+msgstr ""
+
+#: src/target_heart_rate.c:381
+msgid "Are you sure that you want to cancel the wizard?"
+msgstr ""
+
+#: src/target_heart_rate.c:427
+msgid ""
+"Welcome to the target heart rate setup wizard. This wizard helps you to set "
+"target heart rates for different types of exercise."
+msgstr ""
+
+#: src/target_heart_rate.c:441
+msgid ""
+"The resting heart rate and maximum heart rate are used for calculating heart "
+"rate ranges for different exercise types. You can determine these by using "
+"the Performance analysis menu."
+msgstr ""
+
+#: src/target_heart_rate.c:457
+msgid "Resting heart rate"
+msgstr ""
+
+#: src/target_heart_rate.c:471 src/analyzer.c:956
+msgid "Maximum heart rate"
+msgstr ""
+
+#: src/target_heart_rate.c:487
+msgid "Start values"
+msgstr ""
+
+#: src/target_heart_rate.c:491
+msgid ""
+"Next, you are asked to fill in different heart rate ranges. If previously "
+"defined values are found, they are used as default. Otherwise, the values "
+"will be calculated based on the resting and maximum heart rates.\n"
+"\n"
+"You can recalculate the values by pressing on the Calculate button on each "
+"page."
+msgstr ""
+
+#: src/target_heart_rate.c:507
+msgid "Information"
+msgstr ""
+
+#: src/target_heart_rate.c:526
+msgid ""
+"The heart rates for all different exercise types have now been set. Please "
+"click Finish to save the values."
+msgstr ""
+
+#: src/target_heart_rate.c:533
+msgid "Finished"
+msgstr ""
+
+#: src/target_heart_rate.c:537
+msgid "Heart rate ranges"
+msgstr ""
+
+#: src/ec-progress.gob:28
+msgid "Use markup"
+msgstr ""
+
+#: src/ec-progress.gob:29
+msgid "Use markup for the label"
+msgstr ""
+
+#: src/ec-progress.gob:50
+msgid "Progress bar label"
+msgstr ""
+
+#: src/ec-progress.gob:51
+msgid "The label displayed under the progress bar"
+msgstr ""
+
+#: src/ec-progress.gob:84
+msgid "Progress value"
+msgstr ""
+
+#: src/ec-progress.gob:85
+msgid "Progress bar value from 0 to 1"
+msgstr ""
+
+#: src/ec-progress.gob:101
+msgid "X marginal"
+msgstr ""
+
+#: src/ec-progress.gob:102
+msgid "Marginal in x direction (in pixels), from both edges"
+msgstr ""
+
+#: src/ec-progress.gob:118
+msgid "Y marginal"
+msgstr ""
+
+#: src/ec-progress.gob:119
+msgid "Marginal in y direction (in pixels, from top)"
+msgstr ""
+
+#: src/ec-progress.gob:135
+msgid "Progress y marginal"
+msgstr ""
+
+#: src/ec-progress.gob:136
+msgid "Progress marginal in y direction (in pixels, from top)"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2000
+msgid "None"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2002
+msgid "OpenStreetMap"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2004
+msgid "OpenStreetMap Renderer"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2006
+msgid "OpenAerialMap"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2008
+msgid "Maps-For-Free"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2010
+msgid "Google Maps"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2012 src/map_view.cc:1763
+#: src/map_view.cc:1878
+msgid "Google Satellite"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2014 src/map_view.cc:1764
+#: src/map_view.cc:1879
+msgid "Google Hybrid"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2016
+msgid "Virtual Earth"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2018 src/map_view.cc:1766
+#: src/map_view.cc:1881
+msgid "Virtual Earth Satellite"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2020 src/map_view.cc:1767
+#: src/map_view.cc:1882
+msgid "Virtual Earth Hybrid"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2022
+msgid "Yahoo Maps"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2024
+msgid "Yahoo Satellite"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2026
+msgid "Yahoo Hybrid"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2028 src/map_view.cc:1768
+#: src/map_view.cc:1883
+msgid "OviMaps"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2030 src/map_view.cc:1769
+#: src/map_view.cc:1884
+msgid "OviMaps Hybrid"
+msgstr ""
+
+#: src/osm_gps_map/osm-gps-map.c:2032 src/map_view.cc:1770
+#: src/map_view.cc:1885
+msgid "OviMaps Public Transport"
+msgstr ""
+
+#: src/hrm_settings.c:197
+msgid "Heart Rate Monitor settings"
+msgstr ""
+
+#: src/hrm_settings.c:200 src/activity.c:387 src/map_view.cc:1837
+msgid "OK"
+msgstr ""
+
+#: src/hrm_settings.c:201
+msgid "Change device"
+msgstr ""
+
+#: src/hrm_settings.c:202
+msgid "Remove device"
+msgstr ""
+
+#: src/hrm_settings.c:211
+msgid "<b>Current device</b>"
+msgstr ""
+
+#: src/hrm_settings.c:230 src/hrm_settings.c:544
+msgid "<no name>"
+msgstr ""
+
+#: src/hrm_settings.c:240
+msgid "Device name"
+msgstr ""
+
+#: src/hrm_settings.c:253 src/hrm_settings.c:545
+msgid "<no device>"
+msgstr ""
+
+#: src/hrm_settings.c:265
+msgid "Bluetooth address"
+msgstr ""
+
+#: src/calculate_bmi.c:89
+#, c-format
+msgid "Your BMI is %2.1f = severly underweight"
+msgstr ""
+
+#: src/calculate_bmi.c:91
+#, c-format
+msgid "Your BMI is %2.1f = underweight"
+msgstr ""
+
+#: src/calculate_bmi.c:93
+#, c-format
+msgid "Your BMI is %2.1f = normal"
+msgstr ""
+
+#: src/calculate_bmi.c:95
+#, c-format
+msgid "Your BMI is %2.1f = overweight"
+msgstr ""
+
+#: src/calculate_bmi.c:97
+#, c-format
+msgid "Your BMI is %gchar *char_bmi;2.1f = obese"
+msgstr ""
+
+#: src/calculate_bmi.c:123
+msgid "Height:"
+msgstr ""
+
+#: src/calculate_bmi.c:125
+msgid "Weight:"
+msgstr ""
+
+#: src/calculate_bmi.c:173
+msgid "Calculate BMI"
+msgstr ""
+
+#: src/heart_rate_settings.c:45 src/map_view.cc:2077
+msgid "Anaerobic"
+msgstr ""
+
+#: src/heart_rate_settings.c:46
+#, c-format
+msgid ""
+"Anaerobic exercise is a form of hardcore exercise that is not sustainable "
+"for long periods of time. It is usually done at 80-90% of the maximum "
+"intensity"
+msgstr ""
+
+#: src/heart_rate_settings.c:55 src/map_view.cc:2082
+msgid "Aerobic"
+msgstr ""
+
+#: src/heart_rate_settings.c:56
+msgid ""
+"Aerobic exercise is a form of exercise that is done at intensity around the "
+"maximum sustainable range - 70-80%. It is used for cardio and endurance "
+"training."
+msgstr ""
+
+#: src/heart_rate_settings.c:65
+msgid "Weight control"
+msgstr ""
+
+#: src/heart_rate_settings.c:66
+msgid ""
+"Weight control intensity is used for fat burning and fitness purposes. The "
+"recommended heart rate intensity for weight control is 60-70 %."
+msgstr ""
+
+#: src/heart_rate_settings.c:75
+msgid "Moderate exercise"
+msgstr ""
+
+#: src/heart_rate_settings.c:76
+#, c-format
+msgid ""
+"Moderate activity is beneficial for maintenance exercise and warm up. It is "
+"usually done at around 50-60 % intensity."
+msgstr ""
+
+#: src/calculate_maxheartrate.c:40
+#, c-format
+msgid "Your maximum heart rate is %2.0f"
+msgstr ""
+
+#: src/calculate_maxheartrate.c:62
+msgid "Calculate Maximum Heart Rate"
+msgstr ""
+
+#: src/calculate_maxheartrate.c:85
+msgid "Age:"
+msgstr ""
+
+#: src/calculate_maxheartrate.c:101
+msgid "years"
+msgstr ""
+
+#: src/ec_error.c:135
+msgid "Do not show this message again"
+msgstr ""
+
+#: src/upload_dlg.c:69 src/activity.c:401
+msgid "Running"
+msgstr ""
+
+#: src/upload_dlg.c:73 src/activity.c:402
+msgid "Cycling"
+msgstr ""
+
+#: src/upload_dlg.c:77 src/activity.c:403
+msgid "Walking"
+msgstr ""
+
+#: src/upload_dlg.c:81
+msgid "Nordic Walking"
+msgstr ""
+
+#: src/upload_dlg.c:85 src/activity.c:405
+msgid "Skiing"
+msgstr ""
+
+#: src/upload_dlg.c:89 src/activity.c:406
+msgid "Roller skating"
+msgstr ""
+
+#: src/upload_dlg.c:93 src/activity.c:407
+msgid "Alpine skiing"
+msgstr ""
+
+#: src/upload_dlg.c:97 src/activity.c:408
+msgid "Rowing"
+msgstr ""
+
+#: src/upload_dlg.c:101 src/activity.c:409
+msgid "Riding"
+msgstr ""
+
+#: src/upload_dlg.c:105 src/activity.c:410
+msgid "Mountain biking"
+msgstr ""
+
+#: src/upload_dlg.c:109 src/activity.c:411
+msgid "Snowboarding"
+msgstr ""
+
+#: src/upload_dlg.c:113 src/activity.c:412
+msgid "Snowshoeing"
+msgstr ""
+
+#: src/upload_dlg.c:117 src/activity.c:413
+msgid "Orienteering"
+msgstr ""
+
+#: src/upload_dlg.c:121 src/activity.c:414
+msgid "Sailing"
+msgstr ""
+
+#: src/upload_dlg.c:125 src/activity.c:415
+msgid "Hiking"
+msgstr ""
+
+#: src/upload_dlg.c:129 src/activity.c:416
+msgid "Roller skiing"
+msgstr ""
+
+#: src/upload_dlg.c:133 src/activity.c:417
+msgid "Telemark skiing"
+msgstr ""
+
+#: src/upload_dlg.c:137 src/activity.c:418
+msgid "Jogging"
+msgstr ""
+
+#: src/upload_dlg.c:141 src/activity.c:419
+msgid "Walking the dog"
+msgstr ""
+
+#: src/upload_dlg.c:145 src/activity.c:420
+msgid "Golf"
+msgstr ""
+
+#: src/upload_dlg.c:149 src/activity.c:421
+msgid "Frisbeegolf"
+msgstr ""
+
+#: src/upload_dlg.c:168
+#, c-format
+msgid "%04d-%02d-%02d"
+msgstr ""
+
+#: src/upload_dlg.c:202
+msgid "Successfully uploaded to HeiaHeia!"
+msgstr ""
+
+#: src/upload_dlg.c:206
+msgid "Uploading to HeiaHeia failed!"
+msgstr ""
+
+#: src/upload_dlg.c:231 src/upload_dlg.c:244
+msgid "Authorization"
+msgstr ""
+
+#: src/upload_dlg.c:235
+msgid "Authorized"
+msgstr ""
+
+#: src/upload_dlg.c:338
+msgid ""
+"Before you can upload activity to HeiaHeia you have to allow eCoach to "
+"connect your account.\n"
+"eCoach will now open new browser window.\n"
+"Once you have authorized eCoach, press \"Authorized\" button on eCoach."
+msgstr ""
+
+#: src/activity.c:384
+msgid "Start a new activity"
+msgstr ""
+
+#: src/activity.c:388
+msgid "Cancel"
+msgstr ""
+
+#: src/activity.c:396
+msgid "Sport"
+msgstr ""
+
+#: src/activity.c:404
+msgid "Nordic walking"
+msgstr ""
+
+#: src/activity.c:476
+msgid "Target heart rate type"
+msgstr ""
+
+#: src/activity.c:492
+msgid "Save as default"
+msgstr ""
+
+#: src/activity.c:497
+msgid "Add to calendar"
+msgstr ""
+
+#: src/activity.c:562 src/analyzer.c:1638
+msgid "Unable to open File chooser dialog"
+msgstr ""
+
+#: src/ec-button.gob:29
+msgid "Button down offset"
+msgstr ""
+
+#: src/ec-button.gob:30
+msgid ""
+"Offset by which button is moved to right-down direction when it is in a "
+"pressed-down state"
+msgstr ""
+
+#: src/ec-button.gob:36
+msgid "Center graphics vertically"
+msgstr ""
+
+#: src/ec-button.gob:37
+msgid "Whether or not to center the graphics also vertically"
+msgstr ""
+
+#: src/ec-button.gob:52
+msgid "Center text vertically"
+msgstr ""
+
+#: src/ec-button.gob:53
+msgid "Whether or not to center the text also vertically"
+msgstr ""
+
+#: src/map_view.cc:439
+msgid ""
+"When activity is in started or paused state, it is not stopped when going "
+"back. You can return to activity by clicking on the New activity button.\n"
+"\n"
+"To start a new activity, please press on the stop button first, then return "
+"to menu and click on the New activity button."
+msgstr ""
+
+#: src/map_view.cc:564 src/analyzer.c:941
+msgid "Distance"
+msgstr ""
+
+#: src/map_view.cc:565 src/analyzer.c:938
+msgid "Duration"
+msgstr ""
+
+#: src/map_view.cc:570 src/map_view.cc:646
+msgid "Speed"
+msgstr ""
+
+#: src/map_view.cc:571 src/map_view.cc:649
+msgid "Avg. Speed"
+msgstr ""
+
+#: src/map_view.cc:576
+msgid "Heart rate"
+msgstr ""
+
+#: src/map_view.cc:577
+msgid "Wait..."
+msgstr ""
+
+#: src/map_view.cc:691 src/map_view.cc:1347
+#, c-format
+msgid "%.0f m"
+msgstr ""
+
+#: src/map_view.cc:693 src/map_view.cc:1349 src/analyzer.c:2505
+#, c-format
+msgid "%.1f km"
+msgstr ""
+
+#: src/map_view.cc:702 src/map_view.cc:1362 src/analyzer.c:2538
+#, c-format
+msgid "%.0f ft"
+msgstr ""
+
+#: src/map_view.cc:705 src/map_view.cc:1365 src/analyzer.c:2512
+#, c-format
+msgid "%.1f mi"
+msgstr ""
+
+#: src/map_view.cc:715 src/map_view.cc:1395 src/map_view.cc:1431
+#: src/analyzer.c:2554 src/analyzer.c:2588
+#, c-format
+msgid "%.1f km/h"
+msgstr ""
+
+#: src/map_view.cc:721 src/map_view.cc:1404 src/map_view.cc:1440
+#: src/analyzer.c:2559 src/analyzer.c:2592
+#, c-format
+msgid "%.1f mph"
+msgstr ""
+
+#: src/map_view.cc:727
+msgid "0"
+msgstr ""
+
+#: src/map_view.cc:746
+#, c-format
+msgid " %02.f:%02.f"
+msgstr ""
+
+#: src/map_view.cc:750
+#, c-format
+msgid ""
+"Duration: %s\n"
+"Distance: %s\n"
+"Avg.speed: %s\n"
+"Min/km: %s\n"
+"Comment: %s \n"
+"GPX File: %s"
+msgstr ""
+
+#: src/map_view.cc:837
+msgid ""
+"Heart rate monitor is not configured.\n"
+"To get heart rate data, please\n"
+"configure heart rate monitor in\n"
+"the settings menu."
+msgstr ""
+
+#: src/map_view.cc:850 src/analyzer.c:960 src/analyzer.c:1716
+#: src/analyzer.c:2382 src/analyzer.c:2455 src/analyzer.c:2470
+#: src/analyzer.c:2496 src/analyzer.c:2542 src/analyzer.c:2562
+#: src/analyzer.c:2580 src/analyzer.c:2595 src/analyzer.c:2606
+#: src/analyzer.c:2617
+msgid "N/A"
+msgstr ""
+
+#: src/map_view.cc:941 src/analyzer.c:2604 src/analyzer.c:2615
+#, c-format
+msgid "%d bpm"
+msgstr ""
+
+#: src/map_view.cc:993
+msgid "Got GPS Fix "
+msgstr ""
+
+#: src/map_view.cc:1037
+msgid "Waiting for GPS..."
+msgstr ""
+
+#: src/map_view.cc:1191
+msgid ""
+"Do you really want to stop the current activity?\n"
+"\n"
+"Statistics such as distance and elapsed time\n"
+"will be cleared when you press Record button\n"
+"again."
+msgstr ""
+
+#: src/map_view.cc:1251 src/map_view.cc:1254
+msgid "0 km/h"
+msgstr ""
+
+#: src/map_view.cc:1259 src/map_view.cc:1262
+msgid "0 mph"
+msgstr ""
+
+#: src/map_view.cc:1472 src/analyzer.c:950
+msgid "Min/km"
+msgstr ""
+
+#: src/map_view.cc:1473 src/analyzer.c:1985
+#, c-format
+msgid "%02.f:%02.f"
+msgstr ""
+
+#: src/map_view.cc:1507
+#, c-format
+msgid "%02d:%02d:%02d"
+msgstr ""
+
+#: src/map_view.cc:1758 src/map_view.cc:1873
+msgid "Open Street Map"
+msgstr ""
+
+#: src/map_view.cc:1759 src/map_view.cc:1874
+msgid "Open Street Map Renderer"
+msgstr ""
+
+#: src/map_view.cc:1760 src/map_view.cc:1875
+msgid "Open Aerial Map"
+msgstr ""
+
+#: src/map_view.cc:1761 src/map_view.cc:1876
+msgid "Maps For Free"
+msgstr ""
+
+#: src/map_view.cc:1762 src/map_view.cc:1877
+msgid "Google Street"
+msgstr ""
+
+#: src/map_view.cc:1765 src/map_view.cc:1880
+msgid "Virtual Earth Street"
+msgstr ""
+
+#: src/map_view.cc:1787
+msgid "Map Source"
+msgstr ""
+
+#: src/map_view.cc:1798
+msgid "Auto Centering"
+msgstr ""
+
+#: src/map_view.cc:1803
+msgid "Personal Data"
+msgstr ""
+
+#: src/map_view.cc:1807 src/map_view.cc:1834
+msgid "Add Note"
+msgstr ""
+
+#: src/map_view.cc:1812
+msgid "About"
+msgstr ""
+
+#: src/map_view.cc:1894
+msgid "Select map source"
+msgstr ""
+
+#: src/map_view.cc:1922
+msgid "Selected map source will be used next time you start eCoach"
+msgstr ""
+
+#: src/map_view.cc:2025
+msgid "eCoach >Personal Data"
+msgstr ""
+
+#: src/map_view.cc:2036
+#, c-format
+msgid "Age: %d"
+msgstr ""
+
+#: src/map_view.cc:2047
+#, c-format
+msgid "Max HR: %d"
+msgstr ""
+
+#: src/map_view.cc:2066
+#, c-format
+msgid "BMI: %.1f"
+msgstr ""
+
+#: src/map_view.cc:2088
+msgid ""
+"Weight\n"
+"control"
+msgstr ""
+
+#: src/map_view.cc:2095
+msgid ""
+"Moderate\n"
+" exercise"
+msgstr ""
+
+#: src/map_view.cc:2116 src/map_view.cc:2126
+#, c-format
+msgid "%d%%"
+msgstr ""
+
+#: src/map_view.cc:2117 src/map_view.cc:2127
+#, c-format
+msgid "%d"
+msgstr ""
+
+#: src/map_view.cc:2163
+msgid ""
+"eCoach comes with ABSOLUTELY NO WARRANTY. This is free software, and you are "
+"welcome to redistribute it under certain conditions. Read below for "
+"details.\n"
+"\n"
+"This software contains components from\n"
+"OSM GPS MAP\n"
+"http://nzjrs.github.com/osm-gps-map/\n"
+"Open Source ECG Analysis Software (OSEA)\n"
+"[http://eplimited.com/]\n"
+" and \n"
+"PhysioToolkit\n"
+"[http://www.physionet.org/physiotools/wfdb.shtml]\n"
+"WFDB library (ecgcodes.h)\n"
+"\n"
+"\tCopyright (C) 1999 George B. Moody\n"
+"OSEA\n"
+"\tCopywrite (C) 2000-2002 Patrick S. Hamilton\n"
+"\n"
+"                    GNU GENERAL PUBLIC LICENSE\n"
+"                       Version 2, June 1991\n"
+"\n"
+" Copyright (C) 1989, 1991 Free Software Foundation, Inc.\n"
+"     59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
+" Everyone is permitted to copy and distribute verbatim copies\n"
+" of this license document, but changing it is not allowed.\n"
+"\n"
+"                            Preamble\n"
+"\n"
+"  The licenses for most software are designed to take away your\n"
+"freedom to share and change it.  By contrast, the GNU General Public\n"
+"License is intended to guarantee your freedom to share and change free\n"
+"software--to make sure the software is free for all its users.  This\n"
+"General Public License applies to most of the Free Software\n"
+"Foundation's software and to any other program whose authors commit to\n"
+"using it.  (Some other Free Software Foundation software is covered by\n"
+"the GNU Library General Public License instead.)  You can apply it to\n"
+"your programs, too.\n"
+"\n"
+"  When we speak of free software, we are referring to freedom, not\n"
+"price.  Our General Public Licenses are designed to make sure that you\n"
+"have the freedom to distribute copies of free software (and charge for\n"
+"this service if you wish), that you receive source code or can get it\n"
+"if you want it, that you can change the software or use pieces of it\n"
+"in new free programs; and that you know you can do these things.\n"
+"\n"
+"  To protect your rights, we need to make restrictions that forbid\n"
+"anyone to deny you these rights or to ask you to surrender the rights.\n"
+"These restrictions translate to certain responsibilities for you if you\n"
+"distribute copies of the software, or if you modify it.\n"
+"\n"
+"  For example, if you distribute copies of such a program, whether\n"
+"gratis or for a fee, you must give the recipients all the rights that\n"
+"you have.  You must make sure that they, too, receive or can get the\n"
+"source code.  And you must show them these terms so they know their\n"
+"rights.\n"
+"\n"
+"  We protect your rights with two steps: (1) copyright the software, and\n"
+"(2) offer you this license which gives you legal permission to copy,\n"
+"distribute and/or modify the software.\n"
+"\n"
+"  Also, for each author's protection and ours, we want to make certain\n"
+"that everyone understands that there is no warranty for this free\n"
+"software.  If the software is modified by someone else and passed on, we\n"
+"want its recipients to know that what they have is not the original, so\n"
+"that any problems introduced by others will not reflect on the original\n"
+"authors' reputations.\n"
+"\n"
+"  Finally, any free program is threatened constantly by software\n"
+"patents.  We wish to avoid the danger that redistributors of a free\n"
+"program will individually obtain patent licenses, in effect making the\n"
+"program proprietary.  To prevent this, we have made it clear that any\n"
+"patent must be licensed for everyone's free use or not licensed at all.\n"
+"\n"
+"  The precise terms and conditions for copying, distribution and\n"
+"modification follow.\n"
+"\n"
+"                    GNU GENERAL PUBLIC LICENSE\n"
+"   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION\n"
+"\n"
+"  0. This License applies to any program or other work which contains\n"
+"a notice placed by the copyright holder saying it may be distributed\n"
+"under the terms of this General Public License.  The \"Program\", below,\n"
+"refers to any such program or work, and a \"work based on the Program\"\n"
+"means either the Program or any derivative work under copyright law:\n"
+"that is to say, a work containing the Program or a portion of it,\n"
+"either verbatim or with modifications and/or translated into another\n"
+"language.  (Hereinafter, translation is included without limitation in\n"
+"the term \"modification\".)  Each licensee is addressed as \"you\".\n"
+"\n"
+"Activities other than copying, distribution and modification are not\n"
+"covered by this License; they are outside its scope.  The act of\n"
+"running the Program is not restricted, and the output from the Program\n"
+"is covered only if its contents constitute a work based on the\n"
+"Program (independent of having been made by running the Program).\n"
+"Whether that is true depends on what the Program does.\n"
+"\n"
+"  1. You may copy and distribute verbatim copies of the Program's\n"
+"source code as you receive it, in any medium, provided that you\n"
+"conspicuously and appropriately publish on each copy an appropriate\n"
+"copyright notice and disclaimer of warranty; keep intact all the\n"
+"notices that refer to this License and to the absence of any warranty;\n"
+"and give any other recipients of the Program a copy of this License\n"
+"along with the Program.\n"
+"\n"
+"You may charge a fee for the physical act of transferring a copy, and\n"
+"you may at your option offer warranty protection in exchange for a fee.\n"
+"\n"
+"  2. You may modify your copy or copies of the Program or any portion\n"
+"of it, thus forming a work based on the Program, and copy and\n"
+"distribute such modifications or work under the terms of Section 1\n"
+"above, provided that you also meet all of these conditions:\n"
+"\n"
+"    a) You must cause the modified files to carry prominent notices\n"
+"    stating that you changed the files and the date of any change.\n"
+"\n"
+"    b) You must cause any work that you distribute or publish, that in\n"
+"    whole or in part contains or is derived from the Program or any\n"
+"    part thereof, to be licensed as a whole at no charge to all third\n"
+"    parties under the terms of this License.\n"
+"\n"
+"    c) If the modified program normally reads commands interactively\n"
+"    when run, you must cause it, when started running for such\n"
+"    interactive use in the most ordinary way, to print or display an\n"
+"    announcement including an appropriate copyright notice and a\n"
+"    notice that there is no warranty (or else, saying that you provide\n"
+"    a warranty) and that users may redistribute the program under\n"
+"    these conditions, and telling the user how to view a copy of this\n"
+"    License.  (Exception: if the Program itself is interactive but\n"
+"    does not normally print such an announcement, your work based on\n"
+"    the Program is not required to print an announcement.)\n"
+"\n"
+"These requirements apply to the modified work as a whole.  If\n"
+"identifiable sections of that work are not derived from the Program,\n"
+"and can be reasonably considered independent and separate works in\n"
+"themselves, then this License, and its terms, do not apply to those\n"
+"sections when you distribute them as separate works.  But when you\n"
+"distribute the same sections as part of a whole which is a work based\n"
+"on the Program, the distribution of the whole must be on the terms of\n"
+"this License, whose permissions for other licensees extend to the\n"
+"entire whole, and thus to each and every part regardless of who wrote it.\n"
+"\n"
+"Thus, it is not the intent of this section to claim rights or contest\n"
+"your rights to work written entirely by you; rather, the intent is to\n"
+"exercise the right to control the distribution of derivative or\n"
+"collective works based on the Program.\n"
+"\n"
+"In addition, mere aggregation of another work not based on the Program\n"
+"with the Program (or with a work based on the Program) on a volume of\n"
+"a storage or distribution medium does not bring the other work under\n"
+"the scope of this License.\n"
+"\n"
+"  3. You may copy and distribute the Program (or a work based on it,\n"
+"under Section 2) in object code or executable form under the terms of\n"
+"Sections 1 and 2 above provided that you also do one of the following:\n"
+"\n"
+"    a) Accompany it with the complete corresponding machine-readable\n"
+"    source code, which must be distributed under the terms of Sections\n"
+"    1 and 2 above on a medium customarily used for software interchange; "
+"or,\n"
+"\n"
+"    b) Accompany it with a written offer, valid for at least three\n"
+"    years, to give any third party, for a charge no more than your\n"
+"    cost of physically performing source distribution, a complete\n"
+"    machine-readable copy of the corresponding source code, to be\n"
+"    distributed under the terms of Sections 1 and 2 above on a medium\n"
+"    customarily used for software interchange; or,\n"
+"\n"
+"    c) Accompany it with the information you received as to the offer\n"
+"    to distribute corresponding source code.  (This alternative is\n"
+"    allowed only for noncommercial distribution and only if you\n"
+"    received the program in object code or executable form with such\n"
+"    an offer, in accord with Subsection b above.)\n"
+"\n"
+"The source code for a work means the preferred form of the work for\n"
+"making modifications to it.  For an executable work, complete source\n"
+"code means all the source code for all modules it contains, plus any\n"
+"associated interface definition files, plus the scripts used to\n"
+"control compilation and installation of the executable.  However, as a\n"
+"special exception, the source code distributed need not include\n"
+"anything that is normally distributed (in either source or binary\n"
+"form) with the major components (compiler, kernel, and so on) of the\n"
+"operating system on which the executable runs, unless that component\n"
+"itself accompanies the executable.\n"
+"\n"
+"If distribution of executable or object code is made by offering\n"
+"access to copy from a designated place, then offering equivalent\n"
+"access to copy the source code from the same place counts as\n"
+"distribution of the source code, even though third parties are not\n"
+"compelled to copy the source along with the object code.\n"
+"\n"
+"  4. You may not copy, modify, sublicense, or distribute the Program\n"
+"except as expressly provided under this License.  Any attempt\n"
+"otherwise to copy, modify, sublicense or distribute the Program is\n"
+"void, and will automatically terminate your rights under this License.\n"
+"However, parties who have received copies, or rights, from you under\n"
+"this License will not have their licenses terminated so long as such\n"
+"parties remain in full compliance.\n"
+"\n"
+"  5. You are not required to accept this License, since you have not\n"
+"signed it.  However, nothing else grants you permission to modify or\n"
+"distribute the Program or its derivative works.  These actions are\n"
+"prohibited by law if you do not accept this License.  Therefore, by\n"
+"modifying or distributing the Program (or any work based on the\n"
+"Program), you indicate your acceptance of this License to do so, and\n"
+"all its terms and conditions for copying, distributing or modifying\n"
+"the Program or works based on it.\n"
+"\n"
+"  6. Each time you redistribute the Program (or any work based on the\n"
+"Program), the recipient automatically receives a license from the\n"
+"original licensor to copy, distribute or modify the Program subject to\n"
+"these terms and conditions.  You may not impose any further\n"
+"restrictions on the recipients' exercise of the rights granted herein.\n"
+"You are not responsible for enforcing compliance by third parties to\n"
+"this License.\n"
+"\n"
+"  7. If, as a consequence of a court judgment or allegation of patent\n"
+"infringement or for any other reason (not limited to patent issues),\n"
+"conditions are imposed on you (whether by court order, agreement or\n"
+"otherwise) that contradict the conditions of this License, they do not\n"
+"excuse you from the conditions of this License.  If you cannot\n"
+"distribute so as to satisfy simultaneously your obligations under this\n"
+"License and any other pertinent obligations, then as a consequence you\n"
+"may not distribute the Program at all.  For example, if a patent\n"
+"license would not permit royalty-free redistribution of the Program by\n"
+"all those who receive copies directly or indirectly through you, then\n"
+"the only way you could satisfy both it and this License would be to\n"
+"refrain entirely from distribution of the Program.\n"
+"\n"
+"If any portion of this section is held invalid or unenforceable under\n"
+"any particular circuecance, the balance of the section is intended to\n"
+"apply and the section as a whole is intended to apply in other\n"
+"circuecances.\n"
+"\n"
+"It is not the purpose of this section to induce you to infringe any\n"
+"patents or other property right claims or to contest validity of any\n"
+"such claims; this section has the sole purpose of protecting the\n"
+"integrity of the free software distribution system, which is\n"
+"implemented by public license practices.  Many people have made\n"
+"generous contributions to the wide range of software distributed\n"
+"through that system in reliance on consistent application of that\n"
+"system; it is up to the author/donor to decide if he or she is willing\n"
+"to distribute software through any other system and a licensee cannot\n"
+"impose that choice.\n"
+"\n"
+"This section is intended to make thoroughly clear what is believed to\n"
+"be a consequence of the rest of this License.\n"
+"\n"
+"  8. If the distribution and/or use of the Program is restricted in\n"
+"certain countries either by patents or by copyrighted interfaces, the\n"
+"original copyright holder who places the Program under this License\n"
+"may add an explicit geographical distribution limitation excluding\n"
+"those countries, so that distribution is permitted only in or among\n"
+"countries not thus excluded.  In such case, this License incorporates\n"
+"the limitation as if written in the body of this License.\n"
+"\n"
+"  9. The Free Software Foundation may publish revised and/or new versions\n"
+"of the General Public License from time to time.  Such new versions will\n"
+"be similar in spirit to the present version, but may differ in detail to\n"
+"address new problems or concerns.\n"
+"\n"
+"Each version is given a distinguishing version number.  If the Program\n"
+"specifies a version number of this License which applies to it and \"any\n"
+"later version\", you have the option of following the terms and conditions\n"
+"either of that version or of any later version published by the Free\n"
+"Software Foundation.  If the Program does not specify a version number of\n"
+"this License, you may choose any version ever published by the Free "
+"Software\n"
+"Foundation.\n"
+"\n"
+"  10. If you wish to incorporate parts of the Program into other free\n"
+"programs whose distribution conditions are different, write to the author\n"
+"to ask for permission.  For software which is copyrighted by the Free\n"
+"Software Foundation, write to the Free Software Foundation; we sometimes\n"
+"make exceptions for this.  Our decision will be guided by the two goals\n"
+"of preserving the free status of all derivatives of our free software and\n"
+"of promoting the sharing and reuse of software generally.\n"
+"\n"
+"                            NO WARRANTY\n"
+"\n"
+"  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY\n"
+"FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN\n"
+"OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES\n"
+"PROVIDE THE PROGRAM \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER "
+"EXPRESSED\n"
+"OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF\n"
+"MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS\n"
+"TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE\n"
+"PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,\n"
+"REPAIR OR CORRECTION.\n"
+"\n"
+"  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING\n"
+"WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR\n"
+"REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,\n"
+"INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING\n"
+"OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED\n"
+"TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY\n"
+"YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER\n"
+"PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE\n"
+"POSSIBILITY OF SUCH DAMAGES.\n"
+"\n"
+"                     END OF TERMS AND CONDITIONS\n"
+"\n"
+"            How to Apply These Terms to Your New Programs\n"
+"\n"
+"  If you develop a new program, and you want it to be of the greatest\n"
+"possible use to the public, the best way to achieve this is to make it\n"
+"free software which everyone can redistribute and change under these terms.\n"
+"\n"
+"  To do so, attach the following notices to the program.  It is safest\n"
+"to attach them to the start of each source file to most effectively\n"
+"convey the exclusion of warranty; and each file should have at least\n"
+"the \"copyright\" line and a pointer to where the full notice is found.\n"
+"\n"
+"    <one line to give the program's name and a brief idea of what it does.>\n"
+"    Copyright (C) <year>  <name of author>\n"
+"\n"
+"    This program is free software; you can redistribute it and/or modify\n"
+"    it under the terms of the GNU General Public License as published by\n"
+"    the Free Software Foundation; either version 2 of the License, or\n"
+"    (at your option) any later version.\n"
+"\n"
+"    This program is distributed in the hope that it will be useful,\n"
+"    but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"    GNU General Public License for more details.\n"
+"\n"
+"    You should have received a copy of the GNU General Public License\n"
+"    along with this program; if not, write to the Free Software\n"
+"    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  "
+"USA\n"
+"\n"
+"\n"
+"Also add information on how to contact you by electronic and paper mail.\n"
+"\n"
+"If the program is interactive, make it output a short notice like this\n"
+"when it starts in an interactive mode:\n"
+"\n"
+"    Gnomovision version 69, Copyright (C) year  name of author\n"
+"    Gnomovision comes with ABSOLUTELY NO WARRANTY; for details type `show "
+"w'.\n"
+"    This is free software, and you are welcome to redistribute it\n"
+"    under certain conditions; type `show c' for details.\n"
+"\n"
+"The hypothetical commands `show w' and `show c' should show the appropriate\n"
+"parts of the General Public License.  Of course, the commands you use may\n"
+"be called something other than `show w' and `show c'; they could even be\n"
+"mouse-clicks or menu items--whatever suits your program.\n"
+"\n"
+"You should also get your employer (if you work as a programmer) or your\n"
+"school, if any, to sign a \"copyright disclaimer\" for the program, if\n"
+"necessary.  Here is a sample; alter the names:\n"
+"\n"
+"  Yoyodyne, Inc., hereby disclaims all copyright interest in the program\n"
+"  `Gnomovision' (which makes passes at compilers) written by James Hacker.\n"
+"\n"
+"  <signature of Ty Coon>, 1 April 1989\n"
+"  Ty Coon, President of Vice\n"
+"\n"
+"This General Public License does not permit incorporating your program into\n"
+"proprietary programs.  If your program is a subroutine library, you may\n"
+"consider it more useful to permit linking proprietary applications with the\n"
+"library.  If this is what you want to do, use the GNU Library General\n"
+"Public License instead of this License.\n"
+msgstr ""
+
+#: src/analyzer.c:668
+msgid "eCoach >Activity log"
+msgstr ""
+
+#: src/analyzer.c:673
+msgid "Upload to HeiaHeia"
+msgstr ""
+
+#: src/analyzer.c:696
+msgid "Reset upload settings"
+msgstr ""
+
+#: src/analyzer.c:782 src/analyzer.c:1719
+msgid "No tracks"
+msgstr ""
+
+#: src/analyzer.c:789
+msgid "No track information available "
+msgstr ""
+
+#: src/analyzer.c:926
+msgid "Activity name"
+msgstr ""
+
+#: src/analyzer.c:932
+msgid "Start time"
+msgstr ""
+
+#: src/analyzer.c:935
+msgid "End time"
+msgstr ""
+
+#: src/analyzer.c:944
+msgid "Average speed"
+msgstr ""
+
+#: src/analyzer.c:947
+msgid "Maximum speed"
+msgstr ""
+
+#: src/analyzer.c:953
+msgid "Average heart rate"
+msgstr ""
+
+#: src/analyzer.c:1321 src/analyzer.c:1406
+#, c-format
+msgid ""
+"Some of the data could not be parsed:\n"
+"\n"
+"%s"
+msgstr ""
+
+#: src/analyzer.c:1327 src/analyzer.c:1412
+#, c-format
+msgid ""
+"The file could not be opened:\n"
+"\n"
+"%s"
+msgstr ""
+
+#: src/analyzer.c:1653
+msgid "GPX files"
+msgstr ""
+
+#: src/analyzer.c:1721
+msgid "No track information avail."
+msgstr ""
+
+#: src/analyzer.c:2362
+#, c-format
+msgid "Track %d"
+msgstr ""
+
+#: src/analyzer.c:2400
+#, c-format
+msgid "%s (%s)"
+msgstr ""
+
+#: src/analyzer.c:2408
+msgid "Untitled track"
+msgstr ""
+
+#: src/analyzer.c:2416
+#, c-format
+msgid "%04d-%02d-%02d %02d:%02d - %02d:%02d"
+msgstr ""
+
+#: src/analyzer.c:2425
+#, c-format
+msgid ""
+"%s\n"
+"%s"
+msgstr ""
+
+#: src/analyzer.c:2442 src/analyzer.c:2463
+#, c-format
+msgid "%04d-%02d-%02d %02d:%02d"
+msgstr ""
+
+#: src/analyzer.c:2484
+#, c-format
+msgid "%02d:%02d:%02d.%02d"
+msgstr ""
+
+#: src/analyzer.c:2520
+#, c-format
+msgid "%.2f km"
+msgstr ""
+
+#: src/analyzer.c:2525
+#, c-format
+msgid "%.2f mi"
+msgstr ""
+
+#: src/analyzer.c:2533
+#, c-format
+msgid "%d m"
+msgstr ""
+
+#: src/analyzer.c:2893
+msgid "0123456789:"
+msgstr ""
+
+#: src/analyzer.c:2901
+msgid "Speed (km/h) Altitude (m) Heart rate (bpm)Time (hh:mm) (mm:ss)"
+msgstr ""
+
+#: src/analyzer.c:2906
+msgid "Speed (mph) Altitude (ft) Heart rate (bpm)Time (hh:mm) (mm:ss)"
+msgstr ""
+
+#: src/analyzer.c:2934
+msgid "Speed (km/h)"
+msgstr ""
+
+#: src/analyzer.c:2938
+msgid "Speed (mph)"
+msgstr ""
+
+#: src/analyzer.c:2964
+msgid "Altitude (m)"
+msgstr ""
+
+#: src/analyzer.c:2968
+msgid "Altitude (ft)"
+msgstr ""
+
+#: src/analyzer.c:2993
+msgid "Heart rate (bpm)"
+msgstr ""
+
+#: src/analyzer.c:3133
+msgid "Time (mm:ss)"
+msgstr ""
+
+#: src/analyzer.c:3136
+msgid "Time (hh:mm)"
+msgstr ""
+
+#: src/analyzer.c:3139
+msgid "Time scale creation failed"
+msgstr ""
+
+#: src/analyzer.c:3142
+#, c-format
+msgid "Unknown unit type: %d"
+msgstr ""
+
+#: src/analyzer.c:3404
+msgid ":"
+msgstr ""
+
+#: src/analyzer.c:3816
+msgid "Choose units"
+msgstr ""
+
+#: src/analyzer.c:3820
+msgid "English"
+msgstr ""
+
+#: src/analyzer.c:3853
+msgid "Are you sure you want to reset settings?"
+msgstr ""

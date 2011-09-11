@@ -47,6 +47,9 @@
 /* Location */
 #include "location-distance-utils-fix.h"
 
+/* i18n */
+#include <glib/gi18n.h>
+
 /* Other modules */
 #include "upload_dlg.h"
 #include "gconf_keys.h"
@@ -662,12 +665,12 @@ void analyzer_view_show(AnalyzerView *self)
 	DEBUG_BEGIN();
 
 	self->win = hildon_stackable_window_new ();
-	gtk_window_set_title ( GTK_WINDOW (self->win), "eCoach >Activity log");
+	gtk_window_set_title ( GTK_WINDOW (self->win), _("eCoach >Activity log"));
 	gtk_widget_set_name(GTK_WIDGET(self->win), "mainwindow");
 	self->menu = hildon_app_menu_new ();
 	self->menu_button = hildon_gtk_button_new (HILDON_SIZE_AUTO);
 	gtk_widget_set_sensitive(self->menu_button,FALSE);
-	gtk_button_set_label (GTK_BUTTON (self->menu_button),"Upload to HeiaHeia");
+	gtk_button_set_label (GTK_BUTTON (self->menu_button),_("Upload to HeiaHeia"));
 
         g_signal_connect_after (self->menu_button, "clicked",
                             G_CALLBACK (upload_button_clicked),
@@ -690,7 +693,7 @@ void analyzer_view_show(AnalyzerView *self)
 
 
 	
-	gtk_button_set_label (GTK_BUTTON (self->reset_button),"Reset upload settings");
+	gtk_button_set_label (GTK_BUTTON (self->reset_button),_("Reset upload settings"));
  	g_signal_connect_after (self->reset_button, "clicked",
                             G_CALLBACK (reset_button_clicked),
                             self);
@@ -1321,8 +1324,8 @@ static void analyzer_view_show_last_activity(gpointer user_data,gchar* file_name
 		g_error_free(error);
 	} else if(parser_status == GPX_PARSER_STATUS_FAILED) {
 		ec_error_show_message_error_printf(
-				"The file could not be opened:\n\n"
-					"%s",
+				_("The file could not be opened:\n\n"
+					"%s"),
 				error->message);
 		g_error_free(error);
 		DEBUG_END();
@@ -1406,8 +1409,8 @@ static void analyzer_view_btn_open_clicked(
 		g_error_free(error);
 	} else if(parser_status == GPX_PARSER_STATUS_FAILED) {
 		ec_error_show_message_error_printf(
-				"The file could not be opened:\n\n"
-					"%s",
+				_("The file could not be opened:\n\n"
+					"%s"),
 				error->message);
 		g_error_free(error);
 		DEBUG_END();
@@ -2402,7 +2405,7 @@ static void analyzer_view_show_track_information(
 	} else if(has_comment) {
 		buffer2 = g_strdup(track->comment);
 	} else {
-		buffer2 = g_strdup("Untitled track");
+		buffer2 = g_strdup(_("Untitled track"));
 	}
 
 	if((track->start_time.tv_sec != 0) && (track->end_time.tv_sec != 0))
@@ -2419,7 +2422,7 @@ static void analyzer_view_show_track_information(
 				time_dest_2.tm_hour,
 				time_dest_2.tm_min);
 
-		buffer = g_strdup_printf("%s\n%s",
+		buffer = g_strdup_printf(_("%s\n%s"),
 				buffer2, buffer_times);
 		g_free(buffer2);
 		g_free(buffer_times);
@@ -2464,7 +2467,7 @@ static void analyzer_view_show_track_information(
 				time_dest.tm_hour,
 				time_dest.tm_min);
 	} else {
-		buffer = g_strdup("N/A");
+		buffer = g_strdup(_("N/A"));
 	}
 	gtk_label_set_text(GTK_LABEL(self->info_labels
 				[ANALYZER_VIEW_INFO_LABEL_TIME_END][1]),
@@ -2548,15 +2551,15 @@ static void analyzer_view_show_track_information(
 	{
 		if(self->metric)
 		{
-		buffer = g_strdup_printf("%.1f km/h", track->speed_avg);
+		buffer = g_strdup_printf(_("%.1f km/h"), track->speed_avg);
 		}
 		else
 		{
 		temp_average= track->speed_avg * 0.621;
-		buffer = g_strdup_printf("%.1f mph", temp_average);
+		buffer = g_strdup_printf(_("%.1f mph"), temp_average);
 		}
 	} else {
-		buffer = g_strdup("N/A");
+		buffer = g_strdup(_("N/A"));
 	}
 	gtk_label_set_text(GTK_LABEL(self->info_labels
 				[ANALYZER_VIEW_INFO_LABEL_SPEED_AVG][1]),
@@ -2574,7 +2577,7 @@ static void analyzer_view_show_track_information(
 	{
 	    gtk_label_set_text(GTK_LABEL(self->info_labels
 				[ANALYZER_VIEW_INFO_LABEL_MIN_PER_KM][1]),
-			"N/A");
+			_("N/A"));
 	}
 	
 	
@@ -2582,14 +2585,14 @@ static void analyzer_view_show_track_information(
 	{
 		if(self->metric)
 		{
-		buffer = g_strdup_printf("%.1f km/h", track->speed_max);
+		buffer = g_strdup_printf(_("%.1f km/h"), track->speed_max);
 		}
 		else
 		{
-		buffer = g_strdup_printf("%.1f mph", track->speed_max);
+		buffer = g_strdup_printf(_("%.1f mph"), track->speed_max);
 		}
 	} else {
-		buffer = g_strdup("N/A");
+		buffer = g_strdup(_("N/A"));
 	}
 	gtk_label_set_text(GTK_LABEL(self->info_labels
 				[ANALYZER_VIEW_INFO_LABEL_SPEED_MAX][1]),
@@ -3133,10 +3136,10 @@ static GdkPixbuf *analyzer_view_create_pixbuf(
 			scale_text = _("Time (hh:mm)");
 			break;
 		case ANALYZER_VIEW_UNIT_TYPE_NONE:
-			g_warning("Time scale creation failed");
+			g_warning(_("Time scale creation failed"));
 			break;
 		default:
-			g_warning("Unknown unit type: %d", unit_type);
+			g_warning(_("Unknown unit type: %d"), unit_type);
 			break;
 	}
 
@@ -3810,11 +3813,11 @@ static void analyzer_view_set_units(AnalyzerView *self)
 	GtkWidget *dialog;
 	gint result = 0;
 	gboolean loop = TRUE;
-	dialog = gtk_dialog_new_with_buttons("Choose units",
+	dialog = gtk_dialog_new_with_buttons(_("Choose units"),
 					     self->parent_window,
-	  				     GTK_DIALOG_MODAL,"Metric",
+	  				     GTK_DIALOG_MODAL,_("Metric"),
 					     METRIC,
-					     "English",
+					     _("English"),
 	  				     ENGLISH,NULL);
 
 
@@ -3847,7 +3850,7 @@ static void reset_button_clicked (GtkButton *button, gpointer user_data){
 
 AnalyzerView *self = (AnalyzerView *)user_data;
 //upload(self);
-GtkWidget *confirm = hildon_note_new_confirmation(NULL,"Are you sure you want to reset settings?");
+GtkWidget *confirm = hildon_note_new_confirmation(NULL,_("Are you sure you want to reset settings?"));
  if(GTK_RESPONSE_OK == gtk_dialog_run(GTK_DIALOG(confirm))){
 
 g_spawn_command_line_async("gconftool-2 -u /apps/ecoach/token",NULL);

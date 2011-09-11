@@ -40,6 +40,9 @@
 #include "osm-gps-map-types.h"
 #include "osm-gps-map.h"
 
+/* i18n */
+#include <glib/gi18n.h>
+
 #ifdef USE_CAIRO
 #include <cairo.h>
 #endif
@@ -1994,39 +1997,39 @@ osm_gps_map_source_get_friendly_name(OsmGpsMapSource_t source)
     switch(source)
     {
         case OSM_GPS_MAP_SOURCE_NULL:
-            return "None";
+            return _("None");
         case OSM_GPS_MAP_SOURCE_OPENSTREETMAP:
-            return "OpenStreetMap";
+            return _("OpenStreetMap");
         case OSM_GPS_MAP_SOURCE_OPENSTREETMAP_RENDERER:
-            return "OpenStreetMap Renderer";
+            return _("OpenStreetMap Renderer");
         case OSM_GPS_MAP_SOURCE_OPENAERIALMAP:
-            return "OpenAerialMap";
+            return _("OpenAerialMap");
         case OSM_GPS_MAP_SOURCE_MAPS_FOR_FREE:
-            return "Maps-For-Free";
+            return _("Maps-For-Free");
         case OSM_GPS_MAP_SOURCE_GOOGLE_STREET:
-            return "Google Maps";
+            return _("Google Maps");
         case OSM_GPS_MAP_SOURCE_GOOGLE_SATELLITE:
-            return "Google Satellite";
+            return _("Google Satellite");
         case OSM_GPS_MAP_SOURCE_GOOGLE_HYBRID:
-            return "Google Hybrid";
+            return _("Google Hybrid");
         case OSM_GPS_MAP_SOURCE_VIRTUAL_EARTH_STREET:
-            return "Virtual Earth";
+            return _("Virtual Earth");
         case OSM_GPS_MAP_SOURCE_VIRTUAL_EARTH_SATELLITE:
-            return "Virtual Earth Satellite";
+            return _("Virtual Earth Satellite");
         case OSM_GPS_MAP_SOURCE_VIRTUAL_EARTH_HYBRID:
-            return "Virtual Earth Hybrid";
+            return _("Virtual Earth Hybrid");
         case OSM_GPS_MAP_SOURCE_YAHOO_STREET:
-            return "Yahoo Maps";
+            return _("Yahoo Maps");
         case OSM_GPS_MAP_SOURCE_YAHOO_SATELLITE:
-            return "Yahoo Satellite";
+            return _("Yahoo Satellite");
         case OSM_GPS_MAP_SOURCE_YAHOO_HYBRID:
-            return "Yahoo Hybrid";
+            return _("Yahoo Hybrid");
         case OSM_GPS_MAP_SOURCE_OVIMAPS_NORMAL:
-            return "OviMaps";
+            return _("OviMaps");
         case OSM_GPS_MAP_SOURCE_OVIMAPS_HYBRID:
-            return "OviMaps Hybrid";
+            return _("OviMaps Hybrid");
         case OSM_GPS_MAP_SOURCE_OVIMAPS_TRANSIT:
-            return "OviMaps Public Transport";
+            return _("OviMaps Public Transport");
         default:
             return NULL;
     }

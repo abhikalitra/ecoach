@@ -22,12 +22,12 @@ int CCalendarUtil::addEvent(gchar *name,gchar *desc,gchar *location, time_t star
   if(err == CALENDAR_DOESNOT_EXISTS)
   {
    int error;
-   DEBUG("Calendar does not exists, creating a new one...");
+   DEBUG("Calendar does not exist, creating a new one...");
    cal = multi->addCalendar(CALENDAR_NAME, COLOUR_VIOLET, 0, 1,LOCAL_CALENDAR,"","1.0",err);
    if(err != CALENDAR_OPERATION_SUCCESSFUL){
      return 1;
    }
-   DEBUG("Calendar succesfully created...");
+   DEBUG("Calendar successfully created...");
   }
    cal->addEvent(&event,err); 
   

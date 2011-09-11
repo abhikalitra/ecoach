@@ -26,12 +26,20 @@
 /* Gtk */
 #include <gtk/gtk.h>
 
+/* i18n */
+#include <glib/gi18n.h>
+
 /* Custom modules */
 #include "dbus_helper.h"
 #include "interface.h"
 
 gint main(gint argc, gchar **argv)
 {
+	/* i18n */
+	setlocale (LC_ALL, "");
+	bindtextdomain (PACKAGE, LOCALEDIR);
+	textdomain (PACKAGE);
+
 	AppData *app_data = NULL;
 
 	g_thread_init(NULL);

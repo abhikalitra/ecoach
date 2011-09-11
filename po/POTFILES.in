@@ -1,0 +1,24 @@
+# List of source files which contain translatable strings.
+src/ec-progress.h
+src/main.c
+src/general_settings.c
+src/interface.h
+src/interface.c
+src/ec-button.h
+src/navigation_menu.c
+src/target_heart_rate.c
+src/ec-progress.gob
+src/osm_gps_map/osm-gps-map.c
+src/hrm_settings.c
+src/calculate_bmi.c
+src/heart_rate_settings.c
+src/ecg_data.c
+src/calculate_maxheartrate.c
+src/ec_error.c
+src/upload_dlg.c
+src/activity.c
+src/heart_rate_settings.h
+src/ec-button.gob
+src/map_view.cc
+src/analyzer.c
+src/gpx.c

@@ -43,9 +43,20 @@ On each new release, please:
 4) Increment the package version to the same as in 1) and verify the correct
    maintainer address in configure.ac.
 
-5) Make sure your release builds and packages successfully in your local
+5) Increment the package version to the same as in 1) in map_view.cc
+
+6) Make sure your release builds and packages successfully in your local
    Scratchbox (FREMANTLE_ARMEL environment) and in the Maemo Garage build
    system.
 
-6) Tag the release by making an svn copy to the tags directory with the new
+7) Tag the release by making an svn copy to the tags directory with the new
    release version number.
+
+----
+
+The ecoach.pot file was created with this command:
+xgettext --files-from po/POTFILES.in -o po/ecoach.pot -k_ -kN_ \
+--from-code=UTF-8
+
+It will complain about the GOB files which it doesn't recognise. Generally the
+build tools should regenerate / modify this file if the sources have changed.

@@ -41,6 +41,9 @@
 #include "xml_util.h"
 #include "osea/ecgcodes.h"
 
+/* i18n */
+#include <glib/gi18n.h>
+
 #include "debug.h"
 
 /*****************************************************************************

@@ -19,6 +19,9 @@ Copyright (C) 2008, Sampo Savola, Kai Skiftesvik
 
 #include "calculate_maxheartrate.h"
 
+/* i18n */
+#include <glib/gi18n.h>
+
 static GtkSpinButton *spinner;
 static GtkLabel *val_label;
 
@@ -34,7 +37,7 @@ static void get_value( GtkWidget *widget,
 
 	maxheartrate = 205.8 - (0.685 * (double)vala);
 
-	char_maxheartrate = g_strdup_printf ("Your maximum heart rate is %2.0f", maxheartrate);
+	char_maxheartrate = g_strdup_printf (_("Your maximum heart rate is %2.0f"), maxheartrate);
 
 	gtk_label_set_text (val_label, char_maxheartrate);
 }
@@ -56,7 +59,7 @@ void show_calculate_maxheartrate(NavigationMenu *menu, GtkTreePath *path,
 	
 	/* Create the widgets */
 	
-	dialog = gtk_dialog_new_with_buttons ("Calculate Maximum Heart Rate",
+	dialog = gtk_dialog_new_with_buttons (_("Calculate Maximum Heart Rate"),
 						GTK_WINDOW(app_data->window),
 						GTK_DIALOG_MODAL,
 						GTK_STOCK_OK,
@@ -79,7 +82,7 @@ void show_calculate_maxheartrate(NavigationMenu *menu, GtkTreePath *path,
 	vbox2 = gtk_vbox_new (FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (hbox), vbox2, TRUE, TRUE, 5);
 
-	label = gtk_label_new ("Age:");
+	label = gtk_label_new (_("Age:"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 	gtk_box_pack_start (GTK_BOX (vbox2), label, FALSE, TRUE, 0);
 
@@ -95,14 +98,14 @@ void show_calculate_maxheartrate(NavigationMenu *menu, GtkTreePath *path,
 	vbox2 = gtk_vbox_new (FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (hbox), vbox2, TRUE, TRUE, 5);
 
-	label = gtk_label_new ("years");
+	label = gtk_label_new (_("years"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 	gtk_box_pack_start (GTK_BOX (vbox2), label, FALSE, TRUE, 0);
 
 	vbox2 = gtk_vbox_new (FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (hbox), vbox2, TRUE, TRUE, 5);
 
-	button = gtk_button_new_with_label ("Calculate");
+	button = gtk_button_new_with_label (_("Calculate"));
 	g_signal_connect (G_OBJECT (button), "clicked",
 			    G_CALLBACK (get_value),
 			    (gpointer) "");

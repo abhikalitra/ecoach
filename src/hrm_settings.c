@@ -36,6 +36,9 @@
 #include "marshal.h"
 #include "gconf_helper.h"
 
+/* i18n */
+#include <glib/gi18n.h>
+
 #define RESPONSE_CHANGE_DEVICE 1
 #define RESPONSE_REMOVE_DEVICE 5
 
@@ -542,7 +545,7 @@ static void hrm_remove(GeneralSettings *app_data){
   gtk_label_set_text(GTK_LABEL(app_data->hrm_data->settings_priv->lbl_bt_addr),_("<no device>"));
   gtk_dialog_set_response_sensitive(GTK_DIALOG(app_data->hrm_data->settings_priv->dialog),
 				    RESPONSE_REMOVE_DEVICE,FALSE);
-  gtk_label_set_text(GTK_LABEL(app_data->device_label),"none");
+  gtk_label_set_text(GTK_LABEL(app_data->device_label),_("none"));
   
   DEBUG_END();
 }

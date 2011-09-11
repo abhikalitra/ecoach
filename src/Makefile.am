@@ -118,6 +118,7 @@ AM_CPPFLAGS =				\
 	@LIBSOUP_CFLAGS@		\
 	@OAUTH_CFLAGS@			\
 	-DDATADIR=\"/usr/share/\"	\
+	-DLOCALEDIR=\"$(localedir)\" \
 	-Wall
 
 LIBS =					\

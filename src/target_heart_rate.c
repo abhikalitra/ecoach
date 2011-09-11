@@ -35,6 +35,9 @@
 /* Other modules */
 #include "interface.h"
 
+/* i18n */
+#include <glib/gi18n.h>
+
 #include "debug.h"
 
 
@@ -481,7 +484,7 @@ static void target_heart_rate_create_wizard(TargetHeartRate *self)
 	self->page_ids[THR_WIZARD_PAGE_REST_MAX] =
 		gtk_notebook_append_page(GTK_NOTEBOOK(self->notebook),
 			self->vbox_rest_max_hr,
-			gtk_label_new("Start values"));
+			gtk_label_new(_("Start values")));
 
 	/* Explanation page for the heart rate ranges */
 	self->lbl_ranges_explanation = gtk_label_new(

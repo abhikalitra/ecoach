@@ -47,6 +47,9 @@
 #include "calculate_maxheartrate.h"
 #include "util.h"
 
+/* i18n */
+#include <glib/gi18n.h>
+
 #include "debug.h"
 
 /*****************************************************************************
@@ -275,8 +278,8 @@ AppData *interface_create()
 	
 	if(!notify_user_data){
 	 
-	  GtkWidget *note = hildon_note_new_information(GTK_WINDOW(app_data->window),"This seems to be the first time you use eCoach.\n"
-	  "Please fill in the user data in the settings view");
+	  GtkWidget *note = hildon_note_new_information(GTK_WINDOW(app_data->window),_("This seems to be the first time you use eCoach.\n"
+	  "Please fill in the user data in the settings view"));
 	  gtk_widget_show(note);
 	  gconf_helper_set_value_bool_simple(app_data->gconf_helper,NOTIFY_USER,TRUE);	  
 	}

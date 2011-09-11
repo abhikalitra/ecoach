@@ -30,6 +30,9 @@
 /* Other modules */
 #include "gconf_keys.h"
 
+/* i18n */
+#include <glib/gi18n.h>
+
 #include "debug.h"
 
 /*****************************************************************************

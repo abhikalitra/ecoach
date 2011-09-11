@@ -37,6 +37,9 @@ char *TOKEN_SEC;
 #include <stdlib.h>
 #include <hildon/hildon.h>
 
+/* i18n */
+#include <glib/gi18n.h>
+
 static void authorized_clicked(GtkWidget *button,gpointer user_data);
 static int get_request_token(AnalyzerView *data);
 static void  show_information_note(GtkWidget *parent);
@@ -63,87 +66,87 @@ void upload(AnalyzerView *data){
     if(data->status){
         int sport_type =0;
 
-        if(!g_ascii_strcasecmp("Running",data->name)){
+        if(!g_ascii_strcasecmp(_("Running"),data->name)){
 
             sport_type =1;
         }
-        if(!g_ascii_strcasecmp("Cycling",data->name)){
+        if(!g_ascii_strcasecmp(_("Cycling"),data->name)){
 
             sport_type =2;
         }
-        if(!g_ascii_strcasecmp("Walking",data->name)){
+        if(!g_ascii_strcasecmp(_("Walking"),data->name)){
 
             sport_type =14;
         }
-        if(!g_ascii_strcasecmp("Nordic Walking",data->name)){
+        if(!g_ascii_strcasecmp(_("Nordic Walking"),data->name)){
 
             sport_type =4;
         }
-        if(!g_ascii_strcasecmp("Skiing",data->name)){
+        if(!g_ascii_strcasecmp(_("Skiing"),data->name)){
 
             sport_type =6;
         }
-        if(!g_ascii_strcasecmp("Roller skating",data->name)){
+        if(!g_ascii_strcasecmp(_("Roller skating"),data->name)){
 
             sport_type =8;
         }
-        if(!g_ascii_strcasecmp("Alpine skiing",data->name)){
+        if(!g_ascii_strcasecmp(_("Alpine skiing"),data->name)){
 
             sport_type =33;
         }
-        if(!g_ascii_strcasecmp("Rowing",data->name)){
+        if(!g_ascii_strcasecmp(_("Rowing"),data->name)){
 
             sport_type =40;
         }
-        if(!g_ascii_strcasecmp("Riding",data->name)){
+        if(!g_ascii_strcasecmp(_("Riding"),data->name)){
 
             sport_type =45;
         }
-        if(!g_ascii_strcasecmp("Mountain biking",data->name)){
+        if(!g_ascii_strcasecmp(_("Mountain biking"),data->name)){
 
             sport_type =49;
         }
-        if(!g_ascii_strcasecmp("Snowboarding",data->name)){
+        if(!g_ascii_strcasecmp(_("Snowboarding"),data->name)){
 
             sport_type =55;
         }
-        if(!g_ascii_strcasecmp("Snowshoeing",data->name)){
+        if(!g_ascii_strcasecmp(_("Snowshoeing"),data->name)){
 
             sport_type =56;
         }
-        if(!g_ascii_strcasecmp("Orienteering",data->name)){
+        if(!g_ascii_strcasecmp(_("Orienteering"),data->name)){
 
             sport_type =57;
         }
-        if(!g_ascii_strcasecmp("Sailing",data->name)){
+        if(!g_ascii_strcasecmp(_("Sailing"),data->name)){
 
             sport_type =72;
         }
-        if(!g_ascii_strcasecmp("Hiking",data->name)){
+        if(!g_ascii_strcasecmp(_("Hiking"),data->name)){
 
             sport_type =79;
         }
-        if(!g_ascii_strcasecmp("Roller skiing",data->name)){
+        if(!g_ascii_strcasecmp(_("Roller skiing"),data->name)){
 
             sport_type =102;
         }
-        if(!g_ascii_strcasecmp("Telemark skiing",data->name)){
+        if(!g_ascii_strcasecmp(_("Telemark skiing"),data->name)){
 
             sport_type =149;
         }
-        if(!g_ascii_strcasecmp("Jogging",data->name)){
+        if(!g_ascii_strcasecmp(_("Jogging"),data->name)){
 
             sport_type =148;
         }
-        if(!g_ascii_strcasecmp("Walking the dog",data->name)){
+        if(!g_ascii_strcasecmp(_("Walking the dog"),data->name)){
 
             sport_type =220;
         }
-        if(!g_ascii_strcasecmp("Golf",data->name)){
+        if(!g_ascii_strcasecmp(_("Golf"),data->name)){
 
             sport_type =9;
         }
-        if(!g_ascii_strcasecmp("Frisbeegolf",data->name)){
+        if(!g_ascii_strcasecmp(_("Frisbeegolf"),data->name)){
 
             sport_type =77;
         }
@@ -162,7 +165,7 @@ void upload(AnalyzerView *data){
         time_src = data->start_time.tv_sec;
         gmtime_r(&time_src, &time_dest);
         gchar* date_string  = g_strdup_printf(
-                ("%04d-%02d-%02d"),
+                (_("%04d-%02d-%02d")),
                 time_dest.tm_year + 1900,
                 time_dest.tm_mon + 1,
                 time_dest.tm_mday);
@@ -196,11 +199,11 @@ void upload(AnalyzerView *data){
         printf("\nREPLY:'%s'\n",reply);
         if(g_strrstr(reply,"training-log") != NULL){
 
-            hildon_banner_show_information(GTK_WIDGET(data->win),NULL,"Successfully uploaded to HeiaHeia!");
+            hildon_banner_show_information(GTK_WIDGET(data->win),NULL,_("Successfully uploaded to HeiaHeia!"));
         }
      	if(g_strrstr(reply,"<error>") != NULL){
 
-            hildon_banner_show_information(GTK_WIDGET(data->win),NULL,"Uploading to HeiaHeia failed!");
+            hildon_banner_show_information(GTK_WIDGET(data->win),NULL,_("Uploading to HeiaHeia failed!"));
         }
 	g_free(gp);
 	g_free(gpx);
@@ -225,11 +228,11 @@ static int show_authorize_dlg(AnalyzerView *data,gchar *url){
     GtkWidget *authorized;
     GtkWidget *hbox;
     int status = 0;
-    data->dialog = gtk_dialog_new_with_buttons("Authorization",
+    data->dialog = gtk_dialog_new_with_buttons(_("Authorization"),
                                                GTK_WINDOW(data->win),
                                                GTK_DIALOG_DESTROY_WITH_PARENT,
                                                NULL);
-    authorized = gtk_button_new_with_label("Authorized");
+    authorized = gtk_button_new_with_label(_("Authorized"));
     g_signal_connect (G_OBJECT (authorized), "clicked",
                       G_CALLBACK (authorized_clicked), (gpointer)data);
     gtk_widget_set_size_request(authorized,200,200);
@@ -238,7 +241,7 @@ static int show_authorize_dlg(AnalyzerView *data,gchar *url){
     GtkWidget *area = gtk_dialog_get_content_area(GTK_DIALOG(data->dialog));
     gtk_container_add (GTK_CONTAINER (area), hbox);
 
-    gtk_window_set_title(GTK_WINDOW(data->dialog), "Authorization");
+    gtk_window_set_title(GTK_WINDOW(data->dialog), _("Authorization"));
     gtk_widget_set_size_request(data->dialog,800,100);
     gtk_widget_show_all(data->dialog);
     osso_rpc_t retval;
@@ -332,9 +335,9 @@ static void
     GtkWidget *note;
     gint response;
     note = hildon_note_new_information (NULL,
-                                        "Before you can upload activity to HeiaHeia you have to allow eCoach to connect your account.\n"
+                                        _("Before you can upload activity to HeiaHeia you have to allow eCoach to connect your account.\n"
                                         "eCoach will now open new browser window.\n"
-                                        "Once you have authrized eCoach, press \"Authorized\" button on eCoach.");
+                                        "Once you have authorized eCoach, press \"Authorized\" button on eCoach."));
     response = gtk_dialog_run (GTK_DIALOG (note));
     if (response == GTK_RESPONSE_DELETE_EVENT)
         g_debug ("%s: GTK_RESPONSE_DELETE_EVENT", __FUNCTION__);

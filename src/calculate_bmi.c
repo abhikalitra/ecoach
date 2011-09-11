@@ -26,6 +26,9 @@ Copyright (C) 2008, Sampo Savola, Kai Skiftesvik
 #include "hildon/hildon-touch-selector.h"
 #include "hildon/hildon-touch-selector-entry.h"
 
+/* i18n */
+#include <glib/gi18n.h>
+
 static void get_value( GtkWidget *widget,
                        gpointer user_data )
 {
@@ -83,15 +86,15 @@ static void get_value( GtkWidget *widget,
 
 //	app_data->bmidata->bmi = 23;
 	if (app_data->bmidata->bmi <= 16.5) { 
-		app_data->bmidata->char_bmi = g_strdup_printf ("Your BMI is %2.1f = severly underweight", app_data->bmidata->bmi);
+		app_data->bmidata->char_bmi = g_strdup_printf (_("Your BMI is %2.1f = severly underweight"), app_data->bmidata->bmi);
 	} else if (app_data->bmidata->bmi > 16.5 && app_data->bmidata->bmi <= 18.5) {
-		app_data->bmidata->char_bmi = g_strdup_printf ("Your BMI is %2.1f = underweight", app_data->bmidata->bmi);
+		app_data->bmidata->char_bmi = g_strdup_printf (_("Your BMI is %2.1f = underweight"), app_data->bmidata->bmi);
 	} else if (app_data->bmidata->bmi > 18.5 && app_data->bmidata->bmi <= 25) {
-		app_data->bmidata->char_bmi = g_strdup_printf ("Your BMI is %2.1f = normal", app_data->bmidata->bmi);
+		app_data->bmidata->char_bmi = g_strdup_printf (_("Your BMI is %2.1f = normal"), app_data->bmidata->bmi);
 	} else if (app_data->bmidata->bmi > 25 && app_data->bmidata->bmi <= 30) {
-		app_data->bmidata->char_bmi = g_strdup_printf ("Your BMI is %2.1f = overweight", app_data->bmidata->bmi);
+		app_data->bmidata->char_bmi = g_strdup_printf (_("Your BMI is %2.1f = overweight"), app_data->bmidata->bmi);
 	} else if (app_data->bmidata->bmi > 30) {
-		app_data->bmidata->char_bmi = g_strdup_printf ("Your BMI is %gchar *char_bmi;2.1f = obese", app_data->bmidata->bmi);
+		app_data->bmidata->char_bmi = g_strdup_printf (_("Your BMI is %gchar *char_bmi;2.1f = obese"), app_data->bmidata->bmi);
 	}
 
 	gtk_label_set_text (GTK_LABEL(app_data->bmidata->val_label), app_data->bmidata->char_bmi);
@@ -117,16 +120,16 @@ void show_calculate_bmi(NavigationMenu *menu, GtkTreePath *path,
                                 HILDON_BUTTON_ARRANGEMENT_HORIZONTAL);
 	
 
-	hildon_button_set_title (HILDON_BUTTON (app_data->bmidata->height_picker), "Height:");
+	hildon_button_set_title (HILDON_BUTTON (app_data->bmidata->height_picker), _("Height:"));
 
-	hildon_button_set_title (HILDON_BUTTON (app_data->bmidata->weight_picker), "Weight:");
+	hildon_button_set_title (HILDON_BUTTON (app_data->bmidata->weight_picker), _("Weight:"));
 
 	HildonTouchSelector *height_selector = HILDON_TOUCH_SELECTOR (
                                 hildon_touch_selector_entry_new_text ());
 	int i = 100;
 	for(;i< 240;i++){
 	gchar *number;
-	number = g_strdup_printf("%d cm",i);
+	number = g_strdup_printf(_("%d cm"),i);
 	hildon_touch_selector_append_text (height_selector, number);
 	g_free(number);
 	  }
@@ -137,7 +140,7 @@ void show_calculate_bmi(NavigationMenu *menu, GtkTreePath *path,
 	int j = 0;
 	for(;j< 300;j++){
 	gchar *number;
-	number = g_strdup_printf("%d kg",j);
+	number = g_strdup_printf(_("%d kg"),j);
 	hildon_touch_selector_append_text (weight_selector, number);
 	g_free(number);
 	  }
@@ -167,7 +170,7 @@ void show_calculate_bmi(NavigationMenu *menu, GtkTreePath *path,
 			//			GTK_DIALOG_MODAL,
 			//			NULL);
 	dialog = gtk_dialog_new();
-	gtk_window_set_title(GTK_WINDOW(dialog),"Calculate BMI");
+	gtk_window_set_title(GTK_WINDOW(dialog),_("Calculate BMI"));
 
 
 
@@ -178,11 +181,11 @@ void show_calculate_bmi(NavigationMenu *menu, GtkTreePath *path,
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
 			table);
 
-	//label = gtk_label_new ("Height:");
+	//label = gtk_label_new (_("Height:"));
 	gtk_table_attach_defaults(GTK_TABLE (table), app_data->bmidata->height_picker, 0, 1, 0, 1);
 	gtk_table_attach_defaults(GTK_TABLE (table), app_data->bmidata->weight_picker, 1, 2, 0, 1);
 
-	//label = gtk_label_new ("Weight:");
+	//label = gtk_label_new (_("Weight:"));
 	//gtk_table_attach_defaults(GTK_TABLE (table), label, 0, 1, 1, 2);
 
 	if (gconf_helper_get_value_bool_with_default(app_data->gconf_helper, 
@@ -193,13 +196,13 @@ void show_calculate_bmi(NavigationMenu *menu, GtkTreePath *path,
 	//	adj = (GtkAdjustment *) gtk_adjustment_new (180.0, 100.0, 250.0, 1.0,
 	//						    5.0, 0.0);
 
-	//	label = gtk_label_new ("cm");
+	//	label = gtk_label_new (_("cm"));
 	//	gtk_table_attach_defaults(GTK_TABLE (table), label, 2, 3, 0, 1);
 
 	//	adj3 = (GtkAdjustment *) gtk_adjustment_new (75.0, 40.0, 180.0, 1.0,
 	//						    5.0, 0.0);
 
-	//	label = gtk_label_new ("kg");
+	//	label = gtk_label_new (_("kg"));
 	//	gtk_table_attach_defaults(GTK_TABLE (table), label, 2, 3, 1, 2);
 
 	} else {
@@ -209,7 +212,7 @@ void show_calculate_bmi(NavigationMenu *menu, GtkTreePath *path,
 		adj = (GtkAdjustment *) gtk_adjustment_new (5.0, 0.0, 10.0, 1.0,
 						    5.0, 0.0);
 
-		label = gtk_label_new ("ft");
+		label = gtk_label_new (_("ft"));
 		gtk_table_attach_defaults(GTK_TABLE (table), label, 2, 3, 0, 1);
 
 		adj2 = (GtkAdjustment *) gtk_adjustment_new (11.0, 0.0, 11.0, 1.0,
@@ -218,13 +221,13 @@ void show_calculate_bmi(NavigationMenu *menu, GtkTreePath *path,
 		gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (spinner2), TRUE);
 		gtk_table_attach_defaults(GTK_TABLE (table), spinner2, 3, 4, 0, 1);
 
-		label = gtk_label_new ("in");
+		label = gtk_label_new (_("in"));
 		gtk_table_attach_defaults(GTK_TABLE (table), label, 4, 5, 0, 1);
 	
 		adj3 = (GtkAdjustment *) gtk_adjustment_new (165.0, 90.0, 400.0, 1.0,
 							5.0, 0.0);
 	
-		label = gtk_label_new ("lb");
+		label = gtk_label_new (_("lb"));
 		gtk_table_attach_defaults(GTK_TABLE (table), label, 2, 3, 1, 2);
 	*/
 	  }
@@ -240,7 +243,7 @@ void show_calculate_bmi(NavigationMenu *menu, GtkTreePath *path,
 
 	button = hildon_button_new (HILDON_SIZE_AUTO_WIDTH | HILDON_SIZE_FINGER_HEIGHT,
                                 HILDON_BUTTON_ARRANGEMENT_VERTICAL);
-	hildon_button_set_text (HILDON_BUTTON (button), "Calculate", NULL);
+	hildon_button_set_text (HILDON_BUTTON (button), _("Calculate"), NULL);
 
 
 	g_signal_connect (G_OBJECT (button), "clicked",
